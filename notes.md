@@ -7,6 +7,10 @@ Ideas
 - Fortify and play defense
     - If I have more Archons than enemy, transition to defensive
 - Scouting enemy strategy
+- Cannon rush
+    - Builder builds watchtowers around enemy base
+    - Builder builds watchtowers in unoccupied location and watchtowers move to enemy base
+- Play defensive on long maps and rush on short maps
 - Gather data of tournament map
 
 William's Changelog
