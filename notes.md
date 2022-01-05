@@ -72,3 +72,9 @@ William's Changelog
             - Second to last bit is whether unit is alive or not
             - Last bit is whether unit has been seen at least once
             - x | x | x | x | x | x | y | y | y | y | y | y | alive | seen
+
+Paige's Notes
+- pathfinding
+    - soldiers + sages + other units - long distance
+    - miners - short distance. avoid enemy soldiers, sages, turrets
+    - individual short distance algorithms for each unit
