@@ -75,6 +75,14 @@ William's Changelog
 
 Paige's Notes
 - pathfinding
-    - soldiers + sages + other units - long distance
-    - miners - short distance. avoid enemy soldiers, sages, turrets
+    - long distance general purpose pathfinding algorithm
     - individual short distance algorithms for each unit
+         - miners
+             - highest priority is to avoid enemy hostile units
+             - mine gold if possible
+             - move towards gold if possible and visible
+             - mine lead if possible
+             - move towards lead if possible and visible
+             - search unexplored areas for lead
+         - soldiers + sages
+             - later
