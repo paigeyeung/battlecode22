@@ -29,6 +29,9 @@ William's Changelog
             - If can build soldier, build solder
             - Otherwise, if there is a damaged soldier, repair it
         - Try to build in direction of enemy
+    - w5
+        - Build miner / builder / soldier in 30% / 10% / 60%
+        - If turn above 500, don't spend lead if below 200 
 - Miner
     - example
         - Try to mine gold and lead if there’s any around us
@@ -38,6 +41,11 @@ William's Changelog
     - future
         - Try mine gold, then try move towards gold, then try mine lead, then try move towards lead
 - Builder
+    - w5
+        - Try to repair prototype building
+        - Try to repair damaged building
+        - Try to build watchtower every 200 turns
+        - Move randomly if there are no my buildings in actionable range
 - Soldier
     - example
         - Try to attack enemy if there’s any around us
@@ -56,6 +64,8 @@ William's Changelog
 - Sage
 - Laboratory
 - Watchtower
+    - w5
+        - Try to attack enemy
 - Any unit
     - example
         - Track turn count in static variable
@@ -66,6 +76,8 @@ William's Changelog
         - Droids help update Archons seen and alive in shared array
     - future
         - Search for enemy Archons in radius if it is missing
+        - First Archon to run is resource manager for the turn
+        - Locally evaluate combat score to determine attack/retreat
         - Remove seeded randomness
 - Shared array
     - w2

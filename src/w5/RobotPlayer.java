@@ -1,4 +1,4 @@
-package w4;
+package w5;
 
 import battlecode.common.*;
 
@@ -28,7 +28,7 @@ public strictfp class RobotPlayer {
      * import at the top of this file. Here, we *seed* the RNG with a constant number (6147); this makes sure
      * we get the same sequence of numbers every time this code is run. This is very useful for debugging!
      */
-    static final Random rng = new Random(1);
+    static final Random rng = new Random(3);
     static Direction getRandomDirection() {
 //        return DIRECTIONS[new Random(System.nanoTime()).nextInt(DIRECTIONS.length)];
         return DIRECTIONS[rng.nextInt(DIRECTIONS.length)];
@@ -104,13 +104,13 @@ public strictfp class RobotPlayer {
                 // this into a different control structure!
                 runAllEarly(rc);
                 switch (rc.getType()) {
-                    case ARCHON:     runArchon(rc);  break;
-                    case MINER:      runMiner(rc);   break;
-                    case BUILDER:    break;
+                    case ARCHON:     runArchon(rc); break;
+                    case MINER:      runMiner(rc); break;
+                    case BUILDER:    runBuilder(rc); break;
                     case SOLDIER:    runSoldier(rc); break;
                     case SAGE:       break;
                     case LABORATORY: break;
-                    case WATCHTOWER: break;
+                    case WATCHTOWER: runWatchtower(rc); break;
                 }
                 runAllLate(rc);
             } catch (GameActionException e) {
@@ -149,6 +149,9 @@ public strictfp class RobotPlayer {
      * Returns null if no direction is found
      */
     static Direction getBuildDirection(RobotController rc, RobotType robotType, Direction preferredDirection) {
+        if (preferredDirection == null) {
+            preferredDirection = getRandomDirection();
+        }
         if (rc.canBuildRobot(robotType, preferredDirection)) {
             return preferredDirection;
         }
@@ -164,7 +167,7 @@ public strictfp class RobotPlayer {
         }
         int leftDirectionIndex = preferredDirectionIndex - 1;
         int rightDirectionIndex = preferredDirectionIndex + 1;
-        while (leftDirectionIndex != preferredDirectionIndex && rightDirectionIndex != preferredDirectionIndex) {
+        for (int i = 0; i < 4; i++) {
             if (leftDirectionIndex < 0) {
                 leftDirectionIndex = DIRECTIONS.length - 1;
             }
@@ -368,8 +371,27 @@ public strictfp class RobotPlayer {
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
     static boolean archonBroadcastedLocation = false;
+    static int archonTotalBuilt = 0;
     static int archonMinersBuilt = 0;
+    static int archonBuildersBuilt = 0;
     static int archonSoldiersBuilt = 0;
+    static void archonBuild(RobotController rc, RobotType robotType, Direction buildDirection) throws GameActionException  {
+        rc.buildRobot(robotType, buildDirection);
+        switch (robotType) {
+            case MINER: archonMinersBuilt++; break;
+            case BUILDER: archonBuildersBuilt++; break;
+            case SOLDIER: archonSoldiersBuilt++; break;
+        }
+        archonTotalBuilt++;
+    }
+    static boolean archonTryBuild(RobotController rc, RobotType robotType, Direction preferredDirection) throws GameActionException {
+        Direction buildDirection = getBuildDirection(rc, robotType, preferredDirection);
+        if (buildDirection != null) {
+            archonBuild(rc, robotType, buildDirection);
+            return true;
+        }
+        return false;
+    }
     static void runArchon(RobotController rc) throws GameActionException {
         // Broadcast my location in shared array indicies 0-3 and instantiate enemy in indicies 4-7
         if (!archonBroadcastedLocation) {
@@ -400,15 +422,11 @@ public strictfp class RobotPlayer {
         }
 
         // If there are hostile enemies nearby, build soldiers and repair soldiers
-        // Otherwise, build 50% / 50% miners and soldiers
+        // Otherwise, build miner / builder / soldier in specified proportion
         RobotInfo[] visibleEnemies = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam().opponent());
         if (visibleEnemies.length > 0) {
             // Hostile enemies nearby
-            Direction buildDirection = getBuildDirection(rc, RobotType.SOLDIER, rc.getLocation().directionTo(visibleEnemies[0].location));
-            if (buildDirection != null) {
-                // Build soldier
-                rc.buildRobot(RobotType.SOLDIER, buildDirection);
-                archonSoldiersBuilt++;
+            if (archonTryBuild(rc, RobotType.SOLDIER, rc.getLocation().directionTo(visibleEnemies[0].location))) {
             }
             else {
                 // Repair soldier
@@ -425,17 +443,15 @@ public strictfp class RobotPlayer {
         }
         else {
             // No hostile enemies nearby
-            Direction dir = getRandomDirection();
-            if (archonMinersBuilt < archonSoldiersBuilt) {
-                if (rc.canBuildRobot(RobotType.MINER, dir)) {
-                    rc.buildRobot(RobotType.MINER, dir);
-                    archonMinersBuilt++;
+            if (turnCount < 500 || rc.getTeamLeadAmount(rc.getTeam()) > 200) {
+                if (archonMinersBuilt < archonTotalBuilt * 0.3) {
+                    archonTryBuild(rc, RobotType.MINER, null);
                 }
-            }
-            else {
-                if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                    rc.buildRobot(RobotType.SOLDIER, dir);
-                    archonSoldiersBuilt++;
+                else if (archonBuildersBuilt < archonTotalBuilt * 0.1) {
+                    archonTryBuild(rc, RobotType.BUILDER, null);
+                }
+                else {
+                    archonTryBuild(rc, RobotType.SOLDIER, null);
                 }
             }
         }
@@ -472,6 +488,69 @@ public strictfp class RobotPlayer {
         Direction dir = getRandomDirection();
         if (rc.canMove(dir)) {
             rc.move(dir);
+        }
+    }
+
+    /**
+     * Run a single turn for a Builder.
+     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
+     */
+    static int builderTotalBuilt = 0;
+    static int builderWatchtowersBuilt = 0;
+    static void builderBuild(RobotController rc, RobotType robotType, Direction buildDirection) throws GameActionException {
+        rc.buildRobot(robotType, buildDirection);
+        switch (robotType) {
+            case WATCHTOWER: builderWatchtowersBuilt++; break;
+        }
+        builderTotalBuilt++;
+    }
+    static boolean builderTryBuild(RobotController rc, RobotType robotType, Direction preferredDirection) throws GameActionException {
+        Direction buildDirection = getBuildDirection(rc, robotType, preferredDirection);
+        if (buildDirection != null) {
+            builderBuild(rc, robotType, buildDirection);
+            return true;
+        }
+        return false;
+    }
+    static void runBuilder(RobotController rc) throws GameActionException {
+        MapLocation myLocation = rc.getLocation();
+
+        // Try to repair prototype building
+        RobotInfo[] actionableMine = rc.senseNearbyRobots(rc.getType().actionRadiusSquared, rc.getTeam());
+        for (int i = 0; i < actionableMine.length; i++) {
+            RobotInfo myRobot = actionableMine[i];
+            if (Arrays.asList(BUILDINGS).contains(myRobot.getType())) {
+                if (myRobot.getMode() == RobotMode.PROTOTYPE) {
+                    if (rc.canRepair(myRobot.location)) {
+                        rc.repair(myRobot.location);
+                    }
+                }
+            }
+        }
+
+        // Try to repair damaged building
+        for (int i = 0; i < actionableMine.length; i++) {
+            RobotInfo myRobot = actionableMine[i];
+            if (Arrays.asList(BUILDINGS).contains(myRobot.getType())) {
+                if (myRobot.getHealth() < myRobot.getType().getMaxHealth(myRobot.getLevel())) {
+                    if (rc.canRepair(myRobot.location)) {
+                        rc.repair(myRobot.location);
+                    }
+                }
+            }
+        }
+
+        // Try to build watchtower
+        if (turnCount > (builderWatchtowersBuilt + 1) * 200) {
+            builderTryBuild(rc, RobotType.WATCHTOWER, null);
+        }
+
+        // Move randomly
+        if (actionableMine.length == 0 || actionableMine.length > 5) {
+            Direction dir = getRandomDirection();
+            if (rc.canMove(dir)) {
+                rc.move(dir);
+            }
         }
     }
 
@@ -537,6 +616,24 @@ public strictfp class RobotPlayer {
         }
         if (rc.canMove(dir)) {
             rc.move(dir);
+        }
+    }
+
+    /**
+     * Run a single turn for a Watchtower.
+     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
+     */
+    static void runWatchtower(RobotController rc) throws GameActionException {
+        // Try to attack
+        // DUPLICATED CODE FROM SOLDIER
+        RobotInfo[] actionableEnemies = rc.senseNearbyRobots(rc.getType().actionRadiusSquared, rc.getTeam().opponent());
+        if (actionableEnemies.length > 0) {
+            RobotInfo targetEnemy = actionableEnemies[0];
+
+            MapLocation toAttack = targetEnemy.location;
+            if (rc.canAttack(toAttack)) {
+                rc.attack(toAttack);
+            }
         }
     }
 }
