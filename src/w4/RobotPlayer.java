@@ -143,6 +143,11 @@ public strictfp class RobotPlayer {
     static MapLocation getOppositeLocation(MapLocation location, boolean flipHorizontal, boolean flipVertical) {
         return new MapLocation(flipHorizontal ? (mapWidth - location.x - 1) : location.x, flipVertical ? (mapHeight - location.y - 1) : location.y);
     }
+
+    /**
+     * Get the vadid build direction nearest to the preferred direction
+     * Returns null if no direction is found
+     */
     static Direction getBuildDirection(RobotController rc, RobotType robotType, Direction preferredDirection) {
         if (rc.canBuildRobot(robotType, preferredDirection)) {
             return preferredDirection;
