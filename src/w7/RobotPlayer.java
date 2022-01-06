@@ -313,16 +313,39 @@ public strictfp class RobotPlayer {
         HOLD,
         ATTACK
     }
+    static HOSTILE_DROID_ACTIONS[] hostileDroidRecentActions = new HOSTILE_DROID_ACTIONS[3];
     static HOSTILE_DROID_ACTIONS getHostileDroidAction(RobotController rc) throws GameActionException {
         double myCombatScore = evaluateLocalCombatScore(rc, rc.getTeam(), false);
         double enemyCombatScore = evaluateLocalCombatScore(rc, rc.getTeam().opponent(), true);
+        HOSTILE_DROID_ACTIONS chosenAction = HOSTILE_DROID_ACTIONS.ATTACK;
         if (enemyCombatScore > myCombatScore * 0.5) {
-            return HOSTILE_DROID_ACTIONS.RETREAT;
+            chosenAction = HOSTILE_DROID_ACTIONS.RETREAT;
         }
-//        else if (myCombatScore * 1.1 > enemyCombatScore) {
-//            return HOSTILE_DROID_ACTIONS.HOLD;
-//        }
-        return HOSTILE_DROID_ACTIONS.ATTACK;
+        int emptyIndex = -1;
+        for (int i = 0; i < hostileDroidRecentActions.length; i++) {
+            if (hostileDroidRecentActions[i] == null) {
+                emptyIndex = i;
+                break;
+            }
+        }
+        if (emptyIndex == -1) {
+            // All array elements are filled
+            for (int i = 0; i < hostileDroidRecentActions.length - 1; i++) {
+                hostileDroidRecentActions[i] = hostileDroidRecentActions[i + 1];
+            }
+            hostileDroidRecentActions[hostileDroidRecentActions.length - 1] = chosenAction;
+            // Perform chosen action unless previous two were both something else
+            if (chosenAction != hostileDroidRecentActions[0] && hostileDroidRecentActions[0] == hostileDroidRecentActions[1]) {
+                return hostileDroidRecentActions[0];
+            }
+            else {
+                return chosenAction;
+            }
+        }
+        else {
+            hostileDroidRecentActions[emptyIndex] = chosenAction;
+            return chosenAction;
+        }
     }
 
     /**
