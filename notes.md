@@ -65,6 +65,10 @@ William's Changelog
     - w3
         - If hostile enemy is nearby, move towards my Archon
         - If peaceful enemy is nearby, move towards enemy
+    - w6
+        - Smart selection of attack target
+    - w7
+        - Evaluate combat for decision making
 - Sage
 - Laboratory
 - Watchtower
@@ -80,7 +84,6 @@ William's Changelog
         - Droids help update Archons seen and alive in shared array
     - w6
         - Track starting Archon in static variable
-        - Attackers smart local selection of enemy target
     - future
         - Search for enemy Archons in radius if it is missing
         - First Archon to run is resource manager for the turn
