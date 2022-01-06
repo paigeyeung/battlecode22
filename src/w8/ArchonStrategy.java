@@ -49,7 +49,7 @@ strictfp class ArchonStrategy {
             }
             else {
                 MapLocation myLocation = rc.getLocation();
-                int encodedMyArchonTracker = ArchonTrackerManager.encodeMyArchonTracker(new ArchonTrackerManager.MyArchonTracker(true, myLocation));
+                int encodedMyArchonTracker = ArchonTrackerManager.encodeAllyArchonTracker(new ArchonTrackerManager.AllyArchonTracker(true, myLocation));
                 rc.writeSharedArray(i, encodedMyArchonTracker);
                 System.out.println("Broadcasted my Archon location " + myLocation + " as " + encodedMyArchonTracker);
 
@@ -61,28 +61,28 @@ strictfp class ArchonStrategy {
             }
         }
 
-        // If there are hostile enemies nearby, build soldiers and repair soldiers
+        // If there are combat enemies nearby, build soldiers and repair soldiers
         // Otherwise, build droids
         RobotInfo[] visibleEnemies = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam().opponent());
         if (visibleEnemies.length > 0) {
-            // Hostile enemies nearby
+            // Combat enemies nearby
             if (archonTryBuild(rc, RobotType.SOLDIER, rc.getLocation().directionTo(visibleEnemies[0].location))) {
             }
             else {
                 // Repair soldier
-                RobotInfo[] actionableMine = rc.senseNearbyRobots(rc.getType().actionRadiusSquared, rc.getTeam());
-                for (int i = 0; i < actionableMine.length; i++) {
-                    RobotInfo myRobot = actionableMine[i];
-                    if (myRobot.type == RobotType.SOLDIER && myRobot.getHealth() < myRobot.getType().getMaxHealth(myRobot.getLevel())) {
-                        if (rc.canRepair(myRobot.location)) {
-                            rc.repair(myRobot.location);
+                RobotInfo[] actionableAllies = rc.senseNearbyRobots(rc.getType().actionRadiusSquared, rc.getTeam());
+                for (int i = 0; i < actionableAllies.length; i++) {
+                    RobotInfo allyRobot = actionableAllies[i];
+                    if (allyRobot.type == RobotType.SOLDIER && allyRobot.getHealth() < allyRobot.getType().getMaxHealth(allyRobot.getLevel())) {
+                        if (rc.canRepair(allyRobot.location)) {
+                            rc.repair(allyRobot.location);
                         }
                     }
                 }
             }
         }
         else {
-            // No hostile enemies nearby
+            // No combat enemies nearby
             if (minersBuilt < totalDroidsBuilt * 0.3) {
                 archonTryBuild(rc, RobotType.MINER, null);
             }

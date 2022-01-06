@@ -7,8 +7,8 @@ import java.util.Arrays;
 strictfp class AllUnitStrategy {
     /** Called by RobotPlayer before any other function */
     static void runAllEarly(RobotController rc) throws GameActionException {
-        // Read my Archons from shared array indicies 0-3 and enemy Archons from indicies 4-7
-        // If this is the first turn of the game, wait until next turn before reading so my Archons can broadcast first
+        // Read ally Archons from shared array indicies 0-3 and enemy Archons from indicies 4-7
+        // If this is the first turn of the game, wait until next turn before reading so ally Archons can broadcast first
         if (!ArchonTrackerManager.receivedArchonTrackers && !(rc.getType() == RobotType.ARCHON && GeneralManager.turnCount == 1)) {
             int numArchons = 0;
             while (numArchons <= 3) {
@@ -19,9 +19,9 @@ strictfp class AllUnitStrategy {
                 numArchons++;
             }
 
-            ArchonTrackerManager.myArchonTrackers = new ArchonTrackerManager.MyArchonTracker[numArchons];
+            ArchonTrackerManager.allyArchonTrackers = new ArchonTrackerManager.AllyArchonTracker[numArchons];
             for (int i = 0; i < numArchons; i++) {
-                ArchonTrackerManager.myArchonTrackers[i] = ArchonTrackerManager.decodeMyArchonTracker(rc.readSharedArray(i));
+                ArchonTrackerManager.allyArchonTrackers[i] = ArchonTrackerManager.decodeAllyArchonTracker(rc.readSharedArray(i));
             }
 
             ArchonTrackerManager.enemyArchonTrackers = new ArchonTrackerManager.EnemyArchonTracker[numArchons];
@@ -30,9 +30,9 @@ strictfp class AllUnitStrategy {
             }
 
             // Identify which Archon built me
-            ArchonTrackerManager.MyArchonTracker myStartingArchon = ArchonTrackerManager.getNearestMyArchon(GeneralManager.startingLocation);
-            for (int i = 0; i < ArchonTrackerManager.myArchonTrackers.length; i++) {
-                if (myStartingArchon == ArchonTrackerManager.myArchonTrackers[i]) {
+            ArchonTrackerManager.AllyArchonTracker myStartingArchon = ArchonTrackerManager.getNearestAllyArchon(GeneralManager.startingLocation);
+            for (int i = 0; i < ArchonTrackerManager.allyArchonTrackers.length; i++) {
+                if (myStartingArchon == ArchonTrackerManager.allyArchonTrackers[i]) {
                     ArchonTrackerManager.myStartingArchonIndex = i;
                     break;
                 }
@@ -50,10 +50,10 @@ strictfp class AllUnitStrategy {
         if (Arrays.asList(GeneralManager.DROIDS).contains(rc.getType())) {
             if (ArchonTrackerManager.receivedArchonTrackers && Clock.getBytecodesLeft() > 2000) {
                 // Check for updates to Archons from shared array
-                for (int i = 0; i < ArchonTrackerManager.myArchonTrackers.length; i++) {
-                    ArchonTrackerManager.MyArchonTracker myArchonTracker = ArchonTrackerManager.decodeMyArchonTracker(rc.readSharedArray(i));
-                    if (myArchonTracker != ArchonTrackerManager.myArchonTrackers[i]) {
-                        ArchonTrackerManager.myArchonTrackers[i] = myArchonTracker;
+                for (int i = 0; i < ArchonTrackerManager.allyArchonTrackers.length; i++) {
+                    ArchonTrackerManager.AllyArchonTracker allyArchonTracker = ArchonTrackerManager.decodeAllyArchonTracker(rc.readSharedArray(i));
+                    if (allyArchonTracker != ArchonTrackerManager.allyArchonTrackers[i]) {
+                        ArchonTrackerManager.allyArchonTrackers[i] = allyArchonTracker;
                     }
                 }
                 for (int i = 0; i < ArchonTrackerManager.enemyArchonTrackers.length; i++) {

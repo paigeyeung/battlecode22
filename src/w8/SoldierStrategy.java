@@ -11,8 +11,8 @@ strictfp class SoldierStrategy {
 
         MapLocation myLocation = rc.getLocation();
 
-        CombatManager.HOSTILE_DROID_ACTIONS action = CombatManager.getHostileDroidAction(rc);
-        if (action == CombatManager.HOSTILE_DROID_ACTIONS.ATTACK) {
+        CombatManager.COMBAT_DROID_ACTIONS action = CombatManager.getCombatDroidAction(rc);
+        if (action == CombatManager.COMBAT_DROID_ACTIONS.ATTACK) {
             if (CombatManager.tryAttack(rc)) {
                 // Try to attack
             }
@@ -28,17 +28,17 @@ strictfp class SoldierStrategy {
                 }
             }
         }
-        else if (action == CombatManager.HOSTILE_DROID_ACTIONS.RETREAT) {
-            MapLocation myNearestArchonLocation = ArchonTrackerManager.getNearestMyArchon(myLocation).location;
-            if (myLocation.distanceSquaredTo(myNearestArchonLocation) > 10) {
-                // Move towards nearest my Archon
-                GeneralManager.tryMove(rc, myLocation.directionTo(myNearestArchonLocation), true);
+        else if (action == CombatManager.COMBAT_DROID_ACTIONS.RETREAT) {
+            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchon(myLocation).location;
+            if (myLocation.distanceSquaredTo(nearestAllyArchonLocation) > 10) {
+                // Move towards nearest ally Archon
+                GeneralManager.tryMove(rc, myLocation.directionTo(nearestAllyArchonLocation), true);
             }
             else {
-                action = CombatManager.HOSTILE_DROID_ACTIONS.HOLD;
+                action = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
             }
         }
-        if (action == CombatManager.HOSTILE_DROID_ACTIONS.HOLD) {
+        if (action == CombatManager.COMBAT_DROID_ACTIONS.HOLD) {
             if (CombatManager.tryAttack(rc)) {
                 // Try to attack
             }

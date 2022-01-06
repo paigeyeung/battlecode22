@@ -32,7 +32,7 @@ strictfp class GeneralManager {
         RobotType.MINER,
         RobotType.BUILDER
     };
-    static final RobotType[] HOSTILE = {
+    static final RobotType[] COMBAT = {
         RobotType.WATCHTOWER,
         RobotType.SOLDIER,
         RobotType.SAGE

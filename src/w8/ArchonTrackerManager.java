@@ -13,10 +13,10 @@ strictfp class ArchonTrackerManager {
         }
     }
 
-    static class MyArchonTracker extends ArchonTracker {
+    static class AllyArchonTracker extends ArchonTracker {
         MapLocation location;
 
-        MyArchonTracker(boolean _alive, MapLocation _location) {
+        AllyArchonTracker(boolean _alive, MapLocation _location) {
             super(_alive);
             location = _location;
         }
@@ -24,22 +24,22 @@ strictfp class ArchonTrackerManager {
 
     static class EnemyArchonTracker extends ArchonTracker {
         boolean seen;
-        MapLocation myArchonStartingLocation;
+        MapLocation correspondingAllyArchonStartingLocation;
         MapLocation guessLocation;
         ArrayDeque<MapLocation> guessLocations;
 
-        EnemyArchonTracker(boolean _alive, boolean _seen, MapLocation _myArchonStartingLocation, MyArchonTracker[] _myArchonTrackers) {
+        EnemyArchonTracker(boolean _alive, boolean _seen, MapLocation _correspondingAllyArchonStartingLocation, AllyArchonTracker[] _allyArchonTrackers) {
             super(_alive);
             seen = _seen;
-            myArchonStartingLocation = _myArchonStartingLocation;
+            correspondingAllyArchonStartingLocation = _correspondingAllyArchonStartingLocation;
 
             guessLocations = new ArrayDeque<>();
             for (int i = 0; i <= 1; i++) {
                 for (int j = 0; j <= 1; j++) {
-                    MapLocation location = GeneralManager.getOppositeLocation(myArchonStartingLocation, i == 0, j == 0);
+                    MapLocation location = GeneralManager.getOppositeLocation(correspondingAllyArchonStartingLocation, i == 0, j == 0);
                     boolean isValidGuess = true;
-                    for (int k = 0; k < _myArchonTrackers.length; k++) {
-                        if (location.distanceSquaredTo(_myArchonTrackers[k].location) <= 2) {
+                    for (int k = 0; k < _allyArchonTrackers.length; k++) {
+                        if (location.distanceSquaredTo(_allyArchonTrackers[k].location) <= 2) {
                             isValidGuess = false;
                             break;
                         }
@@ -58,31 +58,31 @@ strictfp class ArchonTrackerManager {
     }
 
     static boolean receivedArchonTrackers = false;
-    static MyArchonTracker[] myArchonTrackers;
+    static AllyArchonTracker[] allyArchonTrackers;
     static EnemyArchonTracker[] enemyArchonTrackers;
-    static int myStartingArchonIndex = -1;
+    static int myStartingArchonIndex = -1; // This should only be for droids
 
-    static int encodeMyArchonTracker(MyArchonTracker myArchonTracker) {
-        return myArchonTracker.location.x << 8 | myArchonTracker.location.y << 2 | (myArchonTracker.alive ? 1 : 0) << 1;
+    static int encodeAllyArchonTracker(AllyArchonTracker allyArchonTracker) {
+        return allyArchonTracker.location.x << 8 | allyArchonTracker.location.y << 2 | (allyArchonTracker.alive ? 1 : 0) << 1;
     }
     static int encodeEnemyArchonTracker(EnemyArchonTracker enemyArchonTracker) {
-        return enemyArchonTracker.myArchonStartingLocation.x << 8 | enemyArchonTracker.myArchonStartingLocation.y << 2 | (enemyArchonTracker.alive ? 1 : 0) << 1 | (enemyArchonTracker.seen ? 1 : 0);
+        return enemyArchonTracker.correspondingAllyArchonStartingLocation.x << 8 | enemyArchonTracker.correspondingAllyArchonStartingLocation.y << 2 | (enemyArchonTracker.alive ? 1 : 0) << 1 | (enemyArchonTracker.seen ? 1 : 0);
     }
     static int encodeEnemyArchonTracker(boolean alive, boolean seen, MapLocation location) {
         return location.x << 8 | location.y << 2 | (alive ? 1 : 0) << 1 | (seen ? 1 : 0);
     }
-    static MyArchonTracker decodeMyArchonTracker(int encoded) {
-        return new MyArchonTracker(((encoded >> 1) & 0x1) == 1, new MapLocation((encoded >> 8) & 0x3F, (encoded >> 2) & 0x3F));
+    static AllyArchonTracker decodeAllyArchonTracker(int encoded) {
+        return new AllyArchonTracker(((encoded >> 1) & 0x1) == 1, new MapLocation((encoded >> 8) & 0x3F, (encoded >> 2) & 0x3F));
     }
     static EnemyArchonTracker decodeEnemyArchonTracker(int encoded) {
-        return new EnemyArchonTracker(((encoded >> 1) & 0x1) == 1, (encoded & 0x1) == 1, new MapLocation((encoded >> 8) & 0x3F, (encoded >> 2) & 0x3F), myArchonTrackers);
+        return new EnemyArchonTracker(((encoded >> 1) & 0x1) == 1, (encoded & 0x1) == 1, new MapLocation((encoded >> 8) & 0x3F, (encoded >> 2) & 0x3F), allyArchonTrackers);
     }
 
-    static MyArchonTracker getNearestMyArchon(MapLocation fromLocation) {
-        MyArchonTracker nearest = null;
-        for (int i = 0; i < myArchonTrackers.length; i++) {
-            if (myArchonTrackers[i].alive && (nearest == null || myArchonTrackers[i].location.distanceSquaredTo(fromLocation) < nearest.location.distanceSquaredTo(fromLocation))) {
-                nearest = myArchonTrackers[i];
+    static AllyArchonTracker getNearestAllyArchon(MapLocation fromLocation) {
+        AllyArchonTracker nearest = null;
+        for (int i = 0; i < allyArchonTrackers.length; i++) {
+            if (allyArchonTrackers[i].alive && (nearest == null || allyArchonTrackers[i].location.distanceSquaredTo(fromLocation) < nearest.location.distanceSquaredTo(fromLocation))) {
+                nearest = allyArchonTrackers[i];
             }
         }
         return nearest;

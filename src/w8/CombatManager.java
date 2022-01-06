@@ -3,7 +3,7 @@ package w8;
 import battlecode.common.*;
 
 strictfp class CombatManager {
-    enum HOSTILE_DROID_ACTIONS {
+    enum COMBAT_DROID_ACTIONS {
         RETREAT,
         HOLD,
         ATTACK
@@ -95,13 +95,13 @@ strictfp class CombatManager {
         return combatScore;
     }
 
-    /** Decides what a hostile droid should do */
-    static HOSTILE_DROID_ACTIONS getHostileDroidAction(RobotController rc) throws GameActionException {
-        double myCombatScore = evaluateLocalCombatScore(rc, rc.getTeam(), false);
+    /** Decides what a combat droid should do */
+    static COMBAT_DROID_ACTIONS getCombatDroidAction(RobotController rc) throws GameActionException {
+        double allyCombatScore = evaluateLocalCombatScore(rc, rc.getTeam(), false);
         double enemyCombatScore = evaluateLocalCombatScore(rc, rc.getTeam().opponent(), true);
-        HOSTILE_DROID_ACTIONS chosenAction = HOSTILE_DROID_ACTIONS.ATTACK;
-        if (enemyCombatScore > myCombatScore * 0.5) {
-            chosenAction = HOSTILE_DROID_ACTIONS.RETREAT;
+        COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;
+        if (enemyCombatScore > allyCombatScore * 0.5) {
+            chosenAction = COMBAT_DROID_ACTIONS.RETREAT;
         }
         return chosenAction;
     }

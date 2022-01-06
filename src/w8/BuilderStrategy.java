@@ -30,25 +30,25 @@ strictfp class BuilderStrategy {
     /** Called by RobotPlayer */
     static void runBuilder(RobotController rc) throws GameActionException {
         // Try to repair prototype building
-        RobotInfo[] actionableMine = rc.senseNearbyRobots(rc.getType().actionRadiusSquared, rc.getTeam());
-        for (int i = 0; i < actionableMine.length; i++) {
-            RobotInfo myRobot = actionableMine[i];
-            if (Arrays.asList(GeneralManager.BUILDINGS).contains(myRobot.getType())) {
-                if (myRobot.getMode() == RobotMode.PROTOTYPE) {
-                    if (rc.canRepair(myRobot.location)) {
-                        rc.repair(myRobot.location);
+        RobotInfo[] actionableAllies = rc.senseNearbyRobots(rc.getType().actionRadiusSquared, rc.getTeam());
+        for (int i = 0; i < actionableAllies.length; i++) {
+            RobotInfo allyRobot = actionableAllies[i];
+            if (Arrays.asList(GeneralManager.BUILDINGS).contains(allyRobot.getType())) {
+                if (allyRobot.getMode() == RobotMode.PROTOTYPE) {
+                    if (rc.canRepair(allyRobot.location)) {
+                        rc.repair(allyRobot.location);
                     }
                 }
             }
         }
 
         // Try to repair damaged building
-        for (int i = 0; i < actionableMine.length; i++) {
-            RobotInfo myRobot = actionableMine[i];
-            if (Arrays.asList(GeneralManager.BUILDINGS).contains(myRobot.getType())) {
-                if (myRobot.getHealth() < myRobot.getType().getMaxHealth(myRobot.getLevel())) {
-                    if (rc.canRepair(myRobot.location)) {
-                        rc.repair(myRobot.location);
+        for (int i = 0; i < actionableAllies.length; i++) {
+            RobotInfo allyRobot = actionableAllies[i];
+            if (Arrays.asList(GeneralManager.BUILDINGS).contains(allyRobot.getType())) {
+                if (allyRobot.getHealth() < allyRobot.getType().getMaxHealth(allyRobot.getLevel())) {
+                    if (rc.canRepair(allyRobot.location)) {
+                        rc.repair(allyRobot.location);
                     }
                 }
             }
@@ -60,7 +60,7 @@ strictfp class BuilderStrategy {
         }
 
         // Move randomly
-        if (actionableMine.length == 0 || actionableMine.length > 5) {
+        if (actionableAllies.length == 0 || actionableAllies.length > 5) {
             Direction dir = GeneralManager.getRandomDirection();
             if (rc.canMove(dir)) {
                 rc.move(dir);
