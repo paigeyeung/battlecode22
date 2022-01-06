@@ -3,6 +3,7 @@ package w8;
 import battlecode.common.*;
 
 strictfp class MinerStrategy {
+    /** Called by RobotPlayer */
     static void runMiner(RobotController rc) throws GameActionException {
         MapLocation myLocation = rc.getLocation();
 

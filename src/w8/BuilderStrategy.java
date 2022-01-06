@@ -5,19 +5,19 @@ import battlecode.common.*;
 import java.util.Arrays;
 
 strictfp class BuilderStrategy {
-    /**
-     * Run a single turn for a Builder.
-     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
-     */
-    static int builderTotalBuilt = 0;
-    static int builderWatchtowersBuilt = 0;
+    static int totalBuildingsBuilt = 0;
+    static int watchtowersBuilt = 0;
+
+    /** Build a building */
     static void builderBuild(RobotController rc, RobotType robotType, Direction buildDirection) throws GameActionException {
         rc.buildRobot(robotType, buildDirection);
         switch (robotType) {
-            case WATCHTOWER: builderWatchtowersBuilt++; break;
+            case WATCHTOWER: watchtowersBuilt++; break;
         }
-        builderTotalBuilt++;
+        totalBuildingsBuilt++;
     }
+
+    /** Try to build a building, returns boolean if successful */
     static boolean builderTryBuild(RobotController rc, RobotType robotType, Direction preferredDirection) throws GameActionException {
         Direction buildDirection = GeneralManager.getBuildDirection(rc, robotType, preferredDirection);
         if (buildDirection != null) {
@@ -26,6 +26,8 @@ strictfp class BuilderStrategy {
         }
         return false;
     }
+
+    /** Called by RobotPlayer */
     static void runBuilder(RobotController rc) throws GameActionException {
         // Try to repair prototype building
         RobotInfo[] actionableMine = rc.senseNearbyRobots(rc.getType().actionRadiusSquared, rc.getTeam());
@@ -53,7 +55,7 @@ strictfp class BuilderStrategy {
         }
 
         // Try to build watchtower
-        if (GeneralManager.turnCount > (builderWatchtowersBuilt + 1) * 200) {
+        if (GeneralManager.turnCount > (watchtowersBuilt + 1) * 200) {
             builderTryBuild(rc, RobotType.WATCHTOWER, null);
         }
 

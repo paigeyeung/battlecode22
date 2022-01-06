@@ -3,20 +3,25 @@ package w8;
 import battlecode.common.*;
 
 strictfp class ArchonStrategy {
-    static boolean archonBroadcastedLocation = false;
-    static int archonTotalBuilt = 0;
-    static int archonMinersBuilt = 0;
-    static int archonBuildersBuilt = 0;
-    static int archonSoldiersBuilt = 0;
+    static boolean broadcastedLocation = false;
+
+    static int totalDroidsBuilt = 0;
+    static int minersBuilt = 0;
+    static int buildersBuilt = 0;
+    static int soldiersBuilt = 0;
+
+    /** Build a droid */
     static void archonBuild(RobotController rc, RobotType robotType, Direction buildDirection) throws GameActionException {
         rc.buildRobot(robotType, buildDirection);
         switch (robotType) {
-            case MINER: archonMinersBuilt++; break;
-            case BUILDER: archonBuildersBuilt++; break;
-            case SOLDIER: archonSoldiersBuilt++; break;
+            case MINER: minersBuilt++; break;
+            case BUILDER: buildersBuilt++; break;
+            case SOLDIER: soldiersBuilt++; break;
         }
-        archonTotalBuilt++;
+        totalDroidsBuilt++;
     }
+
+    /** Try to build a droid, returns boolean if successful */
     static boolean archonTryBuild(RobotController rc, RobotType robotType, Direction preferredDirection) throws GameActionException {
         Direction buildDirection = GeneralManager.getBuildDirection(rc, robotType, preferredDirection);
         if (buildDirection != null) {
@@ -25,9 +30,11 @@ strictfp class ArchonStrategy {
         }
         return false;
     }
+
+    /** Called by RobotPlayer */
     static void runArchon(RobotController rc) throws GameActionException {
         // Broadcast my location in shared array indicies 0-3 and instantiate enemy in indicies 4-7
-        if (!archonBroadcastedLocation) {
+        if (!broadcastedLocation) {
             // Find first empty array element
             int i = 0;
             while (i <= 3) {
@@ -50,7 +57,7 @@ strictfp class ArchonStrategy {
                 rc.writeSharedArray(i + 4, encodedEnemyArchonTracker);
                 System.out.println("Broadcasted enemy Archon as " + encodedEnemyArchonTracker);
 
-                archonBroadcastedLocation = true;
+                broadcastedLocation = true;
             }
         }
 
@@ -76,7 +83,7 @@ strictfp class ArchonStrategy {
         }
         else {
             // No hostile enemies nearby
-            if (archonMinersBuilt < archonTotalBuilt * 0.3) {
+            if (minersBuilt < totalDroidsBuilt * 0.3) {
                 archonTryBuild(rc, RobotType.MINER, null);
             }
             else {

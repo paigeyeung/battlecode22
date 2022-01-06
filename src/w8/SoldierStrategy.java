@@ -3,6 +3,7 @@ package w8;
 import battlecode.common.*;
 
 strictfp class SoldierStrategy {
+    /** Called by RobotPlayer */
     static void runSoldier(RobotController rc) throws GameActionException {
         if (!ArchonTrackerManager.receivedArchonTrackers) {
             return;
@@ -10,13 +11,13 @@ strictfp class SoldierStrategy {
 
         MapLocation myLocation = rc.getLocation();
 
-        GeneralManager.HOSTILE_DROID_ACTIONS action = GeneralManager.getHostileDroidAction(rc);
-        if (action == GeneralManager.HOSTILE_DROID_ACTIONS.ATTACK) {
-            if (GeneralManager.tryAttack(rc)) {
+        CombatManager.HOSTILE_DROID_ACTIONS action = CombatManager.getHostileDroidAction(rc);
+        if (action == CombatManager.HOSTILE_DROID_ACTIONS.ATTACK) {
+            if (CombatManager.tryAttack(rc)) {
                 // Try to attack
             }
             else {
-                MapLocation visibleAttackTarget = GeneralManager.getAttackTarget(rc, rc.getType().visionRadiusSquared);
+                MapLocation visibleAttackTarget = CombatManager.getAttackTarget(rc, rc.getType().visionRadiusSquared);
                 if (visibleAttackTarget != null) {
                     // Move towards nearest visible enemy
                     GeneralManager.tryMove(rc, myLocation.directionTo(visibleAttackTarget), true);
@@ -27,18 +28,18 @@ strictfp class SoldierStrategy {
                 }
             }
         }
-        else if (action == GeneralManager.HOSTILE_DROID_ACTIONS.RETREAT) {
+        else if (action == CombatManager.HOSTILE_DROID_ACTIONS.RETREAT) {
             MapLocation myNearestArchonLocation = ArchonTrackerManager.getNearestMyArchon(myLocation).location;
             if (myLocation.distanceSquaredTo(myNearestArchonLocation) > 10) {
                 // Move towards nearest my Archon
                 GeneralManager.tryMove(rc, myLocation.directionTo(myNearestArchonLocation), true);
             }
             else {
-                action = GeneralManager.HOSTILE_DROID_ACTIONS.HOLD;
+                action = CombatManager.HOSTILE_DROID_ACTIONS.HOLD;
             }
         }
-        if (action == GeneralManager.HOSTILE_DROID_ACTIONS.HOLD) {
-            if (GeneralManager.tryAttack(rc)) {
+        if (action == CombatManager.HOSTILE_DROID_ACTIONS.HOLD) {
+            if (CombatManager.tryAttack(rc)) {
                 // Try to attack
             }
         }
