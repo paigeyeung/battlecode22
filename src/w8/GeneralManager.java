@@ -26,7 +26,7 @@ strictfp class GeneralManager {
         RobotType.SOLDIER,
         RobotType.SAGE
     };
-    static final RobotType[] PEACEFUL = {
+    static final RobotType[] NONCOMBAT = {
         RobotType.ARCHON,
         RobotType.LABORATORY,
         RobotType.MINER,
@@ -47,17 +47,12 @@ strictfp class GeneralManager {
     static MapLocation startingLocation = null;
     static int mapWidth = 0, mapHeight = 0;
 
-    /**
-     * Get the horizontally and vertically mirrored location on the map
-     */
+    /** Get horizontally and vertically mirrored location on the map */
     static MapLocation getOppositeLocation(MapLocation location, boolean flipHorizontal, boolean flipVertical) {
         return new MapLocation(flipHorizontal ? (mapWidth - location.x - 1) : location.x, flipVertical ? (mapHeight - location.y - 1) : location.y);
     }
 
-    /**
-     * Get the valid build direction nearest to the preferred direction
-     * Returns null if no direction is found
-     */
+    /** Get build direction closest to preferred direction, returns null if no direction is found */
     static Direction getBuildDirection(RobotController rc, RobotType robotType, Direction preferredDirection) {
         if (preferredDirection == null) {
             preferredDirection = getRandomDirection();
@@ -99,10 +94,7 @@ strictfp class GeneralManager {
         return null;
     }
 
-    /**
-     * Try to move
-     * Returns true if successful
-     */
+    /** Try to move, returns boolean if successful */
     static boolean tryMove(RobotController rc, Direction direction, boolean moveRandomlyIfFailed) throws GameActionException {
         if (direction != null && rc.canMove(direction)) {
             rc.move(direction);

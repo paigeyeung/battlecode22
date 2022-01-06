@@ -38,10 +38,15 @@ strictfp class ArchonTrackerManager {
                 for (int j = 0; j <= 1; j++) {
                     MapLocation location = GeneralManager.getOppositeLocation(correspondingAllyArchonStartingLocation, i == 0, j == 0);
                     boolean isValidGuess = true;
-                    for (int k = 0; k < _allyArchonTrackers.length; k++) {
-                        if (location.distanceSquaredTo(_allyArchonTrackers[k].location) <= 2) {
-                            isValidGuess = false;
-                            break;
+                    if (guessLocations.contains(location)) {
+                        isValidGuess = false;
+                    }
+                    else {
+                        for (int k = 0; k < _allyArchonTrackers.length; k++) {
+                            if (location.distanceSquaredTo(_allyArchonTrackers[k].location) <= 2) {
+                                isValidGuess = false;
+                                break;
+                            }
                         }
                     }
                     if (isValidGuess) {
@@ -54,6 +59,10 @@ strictfp class ArchonTrackerManager {
 
         void goToNextGuessLocation() {
             guessLocation = guessLocations.removeFirst();
+            if (guessLocation == null) {
+                guessLocation = new MapLocation(0, 0);
+                System.out.println("ArchonTrackerManager: Ran out of guess locations!");
+            }
         }
     }
 
