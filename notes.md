@@ -11,7 +11,9 @@ Ideas
     - Builder builds watchtowers around enemy base
     - Builder builds watchtowers in unoccupied location and watchtowers move to enemy base
 - Play defensive on long maps and rush on short maps
-- Gather data of tournament map
+- Gather data of tournament map?
+- Each my unit toggles a bit every turn it's alive, stopped toggling means it's dead?
+- Remove seeded randomness?
 
 William's Changelog
 
@@ -31,7 +33,11 @@ William's Changelog
         - Try to build in direction of enemy
     - w5
         - Build miner / builder / soldier in 30% / 10% / 60%
-        - If turn above 500, don't spend lead if below 200 
+        - If turn above 500, don't spend lead if below 200
+    - w6
+        - Build minder / solder in 30% / 70%
+    - future
+        - Determine number of miners needed based on feedback
 - Miner
     - example
         - Try to mine gold and lead if there’s any around us
@@ -45,7 +51,7 @@ William's Changelog
         - Try to repair prototype building
         - Try to repair damaged building
         - Try to build watchtower every 200 turns
-        - Move randomly if there are no my buildings in actionable range
+        - Move randomly
 - Soldier
     - example
         - Try to attack enemy if there’s any around us
@@ -59,8 +65,6 @@ William's Changelog
     - w3
         - If hostile enemy is nearby, move towards my Archon
         - If peaceful enemy is nearby, move towards enemy
-    - future
-        - Prioritize attack the lowest health enemy, multiplied by enemy threat score
 - Sage
 - Laboratory
 - Watchtower
@@ -74,11 +78,13 @@ William's Changelog
     - w2
         - Read Archon locations from shared array
         - Droids help update Archons seen and alive in shared array
+    - w6
+        - Track starting Archon in static variable
+        - Attackers smart local selection of enemy target
     - future
         - Search for enemy Archons in radius if it is missing
         - First Archon to run is resource manager for the turn
         - Locally evaluate combat score to determine attack/retreat
-        - Remove seeded randomness
 - Shared array
     - w2
         - Indicies 0-3 store my Archon locations, 4-7 store enemy Archon locations
