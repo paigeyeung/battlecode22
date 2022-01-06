@@ -267,15 +267,15 @@ public strictfp class RobotPlayer {
     /**
      * Evaluates combat score in vision radius
      */
-    static double calculateRobotCombatScore(RobotInfo robot, boolean defensive) {
+    static double calculateRobotCombatScore(RobotController rc, RobotInfo robot, boolean defensive) throws GameActionException {
         double score = 0;
-        // Increase score by 0-50 based on target type
+        // Increase score by 0-100 based on target type
         if (defensive) {
             switch (robot.getType()) {
-                case SAGE: score += 50; break;
-                case SOLDIER: score += 5; break;
-                case WATCHTOWER: score += 15; break;
-                case ARCHON: score += 3; break;
+                case SAGE: score += 100; break;
+                case SOLDIER: score += 10; break;
+                case WATCHTOWER: score += 30; break;
+                case ARCHON: score += 2; break;
                 case BUILDER: score += 1; break;
                 case LABORATORY: score += 0; break;
                 case MINER: score -= 1; break;
@@ -283,23 +283,25 @@ public strictfp class RobotPlayer {
         }
         else {
             switch (robot.getType()) {
-                case SAGE: score += 50; break;
-                case SOLDIER: score += 5; break;
+                case SAGE: score += 100; break;
+                case SOLDIER: score += 10; break;
             }
         }
         // Decrease score based on percent of missing health
         score *= robot.getHealth() / robot.getType().getMaxHealth(robot.level);
+        // Decrease score based on rubble
+        score *= 1 / (1 + rc.senseRubble(robot.getLocation()) / 10);
         return score;
     }
-    static double evaluateLocalCombatScore(RobotController rc, Team team, boolean defensive) {
+    static double evaluateLocalCombatScore(RobotController rc, Team team, boolean defensive) throws GameActionException {
         RobotInfo[] visibleRobots = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, team);
         double combatScore = 0;
         for (int i = 0; i < visibleRobots.length; i++) {
-            combatScore += calculateRobotCombatScore(visibleRobots[i], defensive);
+            combatScore += calculateRobotCombatScore(rc, visibleRobots[i], defensive);
         }
         // Include self in calculation if on same team
         if (team == rc.getTeam()) {
-            combatScore += calculateRobotCombatScore(new RobotInfo(rc.getID(), rc.getTeam(), rc.getType(), rc.getMode(), rc.getLevel(), rc.getHealth(), rc.getLocation()), defensive);
+            combatScore += calculateRobotCombatScore(rc, new RobotInfo(rc.getID(), rc.getTeam(), rc.getType(), rc.getMode(), rc.getLevel(), rc.getHealth(), rc.getLocation()), defensive);
         }
         return combatScore;
     }
@@ -311,10 +313,10 @@ public strictfp class RobotPlayer {
         HOLD,
         ATTACK
     }
-    static HOSTILE_DROID_ACTIONS getHostileDroidAction(RobotController rc) {
+    static HOSTILE_DROID_ACTIONS getHostileDroidAction(RobotController rc) throws GameActionException {
         double myCombatScore = evaluateLocalCombatScore(rc, rc.getTeam(), false);
         double enemyCombatScore = evaluateLocalCombatScore(rc, rc.getTeam().opponent(), true);
-        if (enemyCombatScore > myCombatScore * 1.1) {
+        if (enemyCombatScore > myCombatScore * 0.5) {
             return HOSTILE_DROID_ACTIONS.RETREAT;
         }
 //        else if (myCombatScore * 1.1 > enemyCombatScore) {
@@ -719,12 +721,20 @@ public strictfp class RobotPlayer {
                 }
             }
         }
-        else if (action == HOSTILE_DROID_ACTIONS.HOLD) {
-
-        }
         else if (action == HOSTILE_DROID_ACTIONS.RETREAT) {
-            // Move towards nearest my Archon
-            tryMove(rc, myLocation.directionTo(getNearestMyArchon(myLocation).location), true);
+            MapLocation myNearestArchonLocation = getNearestMyArchon(myLocation).location;
+            if (myLocation.distanceSquaredTo(myNearestArchonLocation) > 10) {
+                // Move towards nearest my Archon
+                tryMove(rc, myLocation.directionTo(myNearestArchonLocation), true);
+            }
+            else {
+                action = HOSTILE_DROID_ACTIONS.HOLD;
+            }
+        }
+        if (action == HOSTILE_DROID_ACTIONS.HOLD) {
+            if (tryAttack(rc)) {
+                // Try to attack
+            }
         }
     }
 
