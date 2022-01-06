@@ -68,7 +68,9 @@ William's Changelog
     - w6
         - Smart selection of attack target
     - w7
-        - Evaluate combat for decision making
+        - Locally evaluate combat for decision making
+    - future
+        - Use shared array for combat decision making
 - Sage
 - Laboratory
 - Watchtower
@@ -84,6 +86,8 @@ William's Changelog
         - Droids help update Archons seen and alive in shared array
     - w6
         - Track starting Archon in static variable
+    - w8
+        - Refactor into classes
     - future
         - Search for enemy Archons in radius if it is missing
         - First Archon to run is resource manager for the turn
@@ -97,6 +101,11 @@ William's Changelog
             - Second to last bit is whether unit is alive or not
             - Last bit is whether unit has been seen at least once
             - x | x | x | x | x | x | y | y | y | y | y | y | alive | seen
+    - future
+        - Index 8 stores combat scores
+            - First 6 bits is my highest combat score
+            - Second 6 bits is enemy highest combat score
+            - Last 4 bits are last turn's combat decision 
 
 Paige's Notes
 - pathfinding

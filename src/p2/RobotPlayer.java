@@ -287,7 +287,7 @@ public strictfp class RobotPlayer {
 
         while(i < 4) {
             if(rc.canMove(directions[l])) {
-                return directions[l]
+                return directions[l];
             }
             else if(rc.canMove(directions[r])) {
                 return directions[r];
