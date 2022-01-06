@@ -9,7 +9,7 @@ public strictfp class RobotPlayer {
         GeneralManager.mapHeight = rc.getMapHeight();
 
         while (true) {
-            GeneralManager.turnCount++;
+            GeneralManager.turnsAlive++;
 
             try {
                 AllUnitStrategy.runAllEarly(rc);
@@ -24,10 +24,10 @@ public strictfp class RobotPlayer {
                 }
                 AllUnitStrategy.runAllLate(rc);
             } catch (GameActionException e) {
-                System.out.println(rc.getType() + " Exception");
+                GeneralManager.log(rc.getType() + " Exception");
                 e.printStackTrace();
             } catch (Exception e) {
-                System.out.println(rc.getType() + " Exception");
+                GeneralManager.log(rc.getType() + " Exception");
                 e.printStackTrace();
             } finally {
                 Clock.yield();

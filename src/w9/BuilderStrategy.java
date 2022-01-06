@@ -55,7 +55,7 @@ strictfp class BuilderStrategy {
         }
 
         // Try to build watchtower
-        if (GeneralManager.turnCount > (watchtowersBuilt + 1) * 200) {
+        if (GeneralManager.turnsAlive > (watchtowersBuilt + 1) * 200) {
             builderTryBuild(rc, RobotType.WATCHTOWER, null);
         }
 

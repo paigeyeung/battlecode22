@@ -11,7 +11,7 @@ strictfp class AllUnitStrategy {
     static void runAllEarly(RobotController rc) throws GameActionException {
         if (!ArchonTrackerManager.receivedArchonTrackers) {
             // Read ally Archons from shared array indicies 0-3 and enemy Archons from indicies 4-7
-            if (rc.getType() != RobotType.ARCHON || GeneralManager.turnCount > 1) {
+            if (rc.getRoundNum() > 1) {
                 // If this is the first turn of the game, wait until next turn before reading so ally Archons can broadcast first
                 int numArchons = 0;
                 while (numArchons <= 3) {
@@ -63,7 +63,7 @@ strictfp class AllUnitStrategy {
                     ArchonTrackerManager.allyArchonTrackers[i].alive = false;
                     int encodedAllyArchonTracker = ArchonTrackerManager.encodeAllyArchonTracker(ArchonTrackerManager.allyArchonTrackers[i]);
                     rc.writeSharedArray(i, encodedAllyArchonTracker);
-                    System.out.println("Broadcasted ally Archon dead location " + ArchonTrackerManager.allyArchonTrackers[i].location + " as " + encodedAllyArchonTracker);
+                    GeneralManager.log("Broadcasted ally Archon dead location " + ArchonTrackerManager.allyArchonTrackers[i].location + " as " + encodedAllyArchonTracker);
                 }
             }
             for (int i = 0; i < ArchonTrackerManager.enemyArchonTrackers.length; i++) {
@@ -94,7 +94,7 @@ strictfp class AllUnitStrategy {
                             ArchonTrackerManager.enemyArchonTrackers[i].alive = false;
                             int encodedEnemyArchonTracker = ArchonTrackerManager.encodeEnemyArchonTracker(ArchonTrackerManager.enemyArchonTrackers[i]);
                             rc.writeSharedArray(i + 4, encodedEnemyArchonTracker);
-                            System.out.println("Broadcasted enemy Archon dead " + guessLocation + " as " + encodedEnemyArchonTracker);
+                            GeneralManager.log("Broadcasted enemy Archon dead " + guessLocation + " as " + encodedEnemyArchonTracker);
                         }
                     }
                     else if (!ArchonTrackerManager.enemyArchonTrackers[i].seen) {
@@ -103,7 +103,7 @@ strictfp class AllUnitStrategy {
                             ArchonTrackerManager.enemyArchonTrackers[i].seen = true;
                             int encodedEnemyArchonTracker = ArchonTrackerManager.encodeEnemyArchonTracker(ArchonTrackerManager.enemyArchonTrackers[i]);
                             rc.writeSharedArray(i + 4, encodedEnemyArchonTracker);
-                            System.out.println("Broadcasted enemy Archon seen " + guessLocation + " as " + encodedEnemyArchonTracker);
+                            GeneralManager.log("Broadcasted enemy Archon seen " + guessLocation + " as " + encodedEnemyArchonTracker);
                         }
                     }
                 }
