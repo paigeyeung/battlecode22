@@ -24,7 +24,7 @@ William's Changelog
         - Track number of units built in static variables
     - w2
         - Build miner or soldier to maintain 50% / 50% balance
-        - Track my Archon locations in shared array
+        - Track ally Archon locations in shared array
         - Guess enemy Archon locations in shared array
     - w4
         - If there are hostile enemies in vision range, stop producing miners
@@ -36,6 +36,8 @@ William's Changelog
         - If turn above 500, don't spend lead if below 200
     - w6
         - Build minder / solder in 30% / 70%
+    - w9
+        - Toggle last bit in shared array to show alive and check for death of other Archons
     - future
         - Determine number of miners needed based on feedback
 - Miner
@@ -58,7 +60,7 @@ William's Changelog
         - Otherwise, move in a random direction
     - w1
         - If no enemy is nearby, move towards enemy Archon
-        - If enemy is nearby, move towards my Archon
+        - If enemy is nearby, move towards ally Archon
         - If path is blocked, move randomly
     - w2
         - Pick nearest Archons to move towards
@@ -94,16 +96,20 @@ William's Changelog
         - Locally evaluate combat score to determine attack/retreat
 - Shared array
     - w2
-        - Indicies 0-3 store my Archon locations, 4-7 store enemy Archon locations
+        - Indicies 0-3 store ally Archon locations, 4-7 store enemy Archon locations
             - Max map width and height are 60
             - 0 to 64 can be stored in 6 bits
             - Each 16 bit int stores x location in first 6 bits and y location in second 6 bits
             - Second to last bit is whether unit is alive or not
             - Last bit is whether unit has been seen at least once
             - x | x | x | x | x | x | y | y | y | y | y | y | alive | seen
+    - w9
+        - Indicies 0-3 store ally Archon locations
+            - Last bit is toggled by ally Archon every turn to show it's alive
+            - x | x | x | x | x | x | y | y | y | y | y | y | alive | toggle
     - future
         - Index 8 stores combat scores
-            - First 6 bits is my highest combat score
+            - First 6 bits is ally highest combat score
             - Second 6 bits is enemy highest combat score
             - Last 4 bits are last turn's combat decision 
 
