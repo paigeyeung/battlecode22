@@ -247,19 +247,58 @@ public strictfp class RobotPlayer {
 
     static double calcH(RobotController rc, MapLocation loc) throws GameActionException {
         MapLocation currentLoc = rc.getLocation();
-        return (10*rc.senseGold(loc)+rc.senseLead(loc))/(rc.senseRubble(loc)+sqDistBetween(currentLoc,loc));
+        return (50*rc.senseGold(loc) + rc.senseLead(loc)) / (rc.senseRubble(loc)+sqDistBetween(currentLoc,loc));
     }
 
     static double calcHGoal(RobotController rc, MapLocation loc, MapLocation goal) throws GameActionException {
         MapLocation currentLoc = rc.getLocation();
-        return (10*rc.senseGold(loc)+rc.senseLead(loc))/(rc.senseRubble(loc)+sqDistBetween(currentLoc,loc)) *
+        return (50*rc.senseGold(loc) + rc.senseLead(loc)) / (rc.senseRubble(loc)+sqDistBetween(currentLoc,loc)) *
                 sqDistBetween(currentLoc,goal)/sqDistBetween(loc,goal);
     }
 
     static double calcHEnemy(RobotController rc, MapLocation loc, MapLocation enemyLoc) throws GameActionException {
         MapLocation currentLoc = rc.getLocation();
-        return (10*rc.senseGold(loc)+rc.senseLead(loc) + 10)/(rc.senseRubble(loc)+sqDistBetween(currentLoc,loc)) +
+        return (50*rc.senseGold(loc)+rc.senseLead(loc) + 10)/(rc.senseRubble(loc)+sqDistBetween(currentLoc,loc)) +
                 sqDistBetween(loc,enemyLoc)/sqDistBetween(currentLoc,enemyLoc);
+    }
+
+    // Returns next direction to move in to reach goal
+    static Direction moveTo(RobotController rc, MapLocation dest) {
+        MapLocation currLoc = rc.getLocation();
+        if(currLoc.equals(dest)) return null;
+        Direction destDir = Direction.CENTER;
+        if(dest.x < currLoc.x && dest.y < currLoc.y) destDir = Direction.SOUTHWEST;
+        else if(dest.x < currLoc.x && dest.y == currLoc.y) destDir = Direction.WEST;
+        else if(dest.x < currLoc.x && dest.y > currLoc.y) destDir = Direction.NORTHWEST;
+        else if(dest.x == currLoc.x && dest.y < currLoc.y) destDir = Direction.SOUTH;
+        else if(dest.x == currLoc.x && dest.y > currLoc.y) destDir = Direction.NORTH;
+        else if(dest.x > currLoc.x && dest.y < currLoc.y) destDir = Direction.SOUTHEAST;
+        else if(dest.x > currLoc.x && dest.y == currLoc.y) destDir = Direction.EAST;
+        else if(dest.x > currLoc.x && dest.y > currLoc.y) destDir = Direction.NORTHEAST;
+
+        int indexOfDest = -1;
+        for(int j = 0; j < directions.length; j++) {
+            if(destDir.equals(directions[j])) {
+                indexOfDest = j;
+                break;
+            }
+        }
+        int l = indexOfDest, r = indexOfDest, i = 0;
+
+        while(i < 4) {
+            if(rc.canMove(directions[l])) {
+                return directions[l]
+            }
+            else if(rc.canMove(directions[r])) {
+                return directions[r];
+            }
+            l = directions.length % (l-1);
+            r = directions.length % (r+1);
+            i++;
+        }
+        return null;
+
+//        calcHGoal(rc,)
     }
 
     static int sqDistBetween(MapLocation loc1, MapLocation loc2) {
