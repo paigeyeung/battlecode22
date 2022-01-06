@@ -287,7 +287,7 @@ public strictfp class RobotPlayer {
 
         while(i < 4) {
             if(rc.canMove(directions[l])) {
-                return directions[l]
+                return directions[l];
             }
             else if(rc.canMove(directions[r])) {
                 return directions[r];
@@ -297,8 +297,6 @@ public strictfp class RobotPlayer {
             i++;
         }
         return null;
-
-//        calcHGoal(rc,)
     }
 
     static int sqDistBetween(MapLocation loc1, MapLocation loc2) {
