@@ -42,7 +42,7 @@ William's Changelog
         - Start game by building 1 miner
         - Archons each have roles and builds are split evenly between them
     - future
-        - Broadcast action cooldown at end of turn
+        - Not guarenteed to execute chosen action if all surrounding squares blocked
         - Determine number of miners each Archon produces based on amount of lead in vision
             - Can deduce number of miners mining lead this turn by tracking all expenses and calculating change in lead per turn
 - Miner
@@ -99,8 +99,7 @@ William's Changelog
         - Continued refactor, added Debug Manager
     - future
         - Search for enemy Archons in radius if it is missing
-        - First Archon to run is resource manager for the turn
-        - Locally evaluate combat score to determine attack/retreat
+        - Super high movement penalty for blocking off the last surrounding square of an Archon, or not moving away from a crowded Archon
 - Shared array
     - w2
         - Indicies 0-3 store ally Archon locations, 4-7 store enemy Archon locations
@@ -125,6 +124,7 @@ William's Changelog
                 - Last 4 bits store whether Archons 0-3 on cooldown this turn
                 - gold... | 3 on cooldown | 2 on cooldown | 1 on cooldown | 0 on cooldown
     - future
+        - Indicies 8-9 could store multiples of 5 so can store larger max values
         - Index 8 stores combat scores
             - First 6 bits is ally highest combat score
             - Second 6 bits is enemy highest combat score
