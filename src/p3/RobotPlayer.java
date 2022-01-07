@@ -352,14 +352,14 @@ public strictfp class RobotPlayer {
         if(currLoc.equals(dest)) return null;
         Direction movementDir = null;
         int minDist = sqDistBetween(currLoc, dest);
-        int rubble = 0;
+//        int rubble = 0;
         int f = Integer.MAX_VALUE;//minDist + rubble;
 
         for(Direction dir : directions) {
             if(rc.canMove(dir)) {
                 MapLocation adj = rc.adjacentLocation(dir);
                 int newDist = sqDistBetween(adj,dest);
-            int newRubble = rc.senseRubble(adj);
+                int newRubble = rc.senseRubble(adj);
                 int newF = newDist + newRubble;
                 if (visited[adj.x][adj.y]) newF += 100;
 
