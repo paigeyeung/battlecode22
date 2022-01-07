@@ -1,6 +1,7 @@
 package w10;
 
 import battlecode.common.*;
+import scala.collection.concurrent.Debug;
 
 strictfp class ArchonResourceManager {
     enum ARCHON_ROLES {
@@ -116,7 +117,7 @@ strictfp class ArchonResourceManager {
             else {
                 allyArchonModels[i].archonRole = ARCHON_ROLES.NONOFFENSIVE;
             }
-//            DebugManager.log(rc, "Archon at location " + ArchonTrackerManager.allyArchonTrackers[i].location + " allyArchonModels[" + i + "].archonRole: " + allyArchonModels[i].archonRole);
+            DebugManager.log(rc, "Archon at location " + ArchonTrackerManager.allyArchonTrackers[i].location + " allyArchonModels[" + i + "].archonRole: " + allyArchonModels[i].archonRole);
         }
     }
 
@@ -149,14 +150,20 @@ strictfp class ArchonResourceManager {
             allyArchonModels[i].onCooldown = ((encodedIndex8 >>> i) & 0x1) == 1;
             allyArchonModels[i].setActionDoNothing();
         }
-
+//        DebugManager.log(rc, "I'm " + ArchonStrategy.mySharedArrayIndex + " at " + ArchonTrackerManager.allyArchonTrackers[ArchonStrategy.mySharedArrayIndex].location);
+//        DebugManager.log(rc, "lead = " + lead + ", gold = " + gold);
         while (true) {
-            // First 5 droids are always miners, then maintain 30% proportion of miners
-            if (totalMinersBuilt < 5 || totalMinersBuilt < totalDroidsBuilt * 0.3) {
+            // Maintain 30% proportion of miners
+            if (totalMinersBuilt < totalDroidsBuilt * 0.3) {
                 if (lead < 50) {
                     break;
                 }
                 int chosenArchonIndex = findArchonWithFewestMinersBuilt(true);
+//                DebugManager.log(rc, "allyArchonModels[0].minersBuilt = " + allyArchonModels[0].minersBuilt + ", allyArchonModels[0].alive = " + allyArchonModels[0].alive + ", allyArchonModels[0].onCooldown = " + allyArchonModels[0].onCooldown);
+//                DebugManager.log(rc, "allyArchonModels[1].minersBuilt = " + allyArchonModels[1].minersBuilt + ", allyArchonModels[1].alive = " + allyArchonModels[1].alive + ", allyArchonModels[1].onCooldown = " + allyArchonModels[1].onCooldown);
+//                DebugManager.log(rc, "allyArchonModels[2].minersBuilt = " + allyArchonModels[2].minersBuilt + ", allyArchonModels[2].alive = " + allyArchonModels[2].alive + ", allyArchonModels[2].onCooldown = " + allyArchonModels[2].onCooldown);
+//                DebugManager.log(rc, "allyArchonModels[3].minersBuilt = " + allyArchonModels[3].minersBuilt + ", allyArchonModels[3].alive = " + allyArchonModels[3].alive + ", allyArchonModels[3].onCooldown = " + allyArchonModels[3].onCooldown);
+//                DebugManager.log(rc, "allyArchonModels[" + chosenArchonIndex + "].setActionBuildMiner();");
                 if (chosenArchonIndex == -1) {
                     break;
                 }
@@ -170,6 +177,9 @@ strictfp class ArchonResourceManager {
                 break;
             }
             int chosenArchonIndex = findArchonWithFewestSoldiersBuilt(true, true);
+//            DebugManager.log(rc, "allyArchonModels[2].soldiersBuilt = " + allyArchonModels[2].soldiersBuilt + ", allyArchonModels[2].alive = " + allyArchonModels[2].alive + ", allyArchonModels[2].onCooldown = " + allyArchonModels[2].onCooldown);
+//            DebugManager.log(rc, "allyArchonModels[3].soldiersBuilt = " + allyArchonModels[3].soldiersBuilt + ", allyArchonModels[3].alive = " + allyArchonModels[3].alive + ", allyArchonModels[3].onCooldown = " + allyArchonModels[3].onCooldown);
+//            DebugManager.log(rc, "allyArchonModels[" + chosenArchonIndex + "].setActionBuildSoldier();");
             if (chosenArchonIndex == -1) {
                 break;
             }

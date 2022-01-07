@@ -86,6 +86,28 @@ strictfp class ArchonStrategy {
         int encodedMyArchonTracker = ArchonTrackerManager.encodeAllyArchonTracker(makeMyArchonTracker(rc));
         rc.writeSharedArray(mySharedArrayIndex, encodedMyArchonTracker);
 
+        // If first alive Archon, write to shared array indicies 8-9 for ArchonResourceManager
+        // Reset the array indicies except cooldowns last turn, then write lead and gold
+        if (mySharedArrayIndex == ArchonTrackerManager.getFirstAliveAllyArchon()) {
+            int encodedIndex8 = rc.readSharedArray(8);
+            encodedIndex8 = encodedIndex8 & 0xF;
+            int lead = rc.getTeamLeadAmount(rc.getTeam());
+            if (lead > 0xFFF) {
+                lead = 0xFFF;
+            }
+            encodedIndex8 = encodedIndex8 | lead << 4;
+
+            int encodedIndex9 = 0;
+            int gold = rc.getTeamGoldAmount(rc.getTeam());
+            if (gold > 0xFFF) {
+                gold = 0xFFF;
+            }
+            encodedIndex9 = encodedIndex9 | gold << 4;
+
+            rc.writeSharedArray(8, encodedIndex8);
+            rc.writeSharedArray(9, encodedIndex9);
+        }
+
         // Get and perform action from ArchonResourceManager
         ArchonResourceManager.computeArchonActions(rc);
         ArchonResourceManager.ARCHON_ACTIONS action = ArchonResourceManager.getArchonAction(mySharedArrayIndex);
@@ -99,31 +121,14 @@ strictfp class ArchonStrategy {
             archonTryBuild(rc, RobotType.SOLDIER, null);
         }
 
-        // Write to shared array indicies 8-9 for ArchonResourceManager for next turn
+        // Write to shared array indicies 8-9 for ArchonResourceManager
         int encodedIndex8 = rc.readSharedArray(8);
         int encodedIndex9Original = rc.readSharedArray(9);
         int encodedIndex9 = encodedIndex9Original;
-        // If first alive Archon, reset the elements except cooldowns last turn
-        if (mySharedArrayIndex == ArchonTrackerManager.getFirstAliveAllyArchon()) {
-            encodedIndex8 = encodedIndex8 & 0xF;
-            encodedIndex9 = 0;
-        }
         boolean onCooldown = rc.getActionCooldownTurns() > 10;
         encodedIndex9 = encodedIndex9 | (onCooldown ? 1 : 0) << mySharedArrayIndex;
-        // If last alive Archon, write lead and gold, and copy cooldowns last turn to this turn
+        // If last alive Archon, copy cooldowns last turn to this turn
         if (mySharedArrayIndex == ArchonTrackerManager.getLastAliveAllyArchon()) {
-            int lead = rc.getTeamLeadAmount(rc.getTeam());
-            if (lead > 0xFFF) {
-                lead = 0xFFF;
-            }
-            encodedIndex8 = encodedIndex8 | lead << 4;
-
-            int gold = rc.getTeamGoldAmount(rc.getTeam());
-            if (gold > 0xFFF) {
-                gold = 0xFFF;
-            }
-            encodedIndex9 = encodedIndex9 | gold << 4;
-
             encodedIndex8 = encodedIndex8 & 0xFFF0;
             encodedIndex8 = encodedIndex8 | (encodedIndex9Original & 0xF);
             rc.writeSharedArray(8, encodedIndex8);
