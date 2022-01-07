@@ -33,7 +33,7 @@ strictfp class SoldierStrategy {
             MapLocation myNearestArchonLocation = ArchonTrackerManager.getNearestMyArchon(myLocation).location;
             if (myLocation.distanceSquaredTo(myNearestArchonLocation) > 10) {
                 // Move towards nearest my Archon
-                GeneralManager.tryMove(rc, myLocation.directionTo(myNearestArchonLocation), true);
+                GeneralManager.tryMove(rc,GeneralManager.getNextDir(rc,myNearestArchonLocation), false);
             }
             else {
                 action = GeneralManager.HOSTILE_DROID_ACTIONS.HOLD;

@@ -4,8 +4,7 @@ import battlecode.common.*;
 
 import java.util.ArrayList;
 
-import static p5.GeneralManager.DIRECTIONS;
-import static p5.GeneralManager.getSqDistance;
+import static p5.GeneralManager.*;
 
 strictfp class MinerStrategy {
     static boolean[][] visited = null;
@@ -39,7 +38,7 @@ strictfp class MinerStrategy {
         Direction dir = getNextMiningDir(rc);
 
         if (dir != null) {
-            rc.move(dir);
+            tryMove(rc, dir, false);
         }
     }
 

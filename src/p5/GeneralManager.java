@@ -184,16 +184,18 @@ strictfp class GeneralManager {
     static Direction getNextDir(RobotController rc, MapLocation dest) throws GameActionException {
         MapLocation currLoc = rc.getLocation();
         if(currLoc.equals(dest)) return null;
+
         Direction movementDir = null;
         int minDist = getSqDistance(currLoc, dest);
-        int f = Integer.MAX_VALUE;//minDist + rubble;
+        int f = Integer.MAX_VALUE;
+//        int f = rc.senseNearbyRobots(rc.getType().visionRadiusSquared,rc.getTeam().opponent()) ? minDist : minDist + 200;
 
         for(Direction dir : DIRECTIONS) {
             if(rc.canMove(dir)) {
                 MapLocation adj = rc.adjacentLocation(dir);
                 int newDist = getSqDistance(adj,dest);
                 int newRubble = rc.senseRubble(adj);
-                int newF = newDist + newRubble;
+                int newF = newDist*2 + newRubble;
 //                if (visited[adj.x][adj.y]) newF += 100;
 
                 if(newF < f) {
@@ -202,13 +204,33 @@ strictfp class GeneralManager {
                 }
                 else if(newF == f){
                     if(((int)Math.random()*2)==0) {
-                        f = newF;
                         movementDir = dir;
                     }
                 }
             }
         }
         return movementDir;
+    }
+
+    static Direction getDirForEncircle(RobotController rc, MapLocation loc, int rSq) throws GameActionException {
+        double r = Math.sqrt(rSq);
+
+        int xOffset = 1000, yOffset = 1000;
+
+        while (!onMap(loc.x + xOffset, loc.y + yOffset, rc)){
+            xOffset = (int) (Math.random() * ((int) r + 1)) * ((int) (Math.random() * 3) - 1);
+            yOffset = (int) Math.ceil(Math.sqrt(rSq - xOffset * xOffset)) * ((int) (Math.random() * 3) - 1);
+        }
+
+        return getNextDir(rc, new MapLocation(loc.x + xOffset, loc.y + yOffset));
+    }
+
+    static boolean onMap(MapLocation loc, RobotController rc) {
+        return loc.x >= 0 && loc.x <= rc.getMapWidth() && loc.y >= 0 && loc.y <= rc.getMapHeight();
+    }
+
+    static boolean onMap(int x, int y, RobotController rc) {
+        return x >= 0 && x <= rc.getMapWidth() && y >= 0 && y <= rc.getMapHeight();
     }
 
     static Direction moveTo(RobotController rc, MapLocation dest) {
