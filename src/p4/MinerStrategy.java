@@ -36,8 +36,7 @@ strictfp class MinerStrategy {
             }
         }
 
-        Direction dir = null;
-        dir = getNextMiningDir(rc);
+        Direction dir = getNextMiningDir(rc);
 
         if (dir != null) {
             rc.move(dir);
@@ -57,16 +56,21 @@ strictfp class MinerStrategy {
 //        int f = - 1 * rc.senseLead(currLoc) - 5 * rc.senseGold(currLoc);
         int f = 0;
         for(MapLocation adj : rc.getAllLocationsWithinRadiusSquared(currLoc,2)) {
-            f += rc.senseLead(adj) + 5*rc.senseGold(adj);
+            f += 2*rc.senseLead(adj) + 5*rc.senseGold(adj);
         }
 
         MapLocation enemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchon(currLoc).guessLocation;
-        f -= getSqDistance(currLoc,enemyArchonLoc);
+
+        boolean closeToEnemyArchon = false;
+        if(getSqDistance(currLoc,enemyArchonLoc) < 50) {
+            f -= getSqDistance(currLoc, enemyArchonLoc);
+            closeToEnemyArchon = true;
+        }
 
         for(RobotInfo enemy : enemies) {
             if(enemy.type.canAttack()) {
 //                enemyLocs.add(enemy.location);
-                f += 400-GeneralManager.getSqDistance(currLoc,enemy.location);
+                f -= GeneralManager.getSqDistance(currLoc,enemy.location);
             }
         }
 
@@ -74,7 +78,10 @@ strictfp class MinerStrategy {
             if(rc.canMove(dir)) {
                 MapLocation adj = rc.adjacentLocation(dir);
                 int newRubble = rc.senseRubble(adj);
-                int newF = newRubble - getSqDistance(adj,enemyArchonLoc);
+                int newF = newRubble;
+                if(closeToEnemyArchon) {
+                    f -= GeneralManager.getSqDistance(currLoc, enemyArchonLoc);
+                }
 
                 MapLocation[] adjToAdj = rc.getAllLocationsWithinRadiusSquared(adj,2);
 
@@ -87,7 +94,7 @@ strictfp class MinerStrategy {
                 // Account for enemies by adding to cost
                 for(RobotInfo enemy : enemies) {
                     if(enemy.type.canAttack()) {
-                        newF += 400-GeneralManager.getSqDistance(adj,enemy.location);
+                        newF -= -GeneralManager.getSqDistance(adj,enemy.location);
                     }
                 }
 

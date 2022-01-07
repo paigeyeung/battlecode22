@@ -19,11 +19,13 @@ strictfp class SoldierStrategy {
                 MapLocation visibleAttackTarget = GeneralManager.getAttackTarget(rc, rc.getType().visionRadiusSquared);
                 if (visibleAttackTarget != null) {
                     // Move towards nearest visible enemy
-                    GeneralManager.tryMove(rc, myLocation.directionTo(visibleAttackTarget), true);
+//                    GeneralManager.tryMove(rc, myLocation.directionTo(visibleAttackTarget), true);
+                    GeneralManager.tryMove(rc,GeneralManager.getNextDir(rc,visibleAttackTarget), false);
                 }
                 else {
                     // If no enemies are visible, move towards nearest enemy Archon
-                    GeneralManager.tryMove(rc, myLocation.directionTo(ArchonTrackerManager.getNearestEnemyArchon(myLocation).guessLocation), true);
+//                    GeneralManager.tryMove(rc, myLocation.directionTo(ArchonTrackerManager.getNearestEnemyArchon(myLocation).guessLocation), true);
+                    GeneralManager.tryMove(rc,GeneralManager.getNextDir(rc,ArchonTrackerManager.getNearestEnemyArchon(myLocation).guessLocation), false);
                 }
             }
         }

@@ -180,6 +180,37 @@ strictfp class GeneralManager {
         return false;
     }
 
+    // Get direction to get to destination with less rubble
+    static Direction getNextDir(RobotController rc, MapLocation dest) throws GameActionException {
+        MapLocation currLoc = rc.getLocation();
+        if(currLoc.equals(dest)) return null;
+        Direction movementDir = null;
+        int minDist = getSqDistance(currLoc, dest);
+        int f = Integer.MAX_VALUE;//minDist + rubble;
+
+        for(Direction dir : DIRECTIONS) {
+            if(rc.canMove(dir)) {
+                MapLocation adj = rc.adjacentLocation(dir);
+                int newDist = getSqDistance(adj,dest);
+                int newRubble = rc.senseRubble(adj);
+                int newF = newDist + newRubble;
+//                if (visited[adj.x][adj.y]) newF += 100;
+
+                if(newF < f) {
+                    f = newF;
+                    movementDir = dir;
+                }
+                else if(newF == f){
+                    if(((int)Math.random()*2)==0) {
+                        f = newF;
+                        movementDir = dir;
+                    }
+                }
+            }
+        }
+        return movementDir;
+    }
+
     static Direction moveTo(RobotController rc, MapLocation dest) {
         MapLocation currLoc = rc.getLocation();
         if(currLoc.equals(dest)) return null;
