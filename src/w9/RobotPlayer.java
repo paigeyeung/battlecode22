@@ -23,11 +23,12 @@ public strictfp class RobotPlayer {
                     case WATCHTOWER: WatchtowerStrategy.runWatchtower(rc); break;
                 }
                 AllUnitStrategy.runAllLate(rc);
+                DebugManager.sanityCheck(rc);
             } catch (GameActionException e) {
-                GeneralManager.log(rc.getType() + " Exception");
+                DebugManager.log(rc, rc.getType() + " Exception");
                 e.printStackTrace();
             } catch (Exception e) {
-                GeneralManager.log(rc.getType() + " Exception");
+                DebugManager.log(rc, rc.getType() + " Exception");
                 e.printStackTrace();
             } finally {
                 Clock.yield();

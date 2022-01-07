@@ -53,16 +53,16 @@ strictfp class ArchonStrategy {
                 mySharedArrayIndex++;
             }
             if (mySharedArrayIndex == 4) {
-                GeneralManager.log("SOMETHING WENT WRONG: Archon did not find empty array element");
+                DebugManager.log(rc, "SOMETHING WENT WRONG: Archon did not find empty array element");
             }
             else {
                 int encodedMyArchonTracker = ArchonTrackerManager.encodeAllyArchonTracker(makeMyArchonTracker(rc));
                 rc.writeSharedArray(mySharedArrayIndex, encodedMyArchonTracker);
-                GeneralManager.log("Broadcasted my Archon location " + myLocation + " as " + encodedMyArchonTracker);
+                DebugManager.log(rc, "Broadcasted my Archon location " + myLocation + " as " + encodedMyArchonTracker);
 
                 int encodedEnemyArchonTracker = ArchonTrackerManager.encodeEnemyArchonTracker(true, false, myLocation);
                 rc.writeSharedArray(mySharedArrayIndex + 4, encodedEnemyArchonTracker);
-                GeneralManager.log("Broadcasted enemy Archon as " + encodedEnemyArchonTracker);
+                DebugManager.log(rc, "Broadcasted enemy Archon as " + encodedEnemyArchonTracker);
 
                 broadcastedLocation = true;
             }

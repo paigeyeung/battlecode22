@@ -5,10 +5,6 @@ import battlecode.common.*;
 import java.util.Random;
 
 strictfp class GeneralManager {
-    static void log(String string) {
-        System.out.println(string);
-    }
-
     static final Direction[] DIRECTIONS = {
         Direction.NORTH,
         Direction.NORTHEAST,
@@ -71,7 +67,7 @@ strictfp class GeneralManager {
             }
         }
         if (preferredDirectionIndex == -1) {
-            GeneralManager.log("SOMETHING WENT WRONG: getBuildDirection didn't find index of preferred direction");
+            DebugManager.log(rc, "SOMETHING WENT WRONG: getBuildDirection didn't find index of preferred direction");
             return null;
         }
         int leftDirectionIndex = preferredDirectionIndex - 1;

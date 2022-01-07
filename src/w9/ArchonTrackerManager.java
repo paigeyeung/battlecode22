@@ -73,7 +73,7 @@ strictfp class ArchonTrackerManager {
             guessLocation = guessLocations.removeFirst();
             if (guessLocation == null) {
                 guessLocation = new MapLocation(0, 0);
-                GeneralManager.log("ArchonTrackerManager: Ran out of guess locations!");
+                DebugManager.log(null, "ArchonTrackerManager: Ran out of guess locations!");
             }
         }
 

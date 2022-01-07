@@ -63,7 +63,7 @@ strictfp class AllUnitStrategy {
                     ArchonTrackerManager.allyArchonTrackers[i].alive = false;
                     int encodedAllyArchonTracker = ArchonTrackerManager.encodeAllyArchonTracker(ArchonTrackerManager.allyArchonTrackers[i]);
                     rc.writeSharedArray(i, encodedAllyArchonTracker);
-                    GeneralManager.log("Broadcasted ally Archon dead location " + ArchonTrackerManager.allyArchonTrackers[i].location + " as " + encodedAllyArchonTracker);
+                    DebugManager.log(rc, "Broadcasted ally Archon dead location " + ArchonTrackerManager.allyArchonTrackers[i].location + " as " + encodedAllyArchonTracker);
                 }
             }
             for (int i = 0; i < ArchonTrackerManager.enemyArchonTrackers.length; i++) {
@@ -94,7 +94,7 @@ strictfp class AllUnitStrategy {
                             ArchonTrackerManager.enemyArchonTrackers[i].alive = false;
                             int encodedEnemyArchonTracker = ArchonTrackerManager.encodeEnemyArchonTracker(ArchonTrackerManager.enemyArchonTrackers[i]);
                             rc.writeSharedArray(i + 4, encodedEnemyArchonTracker);
-                            GeneralManager.log("Broadcasted enemy Archon dead " + guessLocation + " as " + encodedEnemyArchonTracker);
+                            DebugManager.log(rc, "Broadcasted enemy Archon dead " + guessLocation + " as " + encodedEnemyArchonTracker);
                         }
                     }
                     else if (!ArchonTrackerManager.enemyArchonTrackers[i].seen) {
@@ -103,7 +103,7 @@ strictfp class AllUnitStrategy {
                             ArchonTrackerManager.enemyArchonTrackers[i].seen = true;
                             int encodedEnemyArchonTracker = ArchonTrackerManager.encodeEnemyArchonTracker(ArchonTrackerManager.enemyArchonTrackers[i]);
                             rc.writeSharedArray(i + 4, encodedEnemyArchonTracker);
-                            GeneralManager.log("Broadcasted enemy Archon seen " + guessLocation + " as " + encodedEnemyArchonTracker);
+                            DebugManager.log(rc, "Broadcasted enemy Archon seen " + guessLocation + " as " + encodedEnemyArchonTracker);
                         }
                     }
                 }
