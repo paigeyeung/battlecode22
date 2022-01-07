@@ -1,9 +1,9 @@
-package m1;
+package m1w1;
 
 import battlecode.common.*;
 
 public class DebugManager {
-    static String botName = "m1";
+    static String botName = "m1w1";
     static void log(RobotController rc, String string) {
         System.out.println(botName + " - " + (rc == null ? "null" : rc.getRoundNum()) + " - " + string);
     }
