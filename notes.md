@@ -117,15 +117,24 @@ William's Changelog
             - Last 4 bits are last turn's combat decision 
 
 Paige's Notes
-- pathfinding
-    - long distance general purpose pathfinding algorithm
-    - individual short distance algorithms for each unit
-         - miners
-             - highest priority is to avoid enemy hostile units
-             - mine gold if possible
-             - move towards gold if possible and visible
-             - mine lead if possible
-             - move towards lead if possible and visible
-             - search unexplored areas for lead
-         - soldiers + sages
+- Pathfinding
+    - Long distance general purpose pathfinding algorithm
+    - Individual short distance algorithms for each unit
+         - Miners
+             - Highest priority is to avoid enemy hostile units
+             - Mine gold if possible
+             - Move towards gold if possible and visible
+             - Mine lead if possible
+             - Move towards lead if possible and visible
+             - Search unexplored areas for lead
+         - Soldiers + sages
              - later
+    - p3
+      - Miners move based on combination of factors
+    - p4
+      - Combined p3 with w6, added soldier movement
+    - p5
+      - Refining p4
+    - p6
+      - Miners share locations with high resource density
+      - Target locations - split between high-resource-density locations, edges of map, archon that produced it
