@@ -39,7 +39,8 @@ William's Changelog
     - w9
         - Toggle last bit in shared array to show alive and check for death of other Archons
     - future
-        - Determine number of miners needed based on feedback
+        - Determine number of miners each Archon produces based on amount of lead in vision
+            - Can deduce number of miners mining lead this turn by tracking all expenses and calculating change in lead per turn
 - Miner
     - example
         - Try to mine gold and lead if there’s any around us
@@ -90,6 +91,8 @@ William's Changelog
         - Track starting Archon in static variable
     - w8
         - Refactor into classes
+    - w9
+        - Continued refactor, added Debug Manager
     - future
         - Search for enemy Archons in radius if it is missing
         - First Archon to run is resource manager for the turn

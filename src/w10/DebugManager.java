@@ -1,9 +1,9 @@
-package w9;
+package w10;
 
 import battlecode.common.*;
 
 public class DebugManager {
-    static String botName = "w9";
+    static String botName = "w10";
     static void log(RobotController rc, String string) {
         System.out.println(botName + " - " + (rc == null ? "null" : rc.getRoundNum()) + " - " + string);
     }
