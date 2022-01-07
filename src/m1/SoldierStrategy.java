@@ -2,8 +2,6 @@ package m1;
 
 import battlecode.common.*;
 
-import static m1.GeneralManager.*;
-
 strictfp class SoldierStrategy {
     static int[][] visitedTurns;
 
@@ -33,11 +31,11 @@ strictfp class SoldierStrategy {
                 MapLocation visibleAttackTarget = CombatManager.getAttackTarget(rc, rc.getType().visionRadiusSquared);
                 if (visibleAttackTarget != null) {
                     // Move towards nearest visible enemy
-                    tryMove(rc, getNextSoldierDir(rc,visibleAttackTarget), false);
+                    GeneralManager.tryMove(rc, getNextSoldierDir(rc,visibleAttackTarget), false);
                 }
                 else {
                     // If no enemies are visible, move towards nearest enemy Archon
-                    tryMove(rc, getNextSoldierDir(rc,ArchonTrackerManager.getNearestEnemyArchon(myLocation).guessLocation), false);
+                    GeneralManager.tryMove(rc, getNextSoldierDir(rc,ArchonTrackerManager.getNearestEnemyArchon(myLocation).guessLocation), false);
                 }
             }
         }
@@ -45,7 +43,7 @@ strictfp class SoldierStrategy {
             MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchon(myLocation).location;
             if (myLocation.distanceSquaredTo(nearestAllyArchonLocation) > 10) {
                 // Move towards nearest ally Archon
-                tryMove(rc, getNextSoldierDir(rc,nearestAllyArchonLocation), true);
+                GeneralManager.tryMove(rc, getNextSoldierDir(rc,nearestAllyArchonLocation), true);
             }
             else {
                 action = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
@@ -65,10 +63,10 @@ strictfp class SoldierStrategy {
 //        int minDist = getSqDistance(currLoc, dest);
         int f = Integer.MAX_VALUE;//minDist + rubble;
 
-        for(Direction dir : DIRECTIONS) {
+        for(Direction dir : GeneralManager.DIRECTIONS) {
             if(rc.canMove(dir)) {
                 MapLocation adj = rc.adjacentLocation(dir);
-                int newF = getSqDistance(adj,dest) + rc.senseRubble(adj) + (int)(100*(double)visitedTurns[adj.x][adj.y]/turnsAlive);
+                int newF = GeneralManager.getSqDistance(adj, dest) + rc.senseRubble(adj) + (int)(100 * (double)visitedTurns[adj.x][adj.y] / GeneralManager.turnsAlive);
                 if(newF < f) {
                     f = newF;
                     movementDir = dir;
@@ -83,7 +81,7 @@ strictfp class SoldierStrategy {
         }
         if (movementDir != null) {
             MapLocation adj = rc.adjacentLocation(movementDir);
-            visitedTurns[adj.x][adj.y] = turnsAlive;
+            visitedTurns[adj.x][adj.y] = GeneralManager.turnsAlive;
         }
         return movementDir;
     }

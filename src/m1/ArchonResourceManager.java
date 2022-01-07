@@ -1,7 +1,6 @@
 package m1;
 
 import battlecode.common.*;
-import scala.collection.concurrent.Debug;
 
 strictfp class ArchonResourceManager {
     enum ARCHON_ROLES {

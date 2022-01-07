@@ -2,8 +2,6 @@ package m1;
 
 import battlecode.common.*;
 
-import static m1.GeneralManager.*;
-
 strictfp class MinerStrategy {
     static boolean[][] visited = null;
     /** Called by RobotPlayer **/
@@ -38,7 +36,7 @@ strictfp class MinerStrategy {
         Direction dir = getNextMiningDir(rc);
 
         if (dir != null) {
-            tryMove(rc,dir,false);
+            GeneralManager.tryMove(rc,dir,false);
         }
     }
 
@@ -61,25 +59,25 @@ strictfp class MinerStrategy {
         MapLocation enemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchon(currLoc).guessLocation;
 
         boolean closeToEnemyArchon = false;
-        if(getSqDistance(currLoc,enemyArchonLoc) < 50) {
-            f -= getSqDistance(currLoc, enemyArchonLoc);
+        if(GeneralManager.getSqDistance(currLoc, enemyArchonLoc) < 50) {
+            f -= GeneralManager.getSqDistance(currLoc, enemyArchonLoc);
             closeToEnemyArchon = true;
         }
 
         for(RobotInfo enemy : enemies) {
             if(enemy.type.canAttack()) {
 //                enemyLocs.add(enemy.location);
-                f -= 10 * getSqDistance(currLoc,enemy.location);
+                f -= 10 * GeneralManager.getSqDistance(currLoc, enemy.location);
             }
         }
 
-        for(Direction dir : DIRECTIONS) {
+        for(Direction dir : GeneralManager.DIRECTIONS) {
             if(rc.canMove(dir)) {
                 MapLocation adj = rc.adjacentLocation(dir);
                 int newRubble = rc.senseRubble(adj);
                 int newF = (int)(newRubble*0.5);
                 if(closeToEnemyArchon) {
-                    f -= getSqDistance(currLoc, enemyArchonLoc);
+                    f -= GeneralManager.getSqDistance(currLoc, enemyArchonLoc);
                 }
 
                 MapLocation[] adjToAdj = rc.getAllLocationsWithinRadiusSquared(adj,2);
@@ -93,7 +91,7 @@ strictfp class MinerStrategy {
                 // Account for enemies by adding to cost
                 for(RobotInfo enemy : enemies) {
                     if(enemy.type.canAttack()) {
-                        newF -= -GeneralManager.getSqDistance(adj,enemy.location);
+                        newF -= -GeneralManager.getSqDistance(adj, enemy.location);
                     }
                 }
 
