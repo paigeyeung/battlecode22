@@ -4,7 +4,7 @@ import battlecode.common.*;
 
 import java.util.Random;
 
-strictfp class GeneralManager {
+public strictfp class GeneralManager {
     static final Direction[] DIRECTIONS = {
         Direction.NORTH,
         Direction.NORTHEAST,
@@ -50,7 +50,7 @@ strictfp class GeneralManager {
     /**
      * Get squared distance between two locations
      */
-    static int getSqDistance(MapLocation loc1, MapLocation loc2) {
+    public static int getSqDistance(MapLocation loc1, MapLocation loc2) {
         return (loc1.x - loc2.x)*(loc1.x - loc2.x) + (loc1.y - loc2.y)*(loc1.y - loc2.y);
     }
 
@@ -159,7 +159,7 @@ strictfp class GeneralManager {
      * Try to move
      * Returns true if successful
      */
-    static boolean tryMove(RobotController rc, Direction direction, boolean moveRandomlyIfFailed) throws GameActionException {
+    public static boolean tryMove(RobotController rc, Direction direction, boolean moveRandomlyIfFailed) throws GameActionException {
         if (direction != null && rc.canMove(direction)) {
             rc.move(direction);
             return true;

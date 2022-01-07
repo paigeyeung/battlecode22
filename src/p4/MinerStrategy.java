@@ -4,8 +4,7 @@ import battlecode.common.*;
 
 import java.util.ArrayList;
 
-import static p4.GeneralManager.DIRECTIONS;
-import static p4.GeneralManager.getSqDistance;
+import static p4.GeneralManager.*;
 
 strictfp class MinerStrategy {
     static boolean[][] visited = null;
@@ -39,7 +38,7 @@ strictfp class MinerStrategy {
         Direction dir = getNextMiningDir(rc);
 
         if (dir != null) {
-            rc.move(dir);
+            tryMove(rc,dir,false);
         }
     }
 
@@ -56,7 +55,7 @@ strictfp class MinerStrategy {
 //        int f = - 1 * rc.senseLead(currLoc) - 5 * rc.senseGold(currLoc);
         int f = 0;
         for(MapLocation adj : rc.getAllLocationsWithinRadiusSquared(currLoc,2)) {
-            f += 2*rc.senseLead(adj) + 5*rc.senseGold(adj);
+            f -= 5*rc.senseLead(adj) + 15*rc.senseGold(adj);
         }
 
         MapLocation enemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchon(currLoc).guessLocation;
@@ -70,7 +69,7 @@ strictfp class MinerStrategy {
         for(RobotInfo enemy : enemies) {
             if(enemy.type.canAttack()) {
 //                enemyLocs.add(enemy.location);
-                f -= GeneralManager.getSqDistance(currLoc,enemy.location);
+                f -= 10*GeneralManager.getSqDistance(currLoc,enemy.location);
             }
         }
 
