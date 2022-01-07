@@ -38,7 +38,10 @@ William's Changelog
         - Build minder / solder in 30% / 70%
     - w9
         - Toggle last bit in shared array to show alive and check for death of other Archons
+    - w10
+        - Start game by building 1 miner
     - future
+        - Broadcast action cooldown at end of turn
         - Determine number of miners each Archon produces based on amount of lead in vision
             - Can deduce number of miners mining lead this turn by tracking all expenses and calculating change in lead per turn
 - Miner
@@ -110,6 +113,16 @@ William's Changelog
         - Indicies 0-3 store ally Archon locations
             - Last bit is toggled by ally Archon every turn to show it's alive
             - x | x | x | x | x | x | y | y | y | y | y | y | alive | toggle
+    - w10
+        - Indicies 8-9 store values for Archon resource manager
+            - Index 8
+                - First 12 bits store lead amount at start of turn
+                - Last 4 bits store whether Archons 0-3 on cooldown last turn
+                - lead... | 3 on cooldown | 2 on cooldown | 1 on cooldown | 0 on cooldown
+            - Index 9
+                - First 12 bits store gold amount at start of turn
+                - Last 4 bits store whether Archons 0-3 on cooldown this turn
+                - gold... | 3 on cooldown | 2 on cooldown | 1 on cooldown | 0 on cooldown
     - future
         - Index 8 stores combat scores
             - First 6 bits is ally highest combat score

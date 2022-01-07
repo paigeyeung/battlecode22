@@ -56,14 +56,16 @@ strictfp class AllUnitStrategy {
             for (int i = 0; i < ArchonTrackerManager.allyArchonTrackers.length; i++) {
                 ArchonTrackerManager.AllyArchonTracker allyArchonTracker = ArchonTrackerManager.decodeAllyArchonTracker(rc.readSharedArray(i));
                 if (!ArchonTrackerManager.allyArchonTrackers[i].isEqualTo(allyArchonTracker)) {
+                    // Update ArchonTrackerManager as well
+                    if (ArchonTrackerManager.allyArchonTrackers[i].alive != allyArchonTracker.alive && rc.getType() == RobotType.ARCHON) {
+                        ArchonResourceManager.allyArchonModels[i].alive = allyArchonTracker.alive;
+                    }
+
                     ArchonTrackerManager.allyArchonTrackers[i].update(allyArchonTracker);
                 }
                 else if (rc.getType() == RobotType.ARCHON && ArchonTrackerManager.allyArchonTrackers[i].alive && updatedArchonsLastTurn && ArchonTrackerManager.allyArchonTrackers[i].toggle == allyArchonTracker.toggle) {
                     // Toggle did not change since last turn, so ally Archon is dead
-                    ArchonTrackerManager.allyArchonTrackers[i].alive = false;
-                    int encodedAllyArchonTracker = ArchonTrackerManager.encodeAllyArchonTracker(ArchonTrackerManager.allyArchonTrackers[i]);
-                    rc.writeSharedArray(i, encodedAllyArchonTracker);
-                    DebugManager.log(rc, "Broadcasted ally Archon dead location " + ArchonTrackerManager.allyArchonTrackers[i].location + " as " + encodedAllyArchonTracker);
+                    ArchonTrackerManager.setAllyArchonDead(rc, i);
                 }
             }
             for (int i = 0; i < ArchonTrackerManager.enemyArchonTrackers.length; i++) {

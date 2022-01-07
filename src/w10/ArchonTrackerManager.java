@@ -103,10 +103,21 @@ strictfp class ArchonTrackerManager {
         return location.x << 8 | location.y << 2 | (alive ? 1 : 0) << 1 | (seen ? 1 : 0);
     }
     static AllyArchonTracker decodeAllyArchonTracker(int encoded) {
-        return new AllyArchonTracker(((encoded >> 1) & 0x1) == 1, new MapLocation((encoded >> 8) & 0x3F, (encoded >> 2) & 0x3F), (encoded & 0x1) == 1);
+        return new AllyArchonTracker(((encoded >>> 1) & 0x1) == 1, new MapLocation((encoded >>> 8) & 0x3F, (encoded >>> 2) & 0x3F), (encoded & 0x1) == 1);
     }
     static EnemyArchonTracker decodeEnemyArchonTracker(int encoded) {
-        return new EnemyArchonTracker(((encoded >> 1) & 0x1) == 1, new MapLocation((encoded >> 8) & 0x3F, (encoded >> 2) & 0x3F), (encoded & 0x1) == 1, allyArchonTrackers);
+        return new EnemyArchonTracker(((encoded >>> 1) & 0x1) == 1, new MapLocation((encoded >>> 8) & 0x3F, (encoded >>> 2) & 0x3F), (encoded & 0x1) == 1, allyArchonTrackers);
+    }
+
+    static void setAllyArchonDead(RobotController rc, int index) throws GameActionException {
+        allyArchonTrackers[index].alive = false;
+        int encodedAllyArchonTracker = encodeAllyArchonTracker(allyArchonTrackers[index]);
+        rc.writeSharedArray(index, encodedAllyArchonTracker);
+        DebugManager.log(rc, "Broadcasted ally Archon dead location " + allyArchonTrackers[index].location + " as " + encodedAllyArchonTracker);
+
+        if (rc.getType() == RobotType.ARCHON) {
+            ArchonResourceManager.setArchonDead(rc, index);
+        }
     }
 
     static AllyArchonTracker getNearestAllyArchon(MapLocation fromLocation) {
@@ -126,5 +137,40 @@ strictfp class ArchonTrackerManager {
             }
         }
         return nearest;
+    }
+
+    static int getAllyArchonIndex(AllyArchonTracker allyArchonTracker) {
+        for (int i = 0; i < allyArchonTrackers.length; i++) {
+            if (allyArchonTracker.equals(allyArchonTrackers[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    static int getEnemyArchonIndex(EnemyArchonTracker enemyArchonTracker) {
+        for (int i = 0; i < enemyArchonTrackers.length; i++) {
+            if (enemyArchonTracker.equals(enemyArchonTrackers[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    static int getFirstAliveAllyArchon() {
+        for (int i = 0; i < allyArchonTrackers.length; i++) {
+            if (allyArchonTrackers[i].alive) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    static int getLastAliveAllyArchon() {
+        int last = -1;
+        for (int i = 0; i < allyArchonTrackers.length; i++) {
+            if (allyArchonTrackers[i].alive) {
+                last = i;
+            }
+        }
+        return last;
     }
 }
