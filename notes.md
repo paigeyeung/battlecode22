@@ -40,6 +40,7 @@ William's Changelog
         - Toggle last bit in shared array to show alive and check for death of other Archons
     - w10
         - Start game by building 1 miner
+        - Archons each have roles and builds are split evenly between them
     - future
         - Broadcast action cooldown at end of turn
         - Determine number of miners each Archon produces based on amount of lead in vision

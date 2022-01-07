@@ -40,8 +40,6 @@ strictfp class ArchonResourceManager {
             // Each Archon builds a miner on turn 1, before this runs
             minersBuilt++;
             droidsBuilt++;
-
-            updateNearestEnemyArchon();
         }
 
         void updateNearestEnemyArchon() {
@@ -97,6 +95,10 @@ strictfp class ArchonResourceManager {
 
     /** Compute Archon roles */
     static void computeArchonRoles(RobotController rc) {
+        for (int i = 0; i < allyArchonModels.length; i++) {
+            allyArchonModels[i].updateNearestEnemyArchon();
+        }
+
         int closestToEnemyDistanceSquared = 10000;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if (!allyArchonModels[i].alive) {
@@ -150,8 +152,7 @@ strictfp class ArchonResourceManager {
             allyArchonModels[i].onCooldown = ((encodedIndex8 >>> i) & 0x1) == 1;
             allyArchonModels[i].setActionDoNothing();
         }
-//        DebugManager.log(rc, "I'm " + ArchonStrategy.mySharedArrayIndex + " at " + ArchonTrackerManager.allyArchonTrackers[ArchonStrategy.mySharedArrayIndex].location);
-//        DebugManager.log(rc, "lead = " + lead + ", gold = " + gold);
+
         while (true) {
             // Maintain 30% proportion of miners
             if (totalMinersBuilt < totalDroidsBuilt * 0.3) {
@@ -159,11 +160,6 @@ strictfp class ArchonResourceManager {
                     break;
                 }
                 int chosenArchonIndex = findArchonWithFewestMinersBuilt(true);
-//                DebugManager.log(rc, "allyArchonModels[0].minersBuilt = " + allyArchonModels[0].minersBuilt + ", allyArchonModels[0].alive = " + allyArchonModels[0].alive + ", allyArchonModels[0].onCooldown = " + allyArchonModels[0].onCooldown);
-//                DebugManager.log(rc, "allyArchonModels[1].minersBuilt = " + allyArchonModels[1].minersBuilt + ", allyArchonModels[1].alive = " + allyArchonModels[1].alive + ", allyArchonModels[1].onCooldown = " + allyArchonModels[1].onCooldown);
-//                DebugManager.log(rc, "allyArchonModels[2].minersBuilt = " + allyArchonModels[2].minersBuilt + ", allyArchonModels[2].alive = " + allyArchonModels[2].alive + ", allyArchonModels[2].onCooldown = " + allyArchonModels[2].onCooldown);
-//                DebugManager.log(rc, "allyArchonModels[3].minersBuilt = " + allyArchonModels[3].minersBuilt + ", allyArchonModels[3].alive = " + allyArchonModels[3].alive + ", allyArchonModels[3].onCooldown = " + allyArchonModels[3].onCooldown);
-//                DebugManager.log(rc, "allyArchonModels[" + chosenArchonIndex + "].setActionBuildMiner();");
                 if (chosenArchonIndex == -1) {
                     break;
                 }
@@ -177,9 +173,6 @@ strictfp class ArchonResourceManager {
                 break;
             }
             int chosenArchonIndex = findArchonWithFewestSoldiersBuilt(true, true);
-//            DebugManager.log(rc, "allyArchonModels[2].soldiersBuilt = " + allyArchonModels[2].soldiersBuilt + ", allyArchonModels[2].alive = " + allyArchonModels[2].alive + ", allyArchonModels[2].onCooldown = " + allyArchonModels[2].onCooldown);
-//            DebugManager.log(rc, "allyArchonModels[3].soldiersBuilt = " + allyArchonModels[3].soldiersBuilt + ", allyArchonModels[3].alive = " + allyArchonModels[3].alive + ", allyArchonModels[3].onCooldown = " + allyArchonModels[3].onCooldown);
-//            DebugManager.log(rc, "allyArchonModels[" + chosenArchonIndex + "].setActionBuildSoldier();");
             if (chosenArchonIndex == -1) {
                 break;
             }
