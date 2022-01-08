@@ -185,6 +185,11 @@ m2w changelog
 
 m2w became m3
 
+m3w changelog
+- All units
+    - m3w1
+        - If in range of enemy Archon and still don't see it, go to next guess location
+
 m4w changelog
 - General
     - future
