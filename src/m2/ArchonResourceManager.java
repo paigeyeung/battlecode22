@@ -140,27 +140,27 @@ strictfp class ArchonResourceManager {
         }
 
         // Read from shared array indicies 8-9
-        int encodedIndex8 = rc.readSharedArray(8);
-        int encodedIndex9 = rc.readSharedArray(9);
-        int lead = encodedIndex8 >>> 4;
-        int gold = encodedIndex9 >>> 4;
+        int encodedResourceManager0 = rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
+        int encodedResourceManager1 = rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
+        int lead = encodedResourceManager0 >>> 4;
+        int gold = encodedResourceManager1 >>> 4;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if (!allyArchonModels[i].alive) {
                 continue;
             }
-            allyArchonModels[i].onCooldown = ((encodedIndex8 >>> i) & 0x1) == 1;
+            allyArchonModels[i].onCooldown = ((encodedResourceManager0 >>> i) & 0x1) == 1;
             allyArchonModels[i].setActionDoNothing();
         }
 
         // Read from shared array index 10
-        int encodedIndex10 = rc.readSharedArray(10);
+        int encodedGeneralStrategy0 = rc.readSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX);
         boolean anySeenEnemy = false;
         boolean seenEnemyArchons[] = new boolean[allyArchonModels.length]; // Not used to modify which Archon produces soldiers at the moment
         for (int i = 0; i < allyArchonModels.length; i++) {
             if (!allyArchonModels[i].alive) {
                 continue;
             }
-            seenEnemyArchons[i] = ((encodedIndex10 >>> i) & 0x1) == 1;
+            seenEnemyArchons[i] = ((encodedGeneralStrategy0 >>> i) & 0x1) == 1;
             if (!anySeenEnemy && seenEnemyArchons[i]) {
                 anySeenEnemy = true;
             }

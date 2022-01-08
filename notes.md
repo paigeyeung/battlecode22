@@ -123,8 +123,8 @@ w changelog
                 - Last 4 bits store whether Archons 0-3 on cooldown this turn
                 - gold... | 3 on cooldown | 2 on cooldown | 1 on cooldown | 0 on cooldown
     - future
-        - Indicies 8-9 could store multiples of 5 so can store larger max values
-        - Index 8 stores combat scores
+        - Indicies ?-? could store multiples of 5 so can store larger max values
+        - Index ? stores combat scores
             - First 6 bits is ally highest combat score
             - Second 6 bits is enemy highest combat score
             - Last 4 bits are last turn's combat decision 
@@ -174,8 +174,10 @@ m1p changelog
 - Soldier
     - Moves when there are other friendly soldiers in range
     - Cost to move is higher when enemies are in range
-    
+
+m1p and m1w merged into m2
+
 m2 changelog
-- future
+- General
     - Make manager for shared array indicies
     - Optimize static variables

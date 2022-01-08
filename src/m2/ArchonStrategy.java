@@ -58,7 +58,7 @@ strictfp class ArchonStrategy {
             // Find first empty array element
             mySharedArrayIndex = 0;
             while (mySharedArrayIndex <= 3) {
-                int element = rc.readSharedArray(mySharedArrayIndex);
+                int element = rc.readSharedArray(CommunicationManager.ALLY_ARCHON_TRACKERS_INDEX + mySharedArrayIndex);
                 if (element == 0) {
                     break;
                 }
@@ -69,11 +69,11 @@ strictfp class ArchonStrategy {
             }
             else {
                 int encodedMyArchonTracker = ArchonTrackerManager.encodeAllyArchonTracker(makeMyArchonTracker(rc));
-                rc.writeSharedArray(mySharedArrayIndex, encodedMyArchonTracker);
+                rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_TRACKERS_INDEX + mySharedArrayIndex, encodedMyArchonTracker);
                 DebugManager.log(rc, "Broadcasted my Archon location " + myLocation + " as " + encodedMyArchonTracker);
 
                 int encodedEnemyArchonTracker = ArchonTrackerManager.encodeEnemyArchonTracker(true, false, myLocation);
-                rc.writeSharedArray(mySharedArrayIndex + 4, encodedEnemyArchonTracker);
+                rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + mySharedArrayIndex, encodedEnemyArchonTracker);
                 DebugManager.log(rc, "Broadcasted enemy Archon as " + encodedEnemyArchonTracker);
             }
 
@@ -102,28 +102,28 @@ strictfp class ArchonStrategy {
         // Toggle bit in shared array to show alive
         mySharedArrayToggle = !mySharedArrayToggle;
         int encodedMyArchonTracker = ArchonTrackerManager.encodeAllyArchonTracker(makeMyArchonTracker(rc));
-        rc.writeSharedArray(mySharedArrayIndex, encodedMyArchonTracker);
+        rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_TRACKERS_INDEX + mySharedArrayIndex, encodedMyArchonTracker);
 
         // If first alive Archon, write to shared array indicies 8-9 for ArchonResourceManager
         // Reset the array indicies except cooldowns last turn, then write lead and gold
         if (mySharedArrayIndex == ArchonTrackerManager.getFirstAliveAllyArchon()) {
-            int encodedIndex8 = rc.readSharedArray(8);
-            encodedIndex8 = encodedIndex8 & 0xF;
+            int encodedResourceManager0 = rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
+            encodedResourceManager0 = encodedResourceManager0 & 0xF;
             int lead = rc.getTeamLeadAmount(rc.getTeam());
             if (lead > 0xFFF) {
                 lead = 0xFFF;
             }
-            encodedIndex8 = encodedIndex8 | lead << 4;
+            encodedResourceManager0 = encodedResourceManager0 | lead << 4;
 
-            int encodedIndex9 = 0;
+            int encodedResourceManager1 = 0;
             int gold = rc.getTeamGoldAmount(rc.getTeam());
             if (gold > 0xFFF) {
                 gold = 0xFFF;
             }
-            encodedIndex9 = encodedIndex9 | gold << 4;
+            encodedResourceManager1 = encodedResourceManager1 | gold << 4;
 
-            rc.writeSharedArray(8, encodedIndex8);
-            rc.writeSharedArray(9, encodedIndex9);
+            rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX, encodedResourceManager0);
+            rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1, encodedResourceManager1);
         }
 
         // Get and perform action from ArchonResourceManager
@@ -140,18 +140,18 @@ strictfp class ArchonStrategy {
         }
 
         // Write to shared array indicies 8-9 for ArchonResourceManager
-        int encodedIndex8 = rc.readSharedArray(8);
-        int encodedIndex9Original = rc.readSharedArray(9);
-        int encodedIndex9 = encodedIndex9Original;
+        int encodedResourceManager0 = rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
+        int encodedResourceManager1Original = rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
+        int encodedResourceManager1 = encodedResourceManager1Original;
         boolean onCooldown = rc.getActionCooldownTurns() > 10;
-        encodedIndex9 = encodedIndex9 | (onCooldown ? 1 : 0) << mySharedArrayIndex;
+        encodedResourceManager1 = encodedResourceManager1 | (onCooldown ? 1 : 0) << mySharedArrayIndex;
         // If last alive Archon, copy cooldowns last turn to this turn
         if (mySharedArrayIndex == ArchonTrackerManager.getLastAliveAllyArchon()) {
-            encodedIndex8 = encodedIndex8 & 0xFFF0;
-            encodedIndex8 = encodedIndex8 | (encodedIndex9Original & 0xF);
-            rc.writeSharedArray(8, encodedIndex8);
+            encodedResourceManager0 = encodedResourceManager0 & 0xFFF0;
+            encodedResourceManager0 = encodedResourceManager0 | (encodedResourceManager1Original & 0xF);
+            rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX, encodedResourceManager0);
         }
-        rc.writeSharedArray(9, encodedIndex9);
+        rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1, encodedResourceManager1);
 
 //        // Start game by building miners
 //        if (minersBuilt < 3) {

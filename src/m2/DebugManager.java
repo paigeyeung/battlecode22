@@ -2,7 +2,7 @@ package m2;
 
 import battlecode.common.*;
 
-public class DebugManager {
+strictfp class DebugManager {
     static String botName = "m2";
     static void log(RobotController rc, String string) {
         System.out.println(botName + " - " + (rc == null ? "null" : rc.getRoundNum()) + " - " + string);

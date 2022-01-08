@@ -112,7 +112,7 @@ strictfp class ArchonTrackerManager {
     static void setAllyArchonDead(RobotController rc, int index) throws GameActionException {
         allyArchonTrackers[index].alive = false;
         int encodedAllyArchonTracker = encodeAllyArchonTracker(allyArchonTrackers[index]);
-        rc.writeSharedArray(index, encodedAllyArchonTracker);
+        rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_TRACKERS_INDEX + index, encodedAllyArchonTracker);
         DebugManager.log(rc, "Broadcasted ally Archon dead location " + allyArchonTrackers[index].location + " as " + encodedAllyArchonTracker);
 
         if (rc.getType() == RobotType.ARCHON) {

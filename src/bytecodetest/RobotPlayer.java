@@ -110,6 +110,8 @@ public strictfp class RobotPlayer {
         startBytecodeTracker();
         System.out.println("sout");
         endBytecodeTracker();
+
+        rc.resign();
     }
 
     static int startingBytecode;
