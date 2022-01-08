@@ -159,7 +159,7 @@ m1w changelog
     - m1w1
         - Build miners in direction of lead and build soldiers in direction of nearest enemy Archon
         - Meta adaptation: Build miners until first see enemy
-    - m1w2
+    - future
         - If low on lead income per turn, increase proportion of miners built
 - Shared array
     - m1w1
