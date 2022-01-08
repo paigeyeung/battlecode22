@@ -1,4 +1,4 @@
-package m1;
+package m1p1;
 
 import battlecode.common.*;
 
@@ -87,6 +87,30 @@ strictfp class GeneralManager {
             }
         }
         return movementDir;
+    }
+
+    static Direction getDirForEncircle(RobotController rc, MapLocation loc, int rSq) throws GameActionException {
+        double r = Math.sqrt(rSq);
+
+        int xOffset = 1000, yOffset = 1000;
+
+        while (!onMap(loc.x + xOffset, loc.y + yOffset, rc)){
+            xOffset = (int) (Math.random() * ((int) r + 1)) * ((int) (Math.random() * 3) - 1);
+            yOffset = (int) Math.ceil(Math.sqrt(rSq - xOffset * xOffset)) * ((int) (Math.random() * 3) - 1);
+        }
+
+        return getNextDir(rc, new MapLocation(loc.x + xOffset, loc.y + yOffset));
+    }
+
+    /**
+     * Returns whether a location is on the map
+     */
+    static boolean onMap(MapLocation loc, RobotController rc) {
+        return loc.x >= 0 && loc.x <= rc.getMapWidth() && loc.y >= 0 && loc.y <= rc.getMapHeight();
+    }
+
+    static boolean onMap(int x, int y, RobotController rc) {
+        return x >= 0 && x <= rc.getMapWidth() && y >= 0 && y <= rc.getMapHeight();
     }
 
     /** Get build direction closest to preferred direction, returns null if no direction is found */

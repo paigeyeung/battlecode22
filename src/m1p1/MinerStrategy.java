@@ -1,4 +1,4 @@
-package m1;
+package m1p1;
 
 import battlecode.common.*;
 
@@ -51,24 +51,19 @@ strictfp class MinerStrategy {
 
         Direction movementDir = null;
 //        int f = - 1 * rc.senseLead(currLoc) - 5 * rc.senseGold(currLoc);
+        int distToNearestAllyArchon = currLoc.distanceSquaredTo(ArchonTrackerManager.getNearestAllyArchon(currLoc).location);
+
         int f = 0;
+
         for(MapLocation adj : rc.getAllLocationsWithinRadiusSquared(currLoc,2)) {
-            f -= 5*rc.senseLead(adj) + 15*rc.senseGold(adj);
+            f -= 2*rc.senseLead(adj) + 5*rc.senseGold(adj);
         }
 
         MapLocation enemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchon(currLoc).guessLocation;
 
         boolean closeToEnemyArchon = false;
         if(GeneralManager.getSqDistance(currLoc, enemyArchonLoc) < 50) {
-            f -= GeneralManager.getSqDistance(currLoc, enemyArchonLoc);
             closeToEnemyArchon = true;
-        }
-
-        for(RobotInfo enemy : enemies) {
-            if(enemy.type.canAttack()) {
-//                enemyLocs.add(enemy.location);
-                f -= 10 * GeneralManager.getSqDistance(currLoc, enemy.location);
-            }
         }
 
         for(Direction dir : GeneralManager.DIRECTIONS) {
@@ -77,8 +72,83 @@ strictfp class MinerStrategy {
                 int newRubble = rc.senseRubble(adj);
                 int newF = (int)(newRubble*0.5);
                 if(closeToEnemyArchon) {
-                    f -= GeneralManager.getSqDistance(currLoc, enemyArchonLoc);
+                    f -= 10*(GeneralManager.getSqDistance(currLoc, enemyArchonLoc) - GeneralManager.getSqDistance(currLoc, enemyArchonLoc) - GeneralManager.getSqDistance(currLoc, enemyArchonLoc));
                 }
+
+                MapLocation[] adjToAdj = rc.getAllLocationsWithinRadiusSquared(adj,2);
+
+                // Account for resources, visited locations
+                for(MapLocation adj2 : adjToAdj) {
+                    newF -= rc.senseLead(adj2) + rc.senseGold(adj2)*5;
+                    if(!visited[adj2.x][adj2.y]) newF -= 10;
+                }
+
+                // Account for enemies by adding to cost
+                for(RobotInfo enemy : enemies) {
+                    if(enemy.type.canAttack()) {
+                        newF -= GeneralManager.getSqDistance(adj, enemy.location) - GeneralManager.getSqDistance(currLoc, enemy.location);;
+                    }
+                }
+
+                if (visited[adj.x][adj.y]) newF += 100;
+
+                int e = 0;
+
+                // If cost smaller than previous smallest cost, move
+                if(newF < f - e) {
+                    f = newF;
+                    movementDir = dir;
+                }
+                else if(newF <= f + e){
+                    if(((int)(Math.random()*2)==0)) {
+                        f = newF;
+                        movementDir = dir;
+                    }
+                }
+            }
+        }
+
+        if (movementDir != null) {
+            MapLocation adj = rc.adjacentLocation(movementDir);
+            visited[adj.x][adj.y] = true;
+        }
+        return movementDir;
+    }
+
+    // Get direction to get more resources
+    static Direction getNextMiningDir(RobotController rc, MapLocation target) throws GameActionException {
+        MapLocation currLoc = rc.getLocation();
+
+        // See if any enemy attack bots
+        Team opponent = rc.getTeam().opponent();
+        RobotInfo[] enemies = rc.senseNearbyRobots(30, opponent);
+
+        Direction movementDir = null;
+
+        MapLocation nearestFriendlyArchonLoc = ArchonTrackerManager.getNearestAllyArchon(currLoc).location;
+
+        int f = 200/currLoc.distanceSquaredTo(nearestFriendlyArchonLoc);
+        for(MapLocation adj : rc.getAllLocationsWithinRadiusSquared(currLoc,2)) {
+            f -= 5*rc.senseLead(adj) + 15*rc.senseGold(adj);
+        }
+
+//        MapLocation enemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchon(currLoc).guessLocation;
+
+//        boolean closeToEnemyArchon = false;
+//        if(GeneralManager.getSqDistance(currLoc, enemyArchonLoc) < 50) {
+//            f -= GeneralManager.getSqDistance(currLoc, enemyArchonLoc);
+//            closeToEnemyArchon = true;
+//        }
+//
+
+        for(Direction dir : GeneralManager.DIRECTIONS) {
+            if(rc.canMove(dir)) {
+                MapLocation adj = rc.adjacentLocation(dir);
+                int newRubble = rc.senseRubble(adj);
+                int newF = (int)(newRubble*0.5);
+//                if(closeToEnemyArchon) {
+//                    f -= GeneralManager.getSqDistance(currLoc, enemyArchonLoc);
+//                }
 
                 MapLocation[] adjToAdj = rc.getAllLocationsWithinRadiusSquared(adj,2);
 
@@ -91,7 +161,7 @@ strictfp class MinerStrategy {
                 // Account for enemies by adding to cost
                 for(RobotInfo enemy : enemies) {
                     if(enemy.type.canAttack()) {
-                        newF -= -GeneralManager.getSqDistance(adj, enemy.location);
+                        newF -= 5*(GeneralManager.getSqDistance(adj, enemy.location)-GeneralManager.getSqDistance(currLoc, enemy.location));
                     }
                 }
 

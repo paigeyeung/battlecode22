@@ -13,6 +13,7 @@ Ideas
 - Gather data of tournament map?
 - Each my unit toggles a bit every turn it's alive, stopped toggling means it's dead?
 - Remove seeded randomness?
+- Have some soldiers encircling my Archons at all times (move them out in that direction?)
 
 w changelog
 - Archon
@@ -167,7 +168,13 @@ m1w changelog
             - unused... | 3 seen enemy | 2 seen enemy | 1 seen enemy | 0 seen enemy
 
 m1p changelog
-
+- Miner
+    - Cost to move is higher when there are already resources available
+    - Cost to move is lower when miner is close to a friendly Archon
+- Soldier
+    - Moves when there are other friendly soldiers in range
+    - Cost to move is higher when enemies are in range
+    
 m2 changelog
 - future
     - Make manager for shared array indicies

@@ -1,4 +1,4 @@
-package m1;
+package m1p1;
 
 import battlecode.common.*;
 
@@ -59,9 +59,44 @@ strictfp class SoldierStrategy {
     static Direction getNextSoldierDir(RobotController rc, MapLocation dest) throws GameActionException {
         MapLocation currLoc = rc.getLocation();
         if(currLoc.equals(dest)) return null;
+        RobotInfo[] nearbyTeamRobots = rc.senseNearbyRobots(16,rc.getTeam());
+
+        int friendlySoldierCount = 0;
+        for(RobotInfo robot : nearbyTeamRobots) {
+            if (robot.getType().equals(RobotType.SOLDIER)) {
+                friendlySoldierCount++;
+            }
+        }
+
+        int enemySoldierCount = 0;
+        RobotInfo[] nearbyEnemyRobots = rc.senseNearbyRobots(16,rc.getTeam().opponent());
+        for(RobotInfo robot : nearbyEnemyRobots) {
+            if (robot.getType().equals(RobotType.SOLDIER)) {
+                enemySoldierCount++;
+            }
+        }
+
+        int f = 0;
+
+        if (rc.getMapHeight()*rc.getMapWidth() > 1000)
+            f = ((rc.getMapHeight()*rc.getMapWidth())/8)*(friendlySoldierCount - enemySoldierCount + 1);
+        else
+            f = ((rc.getMapHeight()+rc.getMapWidth())*20)*(friendlySoldierCount - enemySoldierCount + 1);
+
+        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchon(rc.getLocation()).location;
+
+        if(rc.getLocation().distanceSquaredTo(nearestAllyArchonLocation) > (rc.getMapHeight()+rc.getMapWidth())/2) {
+            f = Integer.MAX_VALUE;
+        }
+
+        if(friendlySoldierCount > 5 && enemySoldierCount < friendlySoldierCount - 3) {
+            f = Integer.MAX_VALUE;
+        }
+        else if(friendlySoldierCount > 2 && rc.getLocation().distanceSquaredTo(nearestAllyArchonLocation) < friendlySoldierCount) {
+            return GeneralManager.getDirForEncircle(rc, nearestAllyArchonLocation, friendlySoldierCount^2);
+        }
+
         Direction movementDir = null;
-//        int minDist = getSqDistance(currLoc, dest);
-        int f = Integer.MAX_VALUE;//minDist + rubble;
 
         for(Direction dir : GeneralManager.DIRECTIONS) {
             if(rc.canMove(dir)) {
