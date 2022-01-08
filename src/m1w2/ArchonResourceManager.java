@@ -1,4 +1,4 @@
-package m1w1;
+package m1w2;
 
 import battlecode.common.*;
 
@@ -173,13 +173,15 @@ strictfp class ArchonResourceManager {
             if (!anySeenEnemy && totalMinersBuilt < 40) {
                 chosenBuild = RobotType.MINER;
             }
-            // Maintain 10% proportion of build miners
-            else if (totalMinersBuilt < totalDroidsBuilt * 0.1) {
-                chosenBuild = RobotType.MINER;
-            }
-            // Otherwise, build soldiers
             else {
-                chosenBuild = RobotType.SOLDIER;
+                double minerProportion = 0.1;
+                // Maintain proportion of build miners and soldiers
+                if (totalMinersBuilt < totalDroidsBuilt * minerProportion) {
+                    chosenBuild = RobotType.MINER;
+                }
+                else {
+                    chosenBuild = RobotType.SOLDIER;
+                }
             }
 
             if (chosenBuild == null) {
