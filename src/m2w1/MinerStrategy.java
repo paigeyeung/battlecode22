@@ -1,4 +1,4 @@
-package m2;
+package m2w1;
 
 import battlecode.common.*;
 
@@ -6,19 +6,19 @@ strictfp class MinerStrategy {
     static boolean[][] visited = null;
     /** Called by RobotPlayer **/
 
-    static void runMiner(RobotController rc) throws GameActionException {
-        MapLocation myLocation = rc.getLocation();
+    static void runMiner() throws GameActionException {
+        MapLocation myLocation = RobotPlayer.rc.getLocation();
 
         if (visited == null) {
-            visited = new boolean[rc.getMapWidth()+1][rc.getMapHeight()+1];
+            visited = new boolean[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
         }
 
         // Try to mine gold
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
-                while (rc.canMineGold(mineLocation)) {
-                    rc.mineGold(mineLocation);
+                while (RobotPlayer.rc.canMineGold(mineLocation)) {
+                    RobotPlayer.rc.mineGold(mineLocation);
                 }
             }
         }
@@ -27,30 +27,30 @@ strictfp class MinerStrategy {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
-                while (rc.canMineLead(mineLocation)) {
-                    rc.mineLead(mineLocation);
+                while (RobotPlayer.rc.canMineLead(mineLocation)) {
+                    RobotPlayer.rc.mineLead(mineLocation);
                 }
             }
         }
 
-        Direction dir = getNextMiningDir(rc);
+        Direction dir = getNextMiningDir();
 
         if (dir != null) {
-            GeneralManager.tryMove(rc,dir,false);
+            GeneralManager.tryMove(dir, false);
         }
     }
 
     // Get direction to get more resources
-    static Direction getNextMiningDir(RobotController rc) throws GameActionException {
-        MapLocation myLoc = rc.getLocation();
+    static Direction getNextMiningDir() throws GameActionException {
+        MapLocation myLoc = RobotPlayer.rc.getLocation();
 
         ArchonTrackerManager.AllyArchonTracker nearestAllyArchon = ArchonTrackerManager.getNearestAllyArchon(myLoc);
         int distToNearestAllyArchon = myLoc.distanceSquaredTo(nearestAllyArchon.location);
         int f = 200/distToNearestAllyArchon;
 
         // See if any enemy attack bots
-        Team opponent = rc.getTeam().opponent();
-        RobotInfo[] enemies = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, opponent);
+        Team opponent = RobotPlayer.rc.getTeam().opponent();
+        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, opponent);
 
         boolean hostileEnemiesNearby = false;
         for (RobotInfo enemy : enemies) {
@@ -60,7 +60,7 @@ strictfp class MinerStrategy {
         }
 
         // See if any ally bots
-//        RobotInfo[] allies = rc.senseNearbyRobots(2, rc.getTeam());
+//        RobotInfo[] allies = RobotPlayer.rc.senseNearbyRobots(2, RobotPlayer.rc.getTeam());
 //        if(allies.length > 3) {
 //            f += 15*allies.length;
 //        }
@@ -69,47 +69,47 @@ strictfp class MinerStrategy {
 //        ArchonTrackerManager.AllyArchonTracker nearestAllyArchon = ArchonTrackerManager.getNearestAllyArchon(myLoc);
 //        int distToNearestAllyArchon = myLoc.distanceSquaredTo(nearestAllyArchon.location);
 
-        MapLocation[] nearestGoldLocations = rc.senseNearbyLocationsWithGold(rc.getType().visionRadiusSquared);
-        MapLocation[] nearestLeadLocations = rc.senseNearbyLocationsWithGold(rc.getType().visionRadiusSquared);
+        MapLocation[] nearestGoldLocations = RobotPlayer.rc.senseNearbyLocationsWithGold(RobotPlayer.rc.getType().visionRadiusSquared);
+        MapLocation[] nearestLeadLocations = RobotPlayer.rc.senseNearbyLocationsWithGold(RobotPlayer.rc.getType().visionRadiusSquared);
 
         if (distToNearestAllyArchon < 4 && !hostileEnemiesNearby) {
             if(nearestGoldLocations.length > 0) {
                 MapLocation nearestGoldLocation = null;
                 for(MapLocation loc : nearestGoldLocations) {
-                    if(rc.canSenseRobotAtLocation(loc) && rc.senseRobotAtLocation(loc).getTeam().equals(rc.getTeam())) {
+                    if(RobotPlayer.rc.canSenseRobotAtLocation(loc) && RobotPlayer.rc.senseRobotAtLocation(loc).getTeam().equals(RobotPlayer.rc.getTeam())) {
                         if(nearestGoldLocation == null ||
                                 myLoc.distanceSquaredTo(loc) < myLoc.distanceSquaredTo(nearestGoldLocation)) {
                             nearestGoldLocation = loc;
                         }
                     }
                 }
-                return GeneralManager.getNextDir(rc,nearestGoldLocation);
+                return GeneralManager.getNextDir(nearestGoldLocation);
             }
             if(nearestLeadLocations.length > 0) {
                 MapLocation nearestLeadLocation = null;
                 for(MapLocation loc : nearestLeadLocations) {
-                    if(rc.canSenseRobotAtLocation(loc) && rc.senseRobotAtLocation(loc).getTeam().equals(rc.getTeam())) {
+                    if(RobotPlayer.rc.canSenseRobotAtLocation(loc) && RobotPlayer.rc.senseRobotAtLocation(loc).getTeam().equals(RobotPlayer.rc.getTeam())) {
                         if(nearestLeadLocation == null ||
                                 myLoc.distanceSquaredTo(loc) < myLoc.distanceSquaredTo(nearestLeadLocation)) {
                             nearestLeadLocation = loc;
                         }
                     }
                 }
-                return GeneralManager.getNextDir(rc,nearestLeadLocation);
+                return GeneralManager.getNextDir(nearestLeadLocation);
             }
         }
 
-        for(MapLocation adj : rc.getAllLocationsWithinRadiusSquared(myLoc,2)) {
-            f -= 2*rc.senseLead(adj) + 5*rc.senseGold(adj);
+        for(MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(myLoc,2)) {
+            f -= 2*RobotPlayer.rc.senseLead(adj) + 5*RobotPlayer.rc.senseGold(adj);
         }
 
 //        MapLocation enemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchon(myLoc).guessLocation;
 //        boolean closeToEnemyArchon = GeneralManager.getSqDistance(myLoc, enemyArchonLoc) < 50 ? true : false;
 
         for(Direction dir : GeneralManager.DIRECTIONS) {
-            if(rc.canMove(dir)) {
-                MapLocation adj = rc.adjacentLocation(dir);
-                int newRubble = rc.senseRubble(adj);
+            if(RobotPlayer.rc.canMove(dir)) {
+                MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
+                int newRubble = RobotPlayer.rc.senseRubble(adj);
                 int newF = (int)(newRubble*0.5);
 //                if(closeToEnemyArchon) {
 //                    f -= 10*(GeneralManager.getSqDistance(myLoc, enemyArchonLoc)
@@ -117,11 +117,11 @@ strictfp class MinerStrategy {
 //                            - GeneralManager.getSqDistance(myLoc, enemyArchonLoc));
 //                }
 
-                MapLocation[] adjToAdj = rc.getAllLocationsWithinRadiusSquared(adj,2);
+                MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj,2);
 
                 // Account for resources, visited locations
                 for(MapLocation adj2 : adjToAdj) {
-                    newF -= rc.senseLead(adj2) + rc.senseGold(adj2)*5;
+                    newF -= RobotPlayer.rc.senseLead(adj2) + RobotPlayer.rc.senseGold(adj2)*5;
                     if(!visited[adj2.x][adj2.y]) newF -= 5;
                 }
 
@@ -151,27 +151,27 @@ strictfp class MinerStrategy {
         }
 
         if (movementDir != null) {
-            MapLocation adj = rc.adjacentLocation(movementDir);
+            MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
             visited[adj.x][adj.y] = true;
         }
         return movementDir;
     }
 
     // Get direction to get more resources
-    static Direction getNextMiningDir(RobotController rc, MapLocation target) throws GameActionException {
-        MapLocation currLoc = rc.getLocation();
+    static Direction getNextMiningDir(MapLocation target) throws GameActionException {
+        MapLocation currLoc = RobotPlayer.rc.getLocation();
 
         // See if any enemy attack bots
-        Team opponent = rc.getTeam().opponent();
-        RobotInfo[] enemies = rc.senseNearbyRobots(30, opponent);
+        Team opponent = RobotPlayer.rc.getTeam().opponent();
+        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(30, opponent);
 
         Direction movementDir = null;
 
         MapLocation nearestFriendlyArchonLoc = ArchonTrackerManager.getNearestAllyArchon(currLoc).location;
 
         int f = 200/currLoc.distanceSquaredTo(nearestFriendlyArchonLoc);
-        for(MapLocation adj : rc.getAllLocationsWithinRadiusSquared(currLoc,2)) {
-            f -= 5*rc.senseLead(adj) + 15*rc.senseGold(adj);
+        for(MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(currLoc,2)) {
+            f -= 5*RobotPlayer.rc.senseLead(adj) + 15*RobotPlayer.rc.senseGold(adj);
         }
 
 //        MapLocation enemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchon(currLoc).guessLocation;
@@ -184,19 +184,19 @@ strictfp class MinerStrategy {
 //
 
         for(Direction dir : GeneralManager.DIRECTIONS) {
-            if(rc.canMove(dir)) {
-                MapLocation adj = rc.adjacentLocation(dir);
-                int newRubble = rc.senseRubble(adj);
+            if(RobotPlayer.rc.canMove(dir)) {
+                MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
+                int newRubble = RobotPlayer.rc.senseRubble(adj);
                 int newF = (int)(newRubble*0.5);
 //                if(closeToEnemyArchon) {
 //                    f -= GeneralManager.getSqDistance(currLoc, enemyArchonLoc);
 //                }
 
-                MapLocation[] adjToAdj = rc.getAllLocationsWithinRadiusSquared(adj,2);
+                MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj,2);
 
                 // Account for resources, visited locations
                 for(MapLocation adj2 : adjToAdj) {
-                    newF -= rc.senseLead(adj2) + rc.senseGold(adj2)*5;
+                    newF -= RobotPlayer.rc.senseLead(adj2) + RobotPlayer.rc.senseGold(adj2)*5;
                     if(!visited[adj2.x][adj2.y]) newF -= 40;
                 }
 
@@ -226,7 +226,7 @@ strictfp class MinerStrategy {
         }
 
         if (movementDir != null) {
-            MapLocation adj = rc.adjacentLocation(movementDir);
+            MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
             visited[adj.x][adj.y] = true;
         }
         return movementDir;
