@@ -1,4 +1,4 @@
-package m2;
+package m3;
 
 import battlecode.common.*;
 
@@ -73,7 +73,7 @@ strictfp class ArchonTrackerManager {
             guessLocation = guessLocations.removeFirst();
             if (guessLocation == null) {
                 guessLocation = new MapLocation(0, 0);
-                DebugManager.log(null, "ArchonTrackerManager: Ran out of guess locations!");
+                DebugManager.log("ArchonTrackerManager: Ran out of guess locations!");
             }
         }
 
@@ -109,14 +109,14 @@ strictfp class ArchonTrackerManager {
         return new EnemyArchonTracker(((encoded >>> 1) & 0x1) == 1, new MapLocation((encoded >>> 8) & 0x3F, (encoded >>> 2) & 0x3F), (encoded & 0x1) == 1, allyArchonTrackers);
     }
 
-    static void setAllyArchonDead(RobotController rc, int index) throws GameActionException {
+    static void setAllyArchonDead(int index) throws GameActionException {
         allyArchonTrackers[index].alive = false;
         int encodedAllyArchonTracker = encodeAllyArchonTracker(allyArchonTrackers[index]);
-        rc.writeSharedArray(index, encodedAllyArchonTracker);
-        DebugManager.log(rc, "Broadcasted ally Archon dead location " + allyArchonTrackers[index].location + " as " + encodedAllyArchonTracker);
+        RobotPlayer.rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_TRACKERS_INDEX + index, encodedAllyArchonTracker);
+        DebugManager.log("Broadcasted ally Archon dead location " + allyArchonTrackers[index].location + " as " + encodedAllyArchonTracker);
 
-        if (rc.getType() == RobotType.ARCHON) {
-            ArchonResourceManager.setArchonDead(rc, index);
+        if (RobotPlayer.rc.getType() == RobotType.ARCHON) {
+            ArchonResourceManager.setArchonDead(index);
         }
     }
 

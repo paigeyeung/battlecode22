@@ -109,10 +109,25 @@ public strictfp class RobotPlayer {
 
     static void runArchon(RobotController rc) throws GameActionException {
         startBytecodeTracker();
-        System.out.println("sout");
+        for (int i = 0; i < 100; i++) {
+            test(rc.getType());
+        }
+        endBytecodeTracker();
+
+        startBytecodeTracker();
+        RobotType type = rc.getType();
+        for (int i = 0; i < 100; i++) {
+            test(type);
+        }
         endBytecodeTracker();
 
         rc.resign();
+    }
+
+    static void test(RobotType type) {
+        if (type == RobotType.MINER) {
+            return;
+        }
     }
 
     static int startingBytecode;

@@ -177,7 +177,11 @@ m1p changelog
 
 m1p and m1w merged into m2
 
-m2 changelog
+m2w changelog
 - General
-    - Make manager for shared array indicies
-    - Optimize static variables
+    - m2w1
+        - Make manager for shared array indicies
+        - Optimize static variables
+
+m2w became m3
+

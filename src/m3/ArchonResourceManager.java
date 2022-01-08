@@ -1,4 +1,4 @@
-package m2;
+package m3;
 
 import battlecode.common.*;
 
@@ -73,27 +73,27 @@ strictfp class ArchonResourceManager {
     static ArchonModel[] allyArchonModels;
 
     /** Initialize, should always be called on turn 1 */
-    static void initializeTurn1(RobotController rc) {
+    static void initializeTurn1() {
         // Could broadcast amount of visible lead here
     }
 
     /** Initialize, should always be called on turn 2 */
-    static void initializeTurn2(RobotController rc) {
+    static void initializeTurn2() {
         allyArchonModels = new ArchonModel[ArchonTrackerManager.allyArchonTrackers.length];
         for (int i = 0; i < allyArchonModels.length; i++) {
             allyArchonModels[i] = new ArchonModel(i);
         }
 
-        computeArchonRoles(rc);
+        computeArchonRoles();
     }
 
-    static void setArchonDead(RobotController rc, int index) {
+    static void setArchonDead(int index) {
         allyArchonModels[index].alive = false;
-        computeArchonRoles(rc);
+        computeArchonRoles();
     }
 
     /** Compute Archon roles */
-    static void computeArchonRoles(RobotController rc) {
+    static void computeArchonRoles() {
         for (int i = 0; i < allyArchonModels.length; i++) {
             allyArchonModels[i].updateNearestEnemyArchon();
         }
@@ -118,13 +118,13 @@ strictfp class ArchonResourceManager {
             else {
                 allyArchonModels[i].archonRole = ARCHON_ROLES.NONOFFENSIVE;
             }
-            DebugManager.log(rc, "Archon at location " + ArchonTrackerManager.allyArchonTrackers[i].location + " allyArchonModels[" + i + "].archonRole: " + allyArchonModels[i].archonRole);
+            DebugManager.log("Archon at location " + ArchonTrackerManager.allyArchonTrackers[i].location + " allyArchonModels[" + i + "].archonRole: " + allyArchonModels[i].archonRole);
         }
     }
 
     /** Compute Archon actions */
-    static void computeArchonActions(RobotController rc) throws GameActionException {
-        int turn = rc.getRoundNum();
+    static void computeArchonActions() throws GameActionException {
+        int turn = RobotPlayer.rc.getRoundNum();
         int totalDroidsBuilt = 0;
         int totalMinersBuilt = 0;
         int totalBuildersBuilt = 0;
@@ -140,27 +140,27 @@ strictfp class ArchonResourceManager {
         }
 
         // Read from shared array indicies 8-9
-        int encodedIndex8 = rc.readSharedArray(8);
-        int encodedIndex9 = rc.readSharedArray(9);
-        int lead = encodedIndex8 >>> 4;
-        int gold = encodedIndex9 >>> 4;
+        int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
+        int encodedResourceManager1 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
+        int lead = encodedResourceManager0 >>> 4;
+        int gold = encodedResourceManager1 >>> 4;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if (!allyArchonModels[i].alive) {
                 continue;
             }
-            allyArchonModels[i].onCooldown = ((encodedIndex8 >>> i) & 0x1) == 1;
+            allyArchonModels[i].onCooldown = ((encodedResourceManager0 >>> i) & 0x1) == 1;
             allyArchonModels[i].setActionDoNothing();
         }
 
         // Read from shared array index 10
-        int encodedIndex10 = rc.readSharedArray(10);
+        int encodedGeneralStrategy0 = RobotPlayer.rc.readSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX);
         boolean anySeenEnemy = false;
         boolean seenEnemyArchons[] = new boolean[allyArchonModels.length]; // Not used to modify which Archon produces soldiers at the moment
         for (int i = 0; i < allyArchonModels.length; i++) {
             if (!allyArchonModels[i].alive) {
                 continue;
             }
-            seenEnemyArchons[i] = ((encodedIndex10 >>> i) & 0x1) == 1;
+            seenEnemyArchons[i] = ((encodedGeneralStrategy0 >>> i) & 0x1) == 1;
             if (!anySeenEnemy && seenEnemyArchons[i]) {
                 anySeenEnemy = true;
             }
