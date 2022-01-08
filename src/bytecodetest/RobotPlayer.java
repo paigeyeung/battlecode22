@@ -1,6 +1,7 @@
 package bytecodetest;
 
 import battlecode.common.*;
+
 import java.util.Random;
 
 /**
@@ -103,31 +104,52 @@ public strictfp class RobotPlayer {
 
     /**
      * Results
-     * nothing / the tracker - 2
-     * sout - 2
+     * Nothing / the tracker - 2 bytecode
+     * sout - 2 bytecode
+     * Storing rc.get result in variable instead of calling rc.get every time - costs slightly less
+     * Initializing/incrementing static variable instead of local variable - costs significantly more
+     * Storing rc in static variable instead of passing rc as argument - costs slightly less
+     * Initializing local byte instead of int - costs the same - 2 bytecode
+     * For loop 100 times using byte/short/long instead of int - costs significantly more
+     * While loop 4 times using byte/short instead of int - costs significantly more
+     * Every iteration of empty for loop - 5 bytecode
+     * Create instance of static class - costs very little
+     * Initialize int/class array - 1 bytecode per element
+     * ((a >>> 2) & 0x1) == 1 - 11 bytecode
+     * (a2 & (1 << 2)) != 0 - 8 bytecode
      */
 
     static void runArchon(RobotController rc) throws GameActionException {
         startBytecodeTracker();
-        for (int i = 0; i < 100; i++) {
-            test(rc.getType());
-        }
+        int a = 0xab;
+        boolean b = ((a >>> 2) & 0x1) == 1;
         endBytecodeTracker();
 
         startBytecodeTracker();
-        RobotType type = rc.getType();
-        for (int i = 0; i < 100; i++) {
-            test(type);
-        }
+        int a2 = 0xab;
+        boolean b2 = (a2 & (1 << 2)) != 0;
         endBytecodeTracker();
 
+        System.out.println("Total bytecode used: " + Clock.getBytecodeNum());
         rc.resign();
     }
 
-    static void test(RobotType type) {
-        if (type == RobotType.MINER) {
-            return;
+    static int testVar = 1;
+    static RobotController rcStatic;
+    static void testFunc1(RobotController rc) {
+        rc.getType();
+    }
+    static void testFunc2() {
+        rcStatic.getType();
+    }
+    static class TestClass {
+        boolean alive;
+        TestClass(boolean _alive) {
+            alive = _alive;
         }
+    }
+    static class TestClass2 {
+        boolean alive;
     }
 
     static int startingBytecode;

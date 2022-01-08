@@ -185,3 +185,7 @@ m2w changelog
 
 m2w became m3
 
+m4w changelog
+- General
+    - future
+        - Call rc.getLocation once per turn, rc.getType once per game
