@@ -1,7 +1,6 @@
 Team A is red, Team B is blue
 
 Ideas
-
 - Rush enemy Archons for the win
     - Sacrifice Archon to rush
 - Fortify and play defense
@@ -15,8 +14,7 @@ Ideas
 - Each my unit toggles a bit every turn it's alive, stopped toggling means it's dead?
 - Remove seeded randomness?
 
-William's Changelog
-
+w changelog
 - Archon
     - example
         - Randomly (50% / 50%) build a miner or a soldier in a random direction
@@ -130,7 +128,7 @@ William's Changelog
             - Second 6 bits is enemy highest combat score
             - Last 4 bits are last turn's combat decision 
 
-Paige's Notes
+p changelog
 - Pathfinding
     - Long distance general purpose pathfinding algorithm
     - Individual short distance algorithms for each unit
@@ -152,3 +150,11 @@ Paige's Notes
     - p6
       - Miners share locations with high resource density
       - Target locations - split between high-resource-density locations, edges of map, archon that produced it
+
+w and p merged into m1
+
+m1w changelog
+- Archon
+    - Build miners in direction of lead and build soldiers in direction of nearest enemy Archon 
+
+m1p changelog
