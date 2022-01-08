@@ -37,7 +37,6 @@ strictfp class ArchonTrackerManager {
     static class EnemyArchonTracker extends ArchonTracker {
         MapLocation correspondingAllyArchonStartingLocation;
         boolean seen;
-        boolean missing;
         MapLocation guessLocation;
         ArrayDeque<MapLocation> guessLocations;
 
@@ -45,7 +44,6 @@ strictfp class ArchonTrackerManager {
             super(_alive);
             correspondingAllyArchonStartingLocation = _correspondingAllyArchonStartingLocation;
             seen = _seen;
-            missing = false;
 
             guessLocations = new ArrayDeque<>();
             for (int i = 0; i <= 1; i++) {
@@ -71,13 +69,15 @@ strictfp class ArchonTrackerManager {
             goToNextGuessLocation();
         }
 
-        void goToNextGuessLocation() {
-            guessLocation = guessLocations.removeFirst();
-            if (guessLocation == null) {
-                missing = true;
-                guessLocation = new MapLocation(0, 0);
-                DebugManager.log("ArchonTrackerManager: Ran out of guess locations!");
+        boolean goToNextGuessLocation() {
+            if (guessLocations.isEmpty()) {
+                DebugManager.log("Enemy Archon tracker ran out of guess locations!");
+                return false;
             }
+
+            guessLocation = guessLocations.removeFirst();
+//            DebugManager.log("Enemy Archon tracker new guess location: " + guessLocation);
+            return true;
         }
 
         boolean isEqualTo(EnemyArchonTracker other) {
@@ -135,8 +135,7 @@ strictfp class ArchonTrackerManager {
     static EnemyArchonTracker getNearestEnemyArchon(MapLocation fromLocation) {
         EnemyArchonTracker nearest = null;
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (enemyArchonTrackers[i].alive && (nearest == null || enemyArchonTrackers[i].guessLocation.distanceSquaredTo(fromLocation) < nearest.guessLocation.distanceSquaredTo(fromLocation))
-                && !enemyArchonTrackers[i].missing) {
+            if (enemyArchonTrackers[i].alive && (nearest == null || enemyArchonTrackers[i].guessLocation.distanceSquaredTo(fromLocation) < nearest.guessLocation.distanceSquaredTo(fromLocation))) {
                 nearest = enemyArchonTrackers[i];
             }
         }

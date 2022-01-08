@@ -6,6 +6,7 @@ strictfp class DebugManager {
     static String botName = "m3w1";
     static void log(String string) {
         System.out.println(botName + " - " + RobotPlayer.rc.getRoundNum() + " - " + string);
+        RobotPlayer.rc.setIndicatorString(string);
     }
 
     static byte archonMismatchTurns = 0;

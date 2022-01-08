@@ -188,7 +188,7 @@ m2w became m3
 m3w changelog
 - All units
     - m3w1
-        - If in range of enemy Archon and still don't see it, go to next guess location
+        - If in range of enemy Archon and still don't see it, go to next guess location or mark it as dead
 
 m4w changelog
 - General

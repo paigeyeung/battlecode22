@@ -99,13 +99,17 @@ strictfp class AllUnitStrategy {
         if (ArchonTrackerManager.receivedArchonTrackers && Clock.getBytecodesLeft() > 1000) {
             int visionRadiusSquared = RobotPlayer.rc.getType().visionRadiusSquared;
             for (int i = 0; i < ArchonTrackerManager.enemyArchonTrackers.length; i++) {
+                if (!ArchonTrackerManager.enemyArchonTrackers[i].alive) {
+                    continue;
+                }
+
                 MapLocation guessLocation = ArchonTrackerManager.enemyArchonTrackers[i].guessLocation;
                 // if (rc.canSenseLocation(estimatedLocation)) {
                 // ^ Doesn't work for some reason, bug in Battlecode?
                 if (myLocation.distanceSquaredTo(guessLocation) <= visionRadiusSquared) {
                     RobotInfo robotInfo = RobotPlayer.rc.senseRobotAtLocation(guessLocation);
                     boolean enemyArchonSeen = !(robotInfo == null || robotInfo.getType() != RobotType.ARCHON || robotInfo.getTeam() == RobotPlayer.rc.getTeam());
-                    if (ArchonTrackerManager.enemyArchonTrackers[i].seen && ArchonTrackerManager.enemyArchonTrackers[i].alive) {
+                    if (ArchonTrackerManager.enemyArchonTrackers[i].seen) {
                         if (!enemyArchonSeen) {
                             // We've seen it before and now it's gone, so assume it's dead
                             ArchonTrackerManager.enemyArchonTrackers[i].alive = false;
@@ -124,7 +128,14 @@ strictfp class AllUnitStrategy {
                         }
                         else {
                             // We're here and we don't see it, and no one else has either
-                            ArchonTrackerManager.enemyArchonTrackers[i].goToNextGuessLocation();
+                            if (!ArchonTrackerManager.enemyArchonTrackers[i].goToNextGuessLocation()) {
+                                // If we ran out of guess locations, assume dead
+                                ArchonTrackerManager.enemyArchonTrackers[i].alive = false;
+                                int encodedEnemyArchonTracker = ArchonTrackerManager.encodeEnemyArchonTracker(ArchonTrackerManager.enemyArchonTrackers[i]);
+                                RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + i, encodedEnemyArchonTracker);
+                                DebugManager.log("Broadcasted enemy Archon dead " + guessLocation + " as " + encodedEnemyArchonTracker);
+                            }
+                            DebugManager.log("Enemy Archon missing at " + guessLocation);
                         }
                     }
                 }
