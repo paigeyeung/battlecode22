@@ -1,16 +1,16 @@
-package m2;
+package m2w1;
 
 import battlecode.common.*;
 
 strictfp class DebugManager {
-    static String botName = "m2";
-    static void log(RobotController rc, String string) {
-        System.out.println(botName + " - " + (rc == null ? "null" : rc.getRoundNum()) + " - " + string);
+    static String botName = "m2w1";
+    static void log(String string) {
+        System.out.println(botName + " - " + RobotPlayer.rc.getRoundNum() + " - " + string);
     }
 
     static byte archonMismatchTurns = 0;
 
-    static void sanityCheck(RobotController rc) {
+    static void sanityCheck() {
         if (ArchonTrackerManager.receivedArchonTrackers) {
             int numAllyArchonsAlive = 0;
             for (int i = 0; i < ArchonTrackerManager.allyArchonTrackers.length; i++) {
@@ -18,9 +18,9 @@ strictfp class DebugManager {
                     numAllyArchonsAlive++;
                 }
             }
-            if (numAllyArchonsAlive != rc.getArchonCount()) {
+            if (numAllyArchonsAlive != RobotPlayer.rc.getArchonCount()) {
                 if (archonMismatchTurns >= 2) {
-                    log(rc, "SOMETHING WENT WRONG: Archon count mismatch " + numAllyArchonsAlive + " and " + rc.getArchonCount());
+                    log("SOMETHING WENT WRONG: Archon count mismatch " + numAllyArchonsAlive + " and " + RobotPlayer.rc.getArchonCount());
                 }
                 else {
                     archonMismatchTurns++;

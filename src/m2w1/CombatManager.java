@@ -1,4 +1,4 @@
-package m2;
+package m2w1;
 
 import battlecode.common.*;
 
@@ -10,8 +10,8 @@ strictfp class CombatManager {
     }
 
     /** Select an enemy to attack, returns null if no enemy is found */
-    static MapLocation getAttackTarget(RobotController rc, int radius) {
-        RobotInfo[] actionableEnemies = rc.senseNearbyRobots(radius, rc.getTeam().opponent());
+    static MapLocation getAttackTarget(int radius) {
+        RobotInfo[] actionableEnemies = RobotPlayer.rc.senseNearbyRobots(radius, RobotPlayer.rc.getTeam().opponent());
         RobotInfo targetEnemy = null;
         double targetEnemyScore = -1;
         for (int i = 0; i < actionableEnemies.length; i++) {
@@ -19,7 +19,7 @@ strictfp class CombatManager {
             // Increase score by 0-10 based on percent of missing health
             double thisEnemyScore = 10 * (1 - thisEnemy.getHealth() / thisEnemy.getType().getMaxHealth(thisEnemy.level));
             // Increase score by 100 if I can one shot kill
-            if (rc.getType().getDamage(rc.getLevel()) >= thisEnemy.getHealth()) {
+            if (RobotPlayer.rc.getType().getDamage(RobotPlayer.rc.getLevel()) >= thisEnemy.getHealth()) {
                 thisEnemyScore += 100;
             }
             // Increase score by 0-50 based on target type
@@ -32,7 +32,7 @@ strictfp class CombatManager {
                 case LABORATORY: thisEnemyScore += 10; break;
                 case BUILDER: thisEnemyScore += 0; break;
             }
-            if ((targetEnemy == null || thisEnemyScore > targetEnemyScore) && rc.canAttack(thisEnemy.location)) {
+            if ((targetEnemy == null || thisEnemyScore > targetEnemyScore) && RobotPlayer.rc.canAttack(thisEnemy.location)) {
                 targetEnemy = thisEnemy;
                 targetEnemyScore = thisEnemyScore;
             }
@@ -44,17 +44,17 @@ strictfp class CombatManager {
     }
 
     /** Try to perform an attack, returns boolean if successful */
-    static boolean tryAttack(RobotController rc) throws GameActionException {
-        MapLocation attackLocation = getAttackTarget(rc, rc.getType().actionRadiusSquared);
+    static boolean tryAttack() throws GameActionException {
+        MapLocation attackLocation = getAttackTarget(RobotPlayer.rc.getType().actionRadiusSquared);
         if (attackLocation != null) {
-            rc.attack(attackLocation);
+            RobotPlayer.rc.attack(attackLocation);
             return true;
         }
         return false;
     }
 
     /** Calculates combat score for a single robot */
-    static double calculateRobotCombatScore(RobotController rc, RobotInfo robot, boolean defensive) throws GameActionException {
+    static double calculateRobotCombatScore(RobotInfo robot, boolean defensive) throws GameActionException {
         double score = 0;
         // Increase score by 0-100 based on target type
         if (defensive) {
@@ -77,28 +77,28 @@ strictfp class CombatManager {
         // Decrease score based on percent of missing health
         score *= robot.getHealth() / robot.getType().getMaxHealth(robot.level);
         // Decrease score based on rubble
-        score *= 1 / (1 + rc.senseRubble(robot.getLocation()) / 10);
+        score *= 1 / (1 + RobotPlayer.rc.senseRubble(robot.getLocation()) / 10);
         return score;
     }
 
     /** Calculates combat score for all locally visible robots of team */
-    static double evaluateLocalCombatScore(RobotController rc, Team team, boolean defensive) throws GameActionException {
-        RobotInfo[] visibleRobots = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, team);
+    static double evaluateLocalCombatScore(Team team, boolean defensive) throws GameActionException {
+        RobotInfo[] visibleRobots = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, team);
         double combatScore = 0;
         for (int i = 0; i < visibleRobots.length; i++) {
-            combatScore += calculateRobotCombatScore(rc, visibleRobots[i], defensive);
+            combatScore += calculateRobotCombatScore(visibleRobots[i], defensive);
         }
         // Include self in calculation if on same team
-        if (team == rc.getTeam()) {
-            combatScore += calculateRobotCombatScore(rc, new RobotInfo(rc.getID(), rc.getTeam(), rc.getType(), rc.getMode(), rc.getLevel(), rc.getHealth(), rc.getLocation()), defensive);
+        if (team == RobotPlayer.rc.getTeam()) {
+            combatScore += calculateRobotCombatScore(new RobotInfo(RobotPlayer.rc.getID(), RobotPlayer.rc.getTeam(), RobotPlayer.rc.getType(), RobotPlayer.rc.getMode(), RobotPlayer.rc.getLevel(), RobotPlayer.rc.getHealth(), RobotPlayer.rc.getLocation()), defensive);
         }
         return combatScore;
     }
 
     /** Decides what a combat droid should do */
-    static COMBAT_DROID_ACTIONS getCombatDroidAction(RobotController rc) throws GameActionException {
-        double allyCombatScore = evaluateLocalCombatScore(rc, rc.getTeam(), false);
-        double enemyCombatScore = evaluateLocalCombatScore(rc, rc.getTeam().opponent(), true);
+    static COMBAT_DROID_ACTIONS getCombatDroidAction() throws GameActionException {
+        double allyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false);
+        double enemyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true);
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;
         if (enemyCombatScore > allyCombatScore * 0.5) {
             chosenAction = COMBAT_DROID_ACTIONS.RETREAT;

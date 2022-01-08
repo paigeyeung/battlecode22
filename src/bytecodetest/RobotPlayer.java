@@ -103,7 +103,8 @@ public strictfp class RobotPlayer {
 
     /**
      * Results
-     *
+     * nothing / the tracker - 2
+     * sout - 2
      */
 
     static void runArchon(RobotController rc) throws GameActionException {
@@ -121,6 +122,7 @@ public strictfp class RobotPlayer {
     static void endBytecodeTracker() {
         int endingBytecode = Clock.getBytecodeNum();
         int usedBytecode = endingBytecode - startingBytecode;
+        usedBytecode -= 2;
         System.out.println("Bytecode used: " + usedBytecode);
     }
 }
