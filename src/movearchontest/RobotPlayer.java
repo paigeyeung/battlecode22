@@ -107,13 +107,13 @@ public strictfp class RobotPlayer {
      */
     static int move = 0;
     static MapLocation destination;
-    static int destinationX = 53, destinationY = 6;
+    static int destinationX = 55, destinationY = 5;
     static void runArchon(RobotController rc) throws GameActionException {
         if (rc.getRoundNum() == 1) {
             int shared = rc.readSharedArray(0);
             shared++;
             rc.writeSharedArray(0, shared);
-            if (shared != 1) {
+            if (shared != 4) {
                 move = 1;
                 destinationY += shared;
                 destination = new MapLocation(destinationX, destinationY);

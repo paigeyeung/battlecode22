@@ -191,13 +191,21 @@ m3w changelog
         - If in range of enemy Archon and still don't see it, go to next guess location
         - If there is no next guess location, mark it as missing
         - If all enemy Archons are missing, go to center of map
+    - m3w2
+        - Ability to rediscover enemy Archon if previously missing and now seen
 - Shared array
     - m3w1
         - Index 10 stores general strategy info
             - First 4 bits unused
-            - Second 8 bits store guess location index of Archons 0-3
-            - Last 4 bits store if a unit near Archons 0-3 have seen an enemy
+            - Second 8 bits store guess location index of enemy Archons 0-3
+            - Last 4 bits store if a unit near ally Archons 0-3 have seen an enemy
             - unused | unused | unused | unused | 3 guess location 2 | 3 guess location 1 | 2 guess location 2 | 2 guess location 1 | 1 guess location 2 | 1 guess location 1 | 0 guess location 2 | 0 guess location 1 | 3 seen enemy | 2 seen enemy | 1 seen enemy | 0 seen enemy
+    - m3w2
+        - Index 10 stores general strategy info
+            - First 4 bits store if enemy Archon 0-3 guess location is manually overridden
+            - Second 8 bits store guess location index of enemy Archons 0-3
+            - Last 4 bits store if a unit near ally Archons 0-3 have seen an enemy
+            - 3 overridden | 1 overridden | 2 overridden | 0 overridden | 3 guess location 2 | 3 guess location 1 | 2 guess location 2 | 2 guess location 1 | 1 guess location 2 | 1 guess location 1 | 0 guess location 2 | 0 guess location 1 | 3 seen enemy | 2 seen enemy | 1 seen enemy | 0 seen enemy
 
 m4w changelog
 - General
