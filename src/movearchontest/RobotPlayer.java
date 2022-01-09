@@ -1,4 +1,4 @@
-package missingarchontest;
+package movearchontest;
 
 import battlecode.common.*;
 import java.util.Random;
@@ -105,13 +105,36 @@ public strictfp class RobotPlayer {
      * Run a single turn for an Archon.
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
+    static int move = 0;
+    static MapLocation destination;
+    static int destinationX = 53, destinationY = 6;
     static void runArchon(RobotController rc) throws GameActionException {
         if (rc.getRoundNum() == 1) {
             int shared = rc.readSharedArray(0);
             shared++;
             rc.writeSharedArray(0, shared);
-            if (shared == 3 || shared == 4) {
-                rc.disintegrate();
+            if (shared != 1) {
+                move = 1;
+                destinationY += shared;
+                destination = new MapLocation(destinationX, destinationY);
+                rc.transform();
+            }
+        }
+        else if (move == 1) {
+            if (rc.getLocation().equals(destination)) {
+                move = 2;
+            }
+            else {
+                Direction direction = rc.getLocation().directionTo(destination);
+                if (rc.canMove(direction)) {
+                    rc.move(direction);
+                }
+            }
+        }
+        else if (move == 2) {
+            if (rc.canTransform()) {
+                rc.transform();
+                move = 3;
             }
         }
     }

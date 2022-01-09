@@ -85,7 +85,9 @@ strictfp class AllUnitStrategy {
         if (ArchonTrackerManager.receivedArchonTrackers && Clock.getBytecodesLeft() > 1000) {
             int visionRadiusSquared = RobotPlayer.rc.getType().visionRadiusSquared;
             for (int i = 0; i < ArchonTrackerManager.enemyArchonTrackers.length; i++) {
-                if (!ArchonTrackerManager.enemyArchonTrackers[i].alive) {
+                // Should account for missing ones and rediscover them
+                if (!ArchonTrackerManager.enemyArchonTrackers[i].alive
+                    || ArchonTrackerManager.enemyArchonTrackers[i].missing) {
                     continue;
                 }
 

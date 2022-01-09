@@ -47,6 +47,11 @@ strictfp class GeneralManager {
     static MapLocation startingLocation = null;
     static int mapWidth = 0, mapHeight = 0;
 
+    /** Get center the map */
+    static MapLocation getMapCenter() {
+        return new MapLocation(mapWidth / 2, mapHeight / 2);
+    }
+
     /** Get horizontally and vertically mirrored location on the map */
     static MapLocation getOppositeLocation(MapLocation location, boolean flipHorizontal, boolean flipVertical) {
         return new MapLocation(flipHorizontal ? (mapWidth - location.x - 1) : location.x, flipVertical ? (mapHeight - location.y - 1) : location.y);

@@ -26,10 +26,6 @@ strictfp class ArchonTrackerManager {
 //            DebugManager.log("AllyArchonTracker constructor index: " + index + ", alive: " + alive + ", location: " + location + ", toggle: " + toggle);
         }
 
-        boolean isEqualTo(AllyArchonTracker other) {
-            return alive == other.alive && location.equals(other.location) && toggle == other.toggle;
-        }
-
         void update(boolean _alive, MapLocation _location, boolean _toggle) {
             alive = _alive;
             location = _location;
@@ -42,6 +38,7 @@ strictfp class ArchonTrackerManager {
         boolean seen;
         ArrayList<MapLocation> guessLocations;
         int guessLocation; // This can't ever be greater than 4, otherwise shared array breaks
+        boolean missing;
 
         EnemyArchonTracker(int _index, boolean _alive, MapLocation _correspondingAllyArchonStartingLocation, boolean _seen, AllyArchonTracker[] _allyArchonTrackers) {
             super(_index, _alive);
@@ -74,26 +71,30 @@ strictfp class ArchonTrackerManager {
                 }
             }
             guessLocation = 0;
+            missing = false;
 
 //            DebugManager.log("EnemyArchonTracker constructor index: " + index + ", alive: " + alive + ", correspondingAllyArchonStartingLocation: " + correspondingAllyArchonStartingLocation + ", seen: " + seen + ", guessLocation: " + guessLocation + ", guessLocations: " + guessLocations);
         }
 
         MapLocation getGuessLocation() {
+            if (missing) {
+                return null;
+            }
             return guessLocations.get(guessLocation);
         }
 
-        boolean goToNextGuessLocation() {
+        void goToNextGuessLocation() {
             guessLocation++;
-            if (guessLocation >= guessLocations.size()) {
-                DebugManager.log("Enemy Archon tracker ran out of guess locations!");
-                return false;
-            }
+            updateGuessLocation();
             DebugManager.log("Enemy Archon tracker new guess location: " + getGuessLocation());
-            return true;
         }
 
-        boolean isEqualTo(EnemyArchonTracker other) {
-            return alive == other.alive && getGuessLocation().equals(other.guessLocation) && seen == other.seen;
+        void updateGuessLocation() {
+            if (guessLocation >= guessLocations.size()) {
+                guessLocation = guessLocations.size();
+//                DebugManager.log("Enemy Archon tracker ran out of guess locations!");
+                missing = true;
+            }
         }
 
         void update(boolean _alive, MapLocation _correspondingAllyArchonStartingLocation, boolean _seen) {
@@ -108,15 +109,15 @@ strictfp class ArchonTrackerManager {
     static EnemyArchonTracker[] enemyArchonTrackers;
     static int myStartingArchonIndex = -1; // This should only be for droids
 
-    static int encodeAllyArchonTracker(AllyArchonTracker allyArchonTracker) {
-        return allyArchonTracker.location.x << 8 | allyArchonTracker.location.y << 2 | (allyArchonTracker.alive ? 1 : 0) << 1 | (allyArchonTracker.toggle ? 1 : 0);
-    }
+//    static int encodeAllyArchonTracker(AllyArchonTracker allyArchonTracker) {
+//        return allyArchonTracker.location.x << 8 | allyArchonTracker.location.y << 2 | (allyArchonTracker.alive ? 1 : 0) << 1 | (allyArchonTracker.toggle ? 1 : 0);
+//    }
     static int encodeAllyArchonTracker(boolean alive, boolean toggle, MapLocation location) {
         return location.x << 8 | location.y << 2 | (alive ? 1 : 0) << 1 | (toggle ? 1 : 0);
     }
-    static int encodeEnemyArchonTracker(EnemyArchonTracker enemyArchonTracker) {
-        return enemyArchonTracker.correspondingAllyArchonStartingLocation.x << 8 | enemyArchonTracker.correspondingAllyArchonStartingLocation.y << 2 | (enemyArchonTracker.alive ? 1 : 0) << 1 | (enemyArchonTracker.seen ? 1 : 0);
-    }
+//    static int encodeEnemyArchonTracker(EnemyArchonTracker enemyArchonTracker) {
+//        return enemyArchonTracker.correspondingAllyArchonStartingLocation.x << 8 | enemyArchonTracker.correspondingAllyArchonStartingLocation.y << 2 | (enemyArchonTracker.alive ? 1 : 0) << 1 | (enemyArchonTracker.seen ? 1 : 0);
+//    }
     static int encodeEnemyArchonTracker(boolean alive, boolean seen, MapLocation location) {
         return location.x << 8 | location.y << 2 | (alive ? 1 : 0) << 1 | (seen ? 1 : 0);
     }
@@ -189,6 +190,7 @@ strictfp class ArchonTrackerManager {
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
             int guessLocation = (encoded >>> (4 + i * 2)) & 0x3;
             enemyArchonTrackers[i].guessLocation = guessLocation;
+            enemyArchonTrackers[i].updateGuessLocation();
         }
     }
 
@@ -231,17 +233,27 @@ strictfp class ArchonTrackerManager {
     static int getNearestEnemyArchon(MapLocation fromLocation) {
         int nearest = -1;
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (enemyArchonTrackers[i].alive && (nearest == -1 || enemyArchonTrackers[i].getGuessLocation().distanceSquaredTo(fromLocation) < enemyArchonTrackers[nearest].getGuessLocation().distanceSquaredTo(fromLocation))) {
+            if (enemyArchonTrackers[i].alive && !enemyArchonTrackers[i].missing && (nearest == -1 || enemyArchonTrackers[i].getGuessLocation().distanceSquaredTo(fromLocation) < enemyArchonTrackers[nearest].getGuessLocation().distanceSquaredTo(fromLocation))) {
                 nearest = i;
             }
         }
         return nearest;
     }
     static MapLocation getNearestAllyArchonLocation(MapLocation fromLocation) {
-        return allyArchonTrackers[getNearestAllyArchon(fromLocation)].location;
+        int nearest = getNearestAllyArchon(fromLocation);
+        if (nearest == -1) {
+            DebugManager.log("SOMETHING WENT WRONG: Nearest ally Archon not found");
+            return null;
+        }
+        return allyArchonTrackers[nearest].location;
     }
     static MapLocation getNearestEnemyArchonGuessLocation(MapLocation fromLocation) {
-        return enemyArchonTrackers[getNearestEnemyArchon(fromLocation)].getGuessLocation();
+        int nearest = getNearestEnemyArchon(fromLocation);
+        if (nearest == -1) {
+//            DebugManager.log("Nearest enemy Archon not found");
+            return null;
+        }
+        return enemyArchonTrackers[nearest].getGuessLocation();
     }
 
     static int getFirstAliveAllyArchon() {

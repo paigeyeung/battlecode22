@@ -34,8 +34,16 @@ strictfp class SoldierStrategy {
                     GeneralManager.tryMove(getNextSoldierDir(visibleAttackTarget), false);
                 }
                 else {
-                    // If no enemies are visible, move towards nearest enemy Archon
-                    GeneralManager.tryMove(getNextSoldierDir(ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation)), false);
+                    MapLocation nearestEnemyArchonGuessLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation);
+                    if (nearestEnemyArchonGuessLocation != null) {
+                        // If no enemies are visible, move towards nearest enemy Archon
+                        GeneralManager.tryMove(getNextSoldierDir(nearestEnemyArchonGuessLocation), false);
+                    }
+                    else {
+                        // Unless there is no known enemy Archon
+                        // Then move towards the center of the map
+                        GeneralManager.tryMove(getNextSoldierDir(GeneralManager.getMapCenter()), true);
+                    }
                 }
             }
         }

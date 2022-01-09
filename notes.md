@@ -188,7 +188,9 @@ m2w became m3
 m3w changelog
 - All units
     - m3w1
-        - If in range of enemy Archon and still don't see it, go to next guess location or mark it as dead
+        - If in range of enemy Archon and still don't see it, go to next guess location
+        - If there is no next guess location, mark it as missing
+        - If all enemy Archons are missing, go to center of map
 - Shared array
     - m3w1
         - Index 10 stores general strategy info
