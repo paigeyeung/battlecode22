@@ -40,8 +40,8 @@ strictfp class ArchonTrackerManager {
     static class EnemyArchonTracker extends ArchonTracker {
         MapLocation correspondingAllyArchonStartingLocation;
         boolean seen;
-        MapLocation guessLocation;
         ArrayList<MapLocation> guessLocations;
+        int guessLocation; // This can't ever be greater than 4, otherwise shared array breaks
 
         EnemyArchonTracker(int _index, boolean _alive, MapLocation _correspondingAllyArchonStartingLocation, boolean _seen, AllyArchonTracker[] _allyArchonTrackers) {
             super(_index, _alive);
@@ -73,25 +73,27 @@ strictfp class ArchonTrackerManager {
                     }
                 }
             }
-            goToNextGuessLocation();
+            guessLocation = 0;
 
 //            DebugManager.log("EnemyArchonTracker constructor index: " + index + ", alive: " + alive + ", correspondingAllyArchonStartingLocation: " + correspondingAllyArchonStartingLocation + ", seen: " + seen + ", guessLocation: " + guessLocation + ", guessLocations: " + guessLocations);
         }
 
+        MapLocation getGuessLocation() {
+            return guessLocations.get(guessLocation);
+        }
+
         boolean goToNextGuessLocation() {
-            if (guessLocations.isEmpty()) {
+            guessLocation++;
+            if (guessLocation >= guessLocations.size()) {
                 DebugManager.log("Enemy Archon tracker ran out of guess locations!");
                 return false;
             }
-
-            guessLocation = guessLocations.get(0);
-            guessLocations.remove(0);
-            DebugManager.log("Enemy Archon tracker new guess location: " + guessLocation);
+            DebugManager.log("Enemy Archon tracker new guess location: " + getGuessLocation());
             return true;
         }
 
         boolean isEqualTo(EnemyArchonTracker other) {
-            return alive == other.alive && guessLocation.equals(other.guessLocation) && seen == other.seen;
+            return alive == other.alive && getGuessLocation().equals(other.guessLocation) && seen == other.seen;
         }
 
         void update(boolean _alive, MapLocation _correspondingAllyArchonStartingLocation, boolean _seen) {
@@ -149,6 +151,13 @@ strictfp class ArchonTrackerManager {
         RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + index, encoded);
     }
 
+    static void goToEnemyArchonNextGuessLocation(int index) throws GameActionException {
+        enemyArchonTrackers[index].goToNextGuessLocation();
+        int encoded = RobotPlayer.rc.readSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX);
+        encoded = (encoded & (~(3 << (4 + index * 2)))) | (enemyArchonTrackers[index].guessLocation << (4 + index * 2));
+        RobotPlayer.rc.writeSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX, encoded);
+    }
+
     /** Update local functions that read shared array and update local trackers */
     static void decodeAndUpdateLocalAllyArchonTracker(int index, boolean firstTime) throws GameActionException {
         int encoded = RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_TRACKERS_INDEX + index);
@@ -179,7 +188,7 @@ strictfp class ArchonTrackerManager {
         int encoded = RobotPlayer.rc.readSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX);
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
             int guessLocation = (encoded >>> (4 + i * 2)) & 0x3;
-            
+            enemyArchonTrackers[i].guessLocation = guessLocation;
         }
     }
 
@@ -222,7 +231,7 @@ strictfp class ArchonTrackerManager {
     static int getNearestEnemyArchon(MapLocation fromLocation) {
         int nearest = -1;
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (enemyArchonTrackers[i].alive && (nearest == -1 || enemyArchonTrackers[i].guessLocation.distanceSquaredTo(fromLocation) < enemyArchonTrackers[nearest].guessLocation.distanceSquaredTo(fromLocation))) {
+            if (enemyArchonTrackers[i].alive && (nearest == -1 || enemyArchonTrackers[i].getGuessLocation().distanceSquaredTo(fromLocation) < enemyArchonTrackers[nearest].getGuessLocation().distanceSquaredTo(fromLocation))) {
                 nearest = i;
             }
         }
@@ -232,24 +241,7 @@ strictfp class ArchonTrackerManager {
         return allyArchonTrackers[getNearestAllyArchon(fromLocation)].location;
     }
     static MapLocation getNearestEnemyArchonGuessLocation(MapLocation fromLocation) {
-        return enemyArchonTrackers[getNearestEnemyArchon(fromLocation)].guessLocation;
-    }
-
-    static int getAllyArchonIndex(AllyArchonTracker allyArchonTracker) {
-        for (int i = 0; i < allyArchonTrackers.length; i++) {
-            if (allyArchonTracker.equals(allyArchonTrackers[i])) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    static int getEnemyArchonIndex(EnemyArchonTracker enemyArchonTracker) {
-        for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (enemyArchonTracker.equals(enemyArchonTrackers[i])) {
-                return i;
-            }
-        }
-        return -1;
+        return enemyArchonTrackers[getNearestEnemyArchon(fromLocation)].getGuessLocation();
     }
 
     static int getFirstAliveAllyArchon() {

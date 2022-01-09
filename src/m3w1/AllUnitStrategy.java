@@ -89,7 +89,7 @@ strictfp class AllUnitStrategy {
                     continue;
                 }
 
-                MapLocation guessLocation = ArchonTrackerManager.enemyArchonTrackers[i].guessLocation;
+                MapLocation guessLocation = ArchonTrackerManager.enemyArchonTrackers[i].getGuessLocation();
                 // if (rc.canSenseLocation(estimatedLocation)) {
                 // ^ Doesn't work for some reason, bug in Battlecode?
                 if (myLocation.distanceSquaredTo(guessLocation) <= visionRadiusSquared) {
@@ -109,10 +109,11 @@ strictfp class AllUnitStrategy {
                         else {
                             DebugManager.log("Enemy Archon missing at " + guessLocation);
                             // We're here and we don't see it, and no one else has either
-                            if (!ArchonTrackerManager.enemyArchonTrackers[i].goToNextGuessLocation()) {
-                                // If we ran out of guess locations, assume it's dead
-//                                ArchonTrackerManager.setEnemyArchonAlive(i, false);
-                            }
+//                            if (!ArchonTrackerManager.enemyArchonTrackers[i].goToNextGuessLocation()) {
+//                                // If we ran out of guess locations, assume it's dead
+////                                ArchonTrackerManager.setEnemyArchonAlive(i, false);
+//                            }
+                            ArchonTrackerManager.goToEnemyArchonNextGuessLocation(i);
                         }
                     }
                 }
