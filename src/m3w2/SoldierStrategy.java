@@ -17,29 +17,53 @@ strictfp class SoldierStrategy {
         }
 
         if (!ArchonTrackerManager.receivedArchonTrackers) {
+            if (DebugManager.soldierDebug) {
+                DebugManager.log("Soldier debug: Haven't received Archon trackers");
+            }
             return;
         }
 
         MapLocation myLocation = RobotPlayer.rc.getLocation();
 
         CombatManager.COMBAT_DROID_ACTIONS action = CombatManager.getCombatDroidAction();
+        if (DebugManager.soldierDebug) {
+            DebugManager.log("Soldier debug: action = " + action);
+        }
         if (action == CombatManager.COMBAT_DROID_ACTIONS.ATTACK) {
             if (CombatManager.tryAttack()) {
                 // Try to attack
+                if (DebugManager.soldierDebug) {
+                    DebugManager.log("Soldier debug: Try attack success");
+                }
             }
             else {
+                if (DebugManager.soldierDebug) {
+                    DebugManager.log("Soldier debug: Try attack failed");
+                }
                 MapLocation visibleAttackTarget = CombatManager.getAttackTarget(RobotPlayer.rc.getType().visionRadiusSquared);
                 if (visibleAttackTarget != null) {
+                    if (DebugManager.soldierDebug) {
+                        DebugManager.log("Soldier debug: Visible target");
+                    }
                     // Move towards nearest visible enemy
                     GeneralManager.tryMove(getNextSoldierDir(visibleAttackTarget), false);
                 }
                 else {
+                    if (DebugManager.soldierDebug) {
+                        DebugManager.log("Soldier debug: No visible target");
+                    }
                     MapLocation nearestEnemyArchonGuessLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation);
                     if (nearestEnemyArchonGuessLocation != null) {
+                        if (DebugManager.soldierDebug) {
+                            DebugManager.log("Soldier debug: Nearest enemy Archon guess " + nearestEnemyArchonGuessLocation);
+                        }
                         // If no enemies are visible, move towards nearest enemy Archon
                         GeneralManager.tryMove(getNextSoldierDir(nearestEnemyArchonGuessLocation), false);
                     }
                     else {
+                        if (DebugManager.soldierDebug) {
+                            DebugManager.log("Soldier debug: Center of map");
+                        }
                         // Unless there is no known enemy Archon
                         // Then move towards the center of the map
                         GeneralManager.tryMove(getNextSoldierDir(GeneralManager.getMapCenter()), true);

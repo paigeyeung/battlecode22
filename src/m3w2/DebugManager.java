@@ -7,9 +7,13 @@ strictfp class DebugManager {
         RobotPlayer.rc.setIndicatorString(string);
     }
 
-    static byte archonMismatchTurns = 0;
+    static int archonMismatchTurns = 0;
+    static int soldierStationaryTurns = 0;
+    static MapLocation soldierLastLocation = null;
+    static boolean soldierDebug = false;
 
-    static void sanityCheck() {
+    static void runDebug() {
+        // Check ally Archon count
         if (ArchonTrackerManager.receivedArchonTrackers) {
             int numAllyArchonsAlive = 0;
             for (int i = 0; i < ArchonTrackerManager.allyArchonTrackers.length; i++) {
@@ -28,6 +32,25 @@ strictfp class DebugManager {
             else {
                 archonMismatchTurns = 0;
             }
+        }
+
+        // If Soldier, enable debug if stuck
+        if (!soldierDebug && RobotPlayer.rc.getType() == RobotType.SOLDIER) {
+            if (soldierLastLocation != null && soldierLastLocation.distanceSquaredTo(new MapLocation(2, 2)) <= 2) {
+                if (RobotPlayer.rc.getLocation().equals(soldierLastLocation)) {
+                    soldierStationaryTurns++;
+                }
+                else {
+                    soldierStationaryTurns = 0;
+                }
+                if (soldierStationaryTurns > 3) {
+                    soldierDebug = true;
+                }
+                else {
+                    soldierDebug = false;
+                }
+            }
+            soldierLastLocation = RobotPlayer.rc.getLocation();
         }
     }
 }

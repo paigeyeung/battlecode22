@@ -27,7 +27,7 @@ public strictfp class RobotPlayer {
                     case WATCHTOWER: WatchtowerStrategy.runWatchtower(); break;
                 }
                 AllUnitStrategy.runAllLate();
-                DebugManager.sanityCheck();
+                DebugManager.runDebug();
             } catch (GameActionException e) {
                 DebugManager.log(rc.getType() + " Exception");
                 e.printStackTrace();
