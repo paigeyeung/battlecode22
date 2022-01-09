@@ -1,4 +1,4 @@
-package m4;
+package m3w2;
 
 import battlecode.common.*;
 

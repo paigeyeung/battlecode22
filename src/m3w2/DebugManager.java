@@ -1,7 +1,7 @@
-package m4;
+package m3w2;
 
 strictfp class DebugManager {
-    static String botName = "m4";
+    static String botName = "m3w2";
     static void log(String string) {
         System.out.println(botName + " - " + RobotPlayer.rc.getRoundNum() + " - " + string);
         RobotPlayer.rc.setIndicatorString(string);
