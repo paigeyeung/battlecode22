@@ -35,12 +35,12 @@ strictfp class SoldierStrategy {
                 }
                 else {
                     // If no enemies are visible, move towards nearest enemy Archon
-                    GeneralManager.tryMove(getNextSoldierDir(ArchonTrackerManager.getNearestEnemyArchon(myLocation).guessLocation), false);
+                    GeneralManager.tryMove(getNextSoldierDir(ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation)), false);
                 }
             }
         }
         else if (action == CombatManager.COMBAT_DROID_ACTIONS.RETREAT) {
-            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchon(myLocation).location;
+            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(myLocation);
             if (myLocation.distanceSquaredTo(nearestAllyArchonLocation) > 10) {
                 // Move towards nearest ally Archon
                 GeneralManager.tryMove(getNextSoldierDir(nearestAllyArchonLocation), true);
@@ -97,7 +97,7 @@ strictfp class SoldierStrategy {
         else
             f += (int)(((RobotPlayer.rc.getMapHeight() + RobotPlayer.rc.getMapWidth()) * 20) * ((double)friendlySoldierCount * 0.5 - enemySoldierCount + 1.2));
 
-        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchon(RobotPlayer.rc.getLocation()).location;
+        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
 
         if(RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLocation) > (RobotPlayer.rc.getMapHeight() + RobotPlayer.rc.getMapWidth())/2) {
             f = Integer.MAX_VALUE;

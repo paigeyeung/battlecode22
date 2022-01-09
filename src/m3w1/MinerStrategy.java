@@ -44,9 +44,9 @@ strictfp class MinerStrategy {
     static Direction getNextMiningDir() throws GameActionException {
         MapLocation myLoc = RobotPlayer.rc.getLocation();
 
-        ArchonTrackerManager.AllyArchonTracker nearestAllyArchon = ArchonTrackerManager.getNearestAllyArchon(myLoc);
-        int distToNearestAllyArchon = myLoc.distanceSquaredTo(nearestAllyArchon.location);
-        int f = 200/distToNearestAllyArchon;
+        MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(myLoc);
+        int distToNearestAllyArchon = myLoc.distanceSquaredTo(nearestAllyArchonLoc);
+        int f = 200 / distToNearestAllyArchon;
 
         // See if any enemy attack bots
         Team opponent = RobotPlayer.rc.getTeam().opponent();
@@ -167,9 +167,9 @@ strictfp class MinerStrategy {
 
         Direction movementDir = null;
 
-        MapLocation nearestFriendlyArchonLoc = ArchonTrackerManager.getNearestAllyArchon(currLoc).location;
+        MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(currLoc);
 
-        int f = 200/currLoc.distanceSquaredTo(nearestFriendlyArchonLoc);
+        int f = 200/currLoc.distanceSquaredTo(nearestAllyArchonLoc);
         for(MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(currLoc,2)) {
             f -= 5*RobotPlayer.rc.senseLead(adj) + 15*RobotPlayer.rc.senseGold(adj);
         }

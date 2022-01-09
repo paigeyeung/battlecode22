@@ -34,7 +34,7 @@ strictfp class ArchonStrategy {
             }
         }
         else if (robotType == RobotType.SOLDIER) {
-            preferredDirection = myLocation.directionTo(ArchonTrackerManager.getNearestEnemyArchon(myLocation).guessLocation);
+            preferredDirection = myLocation.directionTo(ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation));
         }
         Direction buildDirection = GeneralManager.getBuildDirection(robotType, preferredDirection);
         if (buildDirection != null) {
@@ -42,10 +42,6 @@ strictfp class ArchonStrategy {
             return true;
         }
         return false;
-    }
-
-    static ArchonTrackerManager.AllyArchonTracker makeMyArchonTracker() {
-        return new ArchonTrackerManager.AllyArchonTracker(true, RobotPlayer.rc.getLocation(), mySharedArrayToggle);
     }
 
     /** Called by RobotPlayer */
@@ -68,13 +64,8 @@ strictfp class ArchonStrategy {
                 DebugManager.log("SOMETHING WENT WRONG: Archon did not find empty array element");
             }
             else {
-                int encodedMyArchonTracker = ArchonTrackerManager.encodeAllyArchonTracker(makeMyArchonTracker());
-                RobotPlayer.rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_TRACKERS_INDEX + mySharedArrayIndex, encodedMyArchonTracker);
-                DebugManager.log("Broadcasted my Archon location " + myLocation + " as " + encodedMyArchonTracker);
-
-                int encodedEnemyArchonTracker = ArchonTrackerManager.encodeEnemyArchonTracker(true, false, myLocation);
-                RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + mySharedArrayIndex, encodedEnemyArchonTracker);
-                DebugManager.log("Broadcasted enemy Archon as " + encodedEnemyArchonTracker);
+                ArchonTrackerManager.updateGlobalAllyArchonTrackerFirstTime(mySharedArrayIndex, true, mySharedArrayToggle, myLocation);
+                ArchonTrackerManager.updateGlobalEnemyArchonTrackerFirstTime(mySharedArrayIndex, true, false, myLocation);
             }
 
             // Initialize resource manager
@@ -101,8 +92,8 @@ strictfp class ArchonStrategy {
 
         // Toggle bit in shared array to show alive
         mySharedArrayToggle = !mySharedArrayToggle;
-        int encodedMyArchonTracker = ArchonTrackerManager.encodeAllyArchonTracker(makeMyArchonTracker());
-        RobotPlayer.rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_TRACKERS_INDEX + mySharedArrayIndex, encodedMyArchonTracker);
+        ArchonTrackerManager.setAllyArchonToggle(mySharedArrayIndex, mySharedArrayToggle);
+        ArchonTrackerManager.updateGlobalAllyArchonTracker(mySharedArrayIndex);
 
         // If first alive Archon, write to shared array indicies 8-9 for ArchonResourceManager
         // Reset the array indicies except cooldowns last turn, then write lead and gold

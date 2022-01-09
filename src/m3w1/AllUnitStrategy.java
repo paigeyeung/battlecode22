@@ -22,23 +22,17 @@ strictfp class AllUnitStrategy {
 
                 ArchonTrackerManager.allyArchonTrackers = new ArchonTrackerManager.AllyArchonTracker[numArchons];
                 for (int i = 0; i < numArchons; i++) {
-                    ArchonTrackerManager.allyArchonTrackers[i] = ArchonTrackerManager.decodeAllyArchonTracker(RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_TRACKERS_INDEX + i));
+                    ArchonTrackerManager.decodeAndUpdateLocalAllyArchonTracker(i, true);
                 }
 
                 ArchonTrackerManager.enemyArchonTrackers = new ArchonTrackerManager.EnemyArchonTracker[numArchons];
                 for (int i = 0; i < numArchons; i++) {
-                    ArchonTrackerManager.enemyArchonTrackers[i] = ArchonTrackerManager.decodeEnemyArchonTracker(RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + i));
+                    ArchonTrackerManager.decodeAndUpdateLocalEnemyArchonTracker(i, true);
                 }
 
                 // Identify which Archon built me
                 // This should only be for droids
-                ArchonTrackerManager.AllyArchonTracker myStartingArchon = ArchonTrackerManager.getNearestAllyArchon(GeneralManager.startingLocation);
-                for (int i = 0; i < ArchonTrackerManager.allyArchonTrackers.length; i++) {
-                    if (myStartingArchon == ArchonTrackerManager.allyArchonTrackers[i]) {
-                        ArchonTrackerManager.myStartingArchonIndex = i;
-                        break;
-                    }
-                }
+                ArchonTrackerManager.myStartingArchonIndex = ArchonTrackerManager.getNearestAllyArchon(GeneralManager.startingLocation);
 
                 ArchonTrackerManager.receivedArchonTrackers = true;
             }
@@ -54,14 +48,14 @@ strictfp class AllUnitStrategy {
         if (ArchonTrackerManager.receivedArchonTrackers && Clock.getBytecodesLeft() > 1000
             && RobotPlayer.rc.getType() != RobotType.ARCHON) {
             int encodedGeneralStrategy0 = RobotPlayer.rc.readSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX);
-            int nearestAllyArchonIndex = ArchonTrackerManager.getAllyArchonIndex(ArchonTrackerManager.getNearestAllyArchon(myLocation));
-            boolean seenEnemy = ((encodedGeneralStrategy0 >>> nearestAllyArchonIndex) & 0x1) == 1;
+            int nearestAllyArchon = ArchonTrackerManager.getNearestAllyArchon(myLocation);
+            boolean seenEnemy = ((encodedGeneralStrategy0 >>> nearestAllyArchon) & 0x1) == 1;
             if (!seenEnemy) {
                 // There is an enemy
                 if (RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, RobotPlayer.rc.getTeam().opponent()).length > 0) {
-                    encodedGeneralStrategy0 = encodedGeneralStrategy0 | (1 << nearestAllyArchonIndex);
+                    encodedGeneralStrategy0 = encodedGeneralStrategy0 | (1 << nearestAllyArchon);
                     RobotPlayer.rc.writeSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX, encodedGeneralStrategy0);
-                    DebugManager.log("First time seen enemy near Archon " + nearestAllyArchonIndex);
+                    DebugManager.log("First time seen enemy near Archon " + nearestAllyArchon);
                 }
             }
         }
@@ -69,26 +63,18 @@ strictfp class AllUnitStrategy {
         // Check for updates to Archons from shared array
         if (ArchonTrackerManager.receivedArchonTrackers && Clock.getBytecodesLeft() > 1000) {
             for (int i = 0; i < ArchonTrackerManager.allyArchonTrackers.length; i++) {
-                ArchonTrackerManager.AllyArchonTracker allyArchonTracker = ArchonTrackerManager.decodeAllyArchonTracker(RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_TRACKERS_INDEX + i));
-                if (!ArchonTrackerManager.allyArchonTrackers[i].isEqualTo(allyArchonTracker)) {
-                    // Update ArchonTrackerManager as well
-                    if (ArchonTrackerManager.allyArchonTrackers[i].alive != allyArchonTracker.alive && RobotPlayer.rc.getType() == RobotType.ARCHON) {
-                        ArchonResourceManager.allyArchonModels[i].alive = allyArchonTracker.alive;
-                    }
-
-                    ArchonTrackerManager.allyArchonTrackers[i].update(allyArchonTracker);
-                }
-                else if (RobotPlayer.rc.getType() == RobotType.ARCHON && ArchonTrackerManager.allyArchonTrackers[i].alive && updatedArchonsLastTurn && ArchonTrackerManager.allyArchonTrackers[i].toggle == allyArchonTracker.toggle) {
+                boolean toggleBefore = ArchonTrackerManager.allyArchonTrackers[i].toggle;
+                ArchonTrackerManager.decodeAndUpdateLocalAllyArchonTracker(i, false);
+                boolean toggleAfter = ArchonTrackerManager.allyArchonTrackers[i].toggle;
+                if (RobotPlayer.rc.getType() == RobotType.ARCHON && ArchonStrategy.mySharedArrayIndex != i && ArchonTrackerManager.allyArchonTrackers[i].alive && updatedArchonsLastTurn && toggleBefore == toggleAfter) {
                     // Toggle did not change since last turn, so ally Archon is dead
-                    ArchonTrackerManager.setAllyArchonDead(i);
+                    ArchonTrackerManager.setAllyArchonAlive(i, false);
                 }
             }
             for (int i = 0; i < ArchonTrackerManager.enemyArchonTrackers.length; i++) {
-                ArchonTrackerManager.EnemyArchonTracker enemyArchonTracker = ArchonTrackerManager.decodeEnemyArchonTracker(RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + i));
-                if (!ArchonTrackerManager.enemyArchonTrackers[i].isEqualTo(enemyArchonTracker)) {
-                    ArchonTrackerManager.enemyArchonTrackers[i].update(enemyArchonTracker);
-                }
+                ArchonTrackerManager.decodeAndUpdateLocalEnemyArchonTracker(i, false);
             }
+            ArchonTrackerManager.decodeAndUpdateLocalEnemyArchonGuessLocations();
             updatedArchonsLastTurn = true;
         }
         else {
@@ -112,30 +98,21 @@ strictfp class AllUnitStrategy {
                     if (ArchonTrackerManager.enemyArchonTrackers[i].seen) {
                         if (!enemyArchonSeen) {
                             // We've seen it before and now it's gone, so assume it's dead
-                            ArchonTrackerManager.enemyArchonTrackers[i].alive = false;
-                            int encodedEnemyArchonTracker = ArchonTrackerManager.encodeEnemyArchonTracker(ArchonTrackerManager.enemyArchonTrackers[i]);
-                            RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + i, encodedEnemyArchonTracker);
-                            DebugManager.log("Broadcasted enemy Archon dead " + guessLocation + " as " + encodedEnemyArchonTracker);
+                            ArchonTrackerManager.setEnemyArchonAlive(i, false);
                         }
                     }
-                    else if (!ArchonTrackerManager.enemyArchonTrackers[i].seen) {
+                    else {
                         if (enemyArchonSeen) {
                             // This is the first time we've seen it
-                            ArchonTrackerManager.enemyArchonTrackers[i].seen = true;
-                            int encodedEnemyArchonTracker = ArchonTrackerManager.encodeEnemyArchonTracker(ArchonTrackerManager.enemyArchonTrackers[i]);
-                            RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + i, encodedEnemyArchonTracker);
-                            DebugManager.log("Broadcasted enemy Archon seen " + guessLocation + " as " + encodedEnemyArchonTracker);
+                            ArchonTrackerManager.setEnemyArchonSeen(i, true);
                         }
                         else {
+                            DebugManager.log("Enemy Archon missing at " + guessLocation);
                             // We're here and we don't see it, and no one else has either
                             if (!ArchonTrackerManager.enemyArchonTrackers[i].goToNextGuessLocation()) {
-                                // If we ran out of guess locations, assume dead
-                                ArchonTrackerManager.enemyArchonTrackers[i].alive = false;
-                                int encodedEnemyArchonTracker = ArchonTrackerManager.encodeEnemyArchonTracker(ArchonTrackerManager.enemyArchonTrackers[i]);
-                                RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + i, encodedEnemyArchonTracker);
-                                DebugManager.log("Broadcasted enemy Archon dead " + guessLocation + " as " + encodedEnemyArchonTracker);
+                                // If we ran out of guess locations, assume it's dead
+//                                ArchonTrackerManager.setEnemyArchonAlive(i, false);
                             }
-                            DebugManager.log("Enemy Archon missing at " + guessLocation);
                         }
                     }
                 }

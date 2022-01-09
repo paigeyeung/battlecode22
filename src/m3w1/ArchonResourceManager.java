@@ -21,7 +21,7 @@ strictfp class ArchonResourceManager {
         int index;
         boolean alive;
         boolean onCooldown;
-        int nearestEnemyArchonIndex;
+        int nearestEnemyArchon;
         int nearestEnemyArchonDistanceSquared;
 
         ARCHON_ROLES archonRole;
@@ -42,9 +42,8 @@ strictfp class ArchonResourceManager {
         }
 
         void updateNearestEnemyArchon() {
-            ArchonTrackerManager.EnemyArchonTracker nearestEnemyArchon = ArchonTrackerManager.getNearestEnemyArchon(ArchonTrackerManager.allyArchonTrackers[index].location);
-            nearestEnemyArchonIndex = ArchonTrackerManager.getEnemyArchonIndex(nearestEnemyArchon);
-            nearestEnemyArchonDistanceSquared = ArchonTrackerManager.allyArchonTrackers[index].location.distanceSquaredTo(nearestEnemyArchon.guessLocation);
+            nearestEnemyArchon = ArchonTrackerManager.getNearestEnemyArchon(ArchonTrackerManager.allyArchonTrackers[index].location);
+            nearestEnemyArchonDistanceSquared = ArchonTrackerManager.allyArchonTrackers[index].location.distanceSquaredTo(ArchonTrackerManager.enemyArchonTrackers[nearestEnemyArchon].guessLocation);
         }
 
         void setActionBuildMiner() {
