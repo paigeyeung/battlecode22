@@ -83,7 +83,8 @@ strictfp class CombatManager {
 
     /** Calculates combat score for all locally visible robots of team */
     static double evaluateLocalCombatScore(Team team, boolean defensive) throws GameActionException {
-        RobotInfo[] visibleRobots = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, team);
+        RobotInfo[] visibleRobots = RobotPlayer.rc.senseNearbyRobots((RobotPlayer.rc.getType().actionRadiusSquared+RobotPlayer.rc.getType().actionRadiusSquared)/2,
+                team);
         double combatScore = 0;
         for (int i = 0; i < visibleRobots.length; i++) {
             combatScore += calculateRobotCombatScore(visibleRobots[i], defensive);
@@ -100,8 +101,11 @@ strictfp class CombatManager {
         double allyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false);
         double enemyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true);
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;
-        if (enemyCombatScore > allyCombatScore * 0.5) {
+        if (enemyCombatScore > allyCombatScore * 0.9) {
             chosenAction = COMBAT_DROID_ACTIONS.RETREAT;
+            if (enemyCombatScore < allyCombatScore || allyCombatScore == 0) {
+                chosenAction = COMBAT_DROID_ACTIONS.HOLD;
+            }
         }
         return chosenAction;
     }

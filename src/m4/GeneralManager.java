@@ -65,17 +65,34 @@ strictfp class GeneralManager {
     }
 
     /**
+     * Get opposite direction to a direction
+     */
+    static Direction getOppositeDirection(Direction dir) {
+        switch(dir) {
+            case NORTH: return Direction.SOUTH;
+            case SOUTH: return Direction.NORTH;
+            case NORTHWEST: return Direction.SOUTHEAST;
+            case NORTHEAST: return Direction.SOUTHWEST;
+            case EAST: return Direction.WEST;
+            case WEST: return Direction.EAST;
+            case SOUTHEAST: return Direction.NORTHWEST;
+            case SOUTHWEST: return Direction.NORTHEAST;
+            default: return null;
+        }
+    }
+
+    /**
      * Get direction to get to destination with less rubble
      */
 
     static Direction getNextDir(MapLocation dest) throws GameActionException {
-        MapLocation currLoc = RobotPlayer.rc.getLocation();
+        MapLocation myLoc = RobotPlayer.rc.getLocation();
 
-        if(currLoc.equals(dest) || dest == null) return null;
+        if(myLoc.equals(dest) || dest == null) return null;
 
         Direction movementDir = null;
-        int minDist = getSqDistance(currLoc, dest);
-        int f = Integer.MAX_VALUE;//minDist + rubble;
+        int minDist = getSqDistance(myLoc, dest);
+        int f = Integer.MAX_VALUE;
 
         for(Direction dir : DIRECTIONS) {
             if(RobotPlayer.rc.canMove(dir)) {
