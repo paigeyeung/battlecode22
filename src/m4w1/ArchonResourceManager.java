@@ -204,7 +204,7 @@ strictfp class ArchonResourceManager {
                 if (lead < 75) {
                     break;
                 }
-                int chosenArchonIndex = findArchonWithFewestSoldiersBuilt(true, true);
+                int chosenArchonIndex = findArchonWithFewestSoldiersBuilt(true);
                 if (chosenArchonIndex == -1) {
                     break;
                 }
@@ -256,6 +256,17 @@ strictfp class ArchonResourceManager {
             if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
                 && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))
                 && (!offensiveArchon || allyArchonModels[i].archonRole == ARCHON_ROLES.OFFENSIVE)) {
+                fewestIndex = i;
+            }
+        }
+        return fewestIndex;
+    }
+
+    static int findArchonWithFewestSoldiersBuilt(boolean ableToBuild) {
+        int fewestIndex = -1;
+        for (int i = 0; i < allyArchonModels.length; i++) {
+            if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
+                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
                 fewestIndex = i;
             }
         }
