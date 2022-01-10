@@ -18,7 +18,12 @@ strictfp class MinerStrategy {
         // Try to mine gold
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
-                MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
+                int x = myLocation.x + dx;
+                int y = myLocation.y + dy;
+                if (x < 0 || x > GeneralManager.mapWidth || y < 0 || y > GeneralManager.mapHeight) {
+                    continue;
+                }
+                MapLocation mineLocation = new MapLocation(x, y);
                 while (RobotPlayer.rc.senseGold(mineLocation) > 0 && actionCooldown < 10) {
                     RobotPlayer.rc.mineGold(mineLocation);
                     actionCooldown -= 2;
@@ -29,7 +34,12 @@ strictfp class MinerStrategy {
         // Try to mine lead
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
-                MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
+                int x = myLocation.x + dx;
+                int y = myLocation.y + dy;
+                if (x < 0 || x > GeneralManager.mapWidth || y < 0 || y > GeneralManager.mapHeight) {
+                    continue;
+                }
+                MapLocation mineLocation = new MapLocation(x, y);
                 while (RobotPlayer.rc.senseLead(mineLocation) > 1 && actionCooldown < 10) {
                     RobotPlayer.rc.mineLead(mineLocation);
                     actionCooldown -= 2;
