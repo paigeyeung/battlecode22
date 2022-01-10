@@ -120,14 +120,15 @@ public strictfp class RobotPlayer {
      */
 
     static void runArchon(RobotController rc) throws GameActionException {
-        startBytecodeTracker();
-        int a = 0xab;
-        boolean b = ((a >>> 2) & 0x1) == 1;
-        endBytecodeTracker();
+        int mapWidth = 60, mapHeight = 60;
 
         startBytecodeTracker();
-        int a2 = 0xab;
-        boolean b2 = (a2 & (1 << 2)) != 0;
+        MapLocation myLocation = rc.getLocation();
+        int x = myLocation.x + 1;
+        int y = myLocation.y + 1;
+        if (!(x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)) {
+            MapLocation mineLocation = new MapLocation(x, y);
+        }
         endBytecodeTracker();
 
         System.out.println("Total bytecode used: " + Clock.getBytecodeNum());

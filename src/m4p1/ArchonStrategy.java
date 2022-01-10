@@ -46,7 +46,7 @@ strictfp class ArchonStrategy {
         return false;
     }
 
-    static boolean archonTryMove(int archonIndex) throws GameActionException {
+    static boolean archonTryMove() throws GameActionException {
         MapLocation locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies()].location;
 
         if (!RobotPlayer.rc.getMode().canMove) {
@@ -66,12 +66,15 @@ strictfp class ArchonStrategy {
         }
 
         Direction nextDir = getNextArchonDir(locFarthestFromEnemies);
-        if(nextDir != null) {
-            ArchonTrackerManager.allyArchonTrackers[archonIndex].location = RobotPlayer.rc.adjacentLocation(nextDir);
-            ArchonTrackerManager.decodeAndUpdateLocalAllyArchonTracker(archonIndex,false);
+        boolean moved = GeneralManager.tryMove(nextDir,false);
+
+        if (moved) {
+//            ArchonTrackerManager.allyArchonTrackers[archonIndex].location = RobotPlayer.rc.adjacentLocation(nextDir);
+//            ArchonTrackerManager.decodeAndUpdateLocalAllyArchonTracker(archonIndex,false);
+            ArchonTrackerManager.setAllyArchonLocation(mySharedArrayIndex, RobotPlayer.rc.getLocation());
         }
 
-        return GeneralManager.tryMove(nextDir,false);
+        return moved;
     }
 
     static Direction getNextArchonDir(MapLocation dest) throws GameActionException {
@@ -191,15 +194,14 @@ strictfp class ArchonStrategy {
             archonTryBuild(RobotType.SOLDIER);
         }
         else if (action == ArchonResourceManager.ARCHON_ACTIONS.MOVE) {
-            archonTryMove(mySharedArrayIndex);
-            ArchonTrackerManager.updateGlobalAllyArchonTracker(mySharedArrayIndex);
+            archonTryMove();
         }
 
         // Write to shared array indicies 8-9 for ArchonResourceManager
         int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
         int encodedResourceManager1Original = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
         int encodedResourceManager1 = encodedResourceManager1Original;
-        boolean onCooldown = RobotPlayer.rc.getActionCooldownTurns() > 10 || RobotPlayer.rc.getMovementCooldownTurns() > 10;
+        boolean onCooldown = RobotPlayer.rc.getActionCooldownTurns() > 10 || (RobotPlayer.rc.getMode() == RobotMode.PORTABLE && RobotPlayer.rc.getMovementCooldownTurns() > 10);
         encodedResourceManager1 = encodedResourceManager1 | (onCooldown ? 1 : 0) << mySharedArrayIndex;
         // If last alive Archon, copy cooldowns last turn to this turn
         if (mySharedArrayIndex == ArchonTrackerManager.getLastAliveAllyArchon()) {

@@ -136,6 +136,10 @@ strictfp class ArchonResourceManager {
 
     /** Compute Archon actions */
     static void computeArchonActions() throws GameActionException {
+        // TODO: Change check later for bytecode
+        // For location changes
+//        computeArchonRoles();
+
         int turn = RobotPlayer.rc.getRoundNum();
         int totalDroidsBuilt = 0;
         int totalMinersBuilt = 0;
@@ -183,12 +187,13 @@ strictfp class ArchonResourceManager {
 
         for (int i = 0; i < allyArchonModels.length; i++) {
             if (!allyArchonModels[i].alive) continue;
-            MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.enemyArchonTrackers[ArchonTrackerManager.getNearestEnemyArchon(ArchonTrackerManager.allyArchonTrackers[i].location)].getGuessLocation();
+            MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(ArchonTrackerManager.allyArchonTrackers[i].location);
             if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON &&
                     GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)
                             > ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(nearestEnemyArchonLoc))
                 if (ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location.distanceSquaredTo(ArchonTrackerManager.allyArchonTrackers[i].location) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
                     allyArchonModels[i].setActionMove();
+                    DebugManager.log("Want ally Archon " + i + " at " + ArchonTrackerManager.allyArchonTrackers[i].location + " to move");
                 }
         }
 
@@ -292,42 +297,37 @@ strictfp class ArchonResourceManager {
         }
         return fewestIndex;
     }
-    static int findArchonWithFewestSoldiersBuilt(boolean ableToBuild, boolean offensiveArchon) {
+    static int findArchonWithFewestSoldiersBuilt(boolean ableToBuild, boolean offensiveArchonPreference) {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
                 && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))
-                && (!offensiveArchon || allyArchonModels[i].archonRole == ARCHON_ROLES.OFFENSIVE)) {
+                && (!offensiveArchonPreference || allyArchonModels[i].archonRole == ARCHON_ROLES.OFFENSIVE)) {
                 fewestIndex = i;
+            }
+        }
+        if (fewestIndex == -1) {
+            for (int i = 0; i < allyArchonModels.length; i++) {
+                if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
+                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                    fewestIndex = i;
+                }
             }
         }
         return fewestIndex;
     }
 
-    static int findArchonNeedingSoldiers(boolean ableToBuild, boolean offensiveArchon) {
+    static int findArchonNeedingSoldiers(boolean ableToBuild) {
         int fewestIndex = -1;
 //        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared,RobotPlayer.rc.getTeam().opponent());
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
-                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))
-                    && (!offensiveArchon || allyArchonModels[i].archonRole == ARCHON_ROLES.OFFENSIVE)) {
+                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
                 fewestIndex = i;
             }
         }
         return fewestIndex;
     }
-
-//    static int findArchonWithMostSoldiersBuilt(boolean ableToBuild, boolean offensiveArchon) {
-//        int greatestIndex = -1;
-//        for (int i = allyArchonModels.length - 1; i >= 0; i--) {
-//            if ((greatestIndex == -1 || allyArchonModels[i].soldiersBuilt > allyArchonModels[greatestIndex].soldiersBuilt)
-//                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))
-//                    && (!offensiveArchon || allyArchonModels[i].archonRole == ARCHON_ROLES.OFFENSIVE)) {
-//                greatestIndex = i;
-//            }
-//        }
-//        return greatestIndex;
-//    }
 
     static int findArchonFarthestFromEnemies() {
         int farthestIndex = -1;

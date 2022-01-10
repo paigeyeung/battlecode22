@@ -222,6 +222,11 @@ strictfp class ArchonTrackerManager {
             ArchonResourceManager.setArchonDead(index);
         }
     }
+    static void setAllyArchonLocation(int index, MapLocation location) throws GameActionException {
+        DebugManager.log("Set ally Archon " + index + " location " + location);
+        allyArchonTrackers[index].location = location;
+        updateGlobalAllyArchonTracker(index);
+    }
     static void setAllyArchonToggle(int index, boolean toggle) throws GameActionException {
 //        DebugManager.log("Set ally Archon " + index + " toggle " + toggle);
         allyArchonTrackers[index].toggle = toggle;
