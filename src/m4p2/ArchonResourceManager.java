@@ -1,12 +1,13 @@
-package m4p1;
+package m4p2;
 
 import battlecode.common.*;
 
-import static m4p1.DebugManager.log;
+import static m4p2.DebugManager.log;
 
 strictfp class ArchonResourceManager {
     static int farthestArchonIndex;
-    static final int MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON = 25;
+    static final int MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON = 20;
+//    static final int MIN_DISTANCE_TO_NEARBY_ALLY_ARCHON = 4;
 
     enum ARCHON_ROLES {
         OFFENSIVE,
@@ -182,7 +183,7 @@ strictfp class ArchonResourceManager {
             RobotType chosenBuild = null;
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
-            if (!anySeenEnemy && (totalMinersBuilt < 30 || (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.8))) {
+            if (!anySeenEnemy && (totalMinersBuilt < 40 || (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.8))) {
                 chosenBuild = RobotType.MINER;
             }
             // Maintain 10% proportion of build miners
@@ -237,7 +238,10 @@ strictfp class ArchonResourceManager {
                                 moving = true;
                             }
                         if(!moving) {
-                            allyArchonModels[i].setActionBuildSoldier();
+                            if (lead >= 75) {
+                                allyArchonModels[i].setActionBuildSoldier();
+                                lead -= 75;
+                            }
                         }
                     }
 //                }
@@ -339,7 +343,7 @@ strictfp class ArchonResourceManager {
     static int findArchonFarthestFromEnemies() {
         int farthestIndex = -1;
         for (int i = allyArchonModels.length - 1; i >= 0; i--) {
-            if((farthestIndex == -1 || allyArchonModels[i].nearestEnemyArchonDistanceSquared > allyArchonModels[farthestIndex].nearestEnemyArchonDistanceSquared))
+            if(allyArchonModels[i].alive &&(farthestIndex == -1 || allyArchonModels[i].nearestEnemyArchonDistanceSquared > allyArchonModels[farthestIndex].nearestEnemyArchonDistanceSquared))
                 farthestIndex = i;
         }
         return farthestIndex;
@@ -348,7 +352,7 @@ strictfp class ArchonResourceManager {
     static int findArchonClosestToEnemies() {
         int closestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
-            if((closestIndex == -1 || allyArchonModels[i].nearestEnemyArchonDistanceSquared < allyArchonModels[closestIndex].nearestEnemyArchonDistanceSquared))
+            if(allyArchonModels[i].alive && (closestIndex == -1 || allyArchonModels[i].nearestEnemyArchonDistanceSquared < allyArchonModels[closestIndex].nearestEnemyArchonDistanceSquared))
                 closestIndex = i;
         }
         return closestIndex;

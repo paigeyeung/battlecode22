@@ -1,8 +1,8 @@
-package m4p1;
+package m4p2;
 
 import battlecode.common.*;
 
-import static m4p1.DebugManager.log;
+import static m4p2.DebugManager.log;
 
 strictfp class ArchonStrategy {
     static int mySharedArrayIndex = -1;

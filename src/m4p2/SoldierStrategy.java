@@ -1,4 +1,4 @@
-package m4p1;
+package m4p2;
 
 import battlecode.common.*;
 
@@ -34,10 +34,20 @@ strictfp class SoldierStrategy {
                     GeneralManager.tryMove(getNextSoldierDir(visibleAttackTarget), false);
                 }
                 else {
+                    // Defend
+//                    MapLocation closestArchonToEnemiesLoc = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonClosestToEnemies()].location;
+
                     MapLocation nearestEnemyArchonGuessLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation);
+
                     if (nearestEnemyArchonGuessLocation != null) {
-                        // If no enemies are visible, move towards nearest enemy Archon
-                        GeneralManager.tryMove(getNextSoldierDir(nearestEnemyArchonGuessLocation), false);
+//                        if(RobotPlayer.rc.getLocation().distanceSquaredTo(nearestEnemyArchonGuessLocation)
+//                                > RobotPlayer.rc.getLocation().distanceSquaredTo(closestArchonToEnemiesLoc) &&
+//                                RobotPlayer.rc.getLocation().distanceSquaredTo(closestArchonToEnemiesLoc) > 36) {
+//                            GeneralManager.tryMove(getNextSoldierDir(closestArchonToEnemiesLoc),false);
+//                        } else {
+                            // If no enemies are visible, move towards nearest enemy Archon
+                            GeneralManager.tryMove(getNextSoldierDir(nearestEnemyArchonGuessLocation), false);
+//                        }
                     }
                     else {
                         // Unless there is no known enemy Archon
@@ -70,7 +80,7 @@ strictfp class SoldierStrategy {
 
         if(myLoc.equals(dest)) return null;
         if(myLoc.distanceSquaredTo(dest) < myLoc.distanceSquaredTo(nearestAllyArchonLocation))
-            return GeneralManager.getDirToEncircle(dest,myLoc.distanceSquaredTo(dest) - 2);
+            return GeneralManager.getDirToEncircle(dest,myLoc.distanceSquaredTo(dest) - 4);
 
         RobotInfo[] nearbyTeamRobots = RobotPlayer.rc.senseNearbyRobots(20,RobotPlayer.rc.getTeam());
 
@@ -88,15 +98,8 @@ strictfp class SoldierStrategy {
             }
         }
 
-        if(friendlySoldierCount < 9 && (myLoc.distanceSquaredTo(nearestAllyArchonLocation) <= 40 &&
-                myLoc.distanceSquaredTo(nearestAllyArchonLocation) >= 4))
-                return null;
-
-//        if(friendlySoldierCount < 12) {
-//            if(Math.random() < 0.5 && myLoc.distanceSquaredTo(nearestAllyArchonLocation) >= 5) {
-//                return null;
-//            }
-//        }
+        if(friendlySoldierCount < 2)
+            return null;
 
         Direction movementDir = null;
 
@@ -107,7 +110,7 @@ strictfp class SoldierStrategy {
                 MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
                 int newDist = adj.distanceSquaredTo(dest);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
-                int newF = newDist + newRubble/5 + 10*visitedTurns[adj.x][adj.y];
+                int newF = newDist + newRubble + 10*visitedTurns[adj.x][adj.y];
 
                 MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj,2);
 
@@ -127,14 +130,10 @@ strictfp class SoldierStrategy {
                 }
             }
         }
-        if(Math.random() < 0.5) {
-            if (movementDir != null) {
-                MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
-                visitedTurns[adj.x][adj.y]++;
-            }
-            return movementDir;
+        if(movementDir != null) {
+            MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
+            visitedTurns[adj.x][adj.y]++;
         }
-
-        return null;
+        return movementDir;
     }
 }
