@@ -1,5 +1,7 @@
 package m4p1;
 
+import battlecode.common.RobotType;
+
 strictfp class DebugManager {
     static String botName = "m4p1";
     static void log(String string) {
@@ -11,6 +13,7 @@ strictfp class DebugManager {
 
     static void sanityCheck() {
         if (ArchonTrackerManager.receivedArchonTrackers) {
+            // Check ArchonTrackerManager consistent with RC
             int numAllyArchonsAlive = 0;
             for (int i = 0; i < ArchonTrackerManager.allyArchonTrackers.length; i++) {
                 if (ArchonTrackerManager.allyArchonTrackers[i].alive) {
@@ -19,7 +22,7 @@ strictfp class DebugManager {
             }
             if (numAllyArchonsAlive != RobotPlayer.rc.getArchonCount()) {
                 if (archonMismatchTurns >= 2) {
-                    log("SOMETHING WENT WRONG: Archon count mismatch " + numAllyArchonsAlive + " and " + RobotPlayer.rc.getArchonCount());
+                    log("SOMETHING WENT WRONG: Ally Archon count mismatch " + numAllyArchonsAlive + " and " + RobotPlayer.rc.getArchonCount());
                 }
                 else {
                     archonMismatchTurns++;
@@ -27,6 +30,15 @@ strictfp class DebugManager {
             }
             else {
                 archonMismatchTurns = 0;
+            }
+
+            if (RobotPlayer.rc.getType() == RobotType.ARCHON) {
+                // Check ArchonTrackerManager consistent with ArchonResourceManager
+                for (int i = 0; i < ArchonTrackerManager.allyArchonTrackers.length; i++) {
+                    if (ArchonTrackerManager.allyArchonTrackers[i].alive != ArchonResourceManager.allyArchonModels[i].alive) {
+                        log("SOMETHING WENT WRONG: Ally Archon " + i + " ArchonTrackerManager alive: " + ArchonTrackerManager.allyArchonTrackers[i].alive + " and ArchonResourceManager alive: " + ArchonResourceManager.allyArchonModels[i].alive);
+                    }
+                }
             }
         }
     }

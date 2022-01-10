@@ -99,8 +99,8 @@ strictfp class ArchonResourceManager {
         farthestArchonIndex = findArchonFarthestFromEnemies();
     }
 
-    static void setArchonDead(int index) {
-        allyArchonModels[index].alive = false;
+    static void setArchonAlive(int index, boolean alive) {
+        allyArchonModels[index].alive = alive;
         computeArchonRoles();
     }
 
@@ -130,7 +130,7 @@ strictfp class ArchonResourceManager {
             else {
                 allyArchonModels[i].archonRole = ARCHON_ROLES.NONOFFENSIVE;
             }
-            log("Archon at location " + ArchonTrackerManager.allyArchonTrackers[i].location + " allyArchonModels[" + i + "].archonRole: " + allyArchonModels[i].archonRole);
+//            log("Archon at location " + ArchonTrackerManager.allyArchonTrackers[i].location + " allyArchonModels[" + i + "].archonRole: " + allyArchonModels[i].archonRole);
         }
     }
 
@@ -138,7 +138,7 @@ strictfp class ArchonResourceManager {
     static void computeArchonActions() throws GameActionException {
         // TODO: Change check later for bytecode
         // For location changes
-//        computeArchonRoles();
+        computeArchonRoles();
 
         int turn = RobotPlayer.rc.getRoundNum();
         int totalDroidsBuilt = 0;
@@ -187,7 +187,7 @@ strictfp class ArchonResourceManager {
 
         for (int i = 0; i < allyArchonModels.length; i++) {
             if (!allyArchonModels[i].alive) continue;
-            DebugManager.log("Archon " + i + " on cooldown: " + allyArchonModels[i].onCooldown);
+//            DebugManager.log("Archon " + i + " on cooldown: " + allyArchonModels[i].onCooldown);
             MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(ArchonTrackerManager.allyArchonTrackers[i].location);
             if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON &&
                     GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)

@@ -194,6 +194,10 @@ strictfp class ArchonTrackerManager {
         else {
             allyArchonTrackers[index].update(alive, location, toggle);
         }
+
+        if (RobotPlayer.rc.getType() == RobotType.ARCHON && GeneralManager.turnsAlive > 2) {
+            ArchonResourceManager.setArchonAlive(index, alive);
+        }
     }
     static void decodeAndUpdateLocalEnemyArchonTracker(int index, boolean firstTime) throws GameActionException {
         int encoded = RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + index);
@@ -219,7 +223,7 @@ strictfp class ArchonTrackerManager {
         updateGlobalAllyArchonTracker(index);
 
         if (RobotPlayer.rc.getType() == RobotType.ARCHON) {
-            ArchonResourceManager.setArchonDead(index);
+            ArchonResourceManager.setArchonAlive(index, alive);
         }
     }
     static void setAllyArchonLocation(int index, MapLocation location) throws GameActionException {
