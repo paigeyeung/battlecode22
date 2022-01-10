@@ -69,20 +69,20 @@ strictfp class SoldierStrategy {
         for(RobotInfo robot : nearbyTeamRobots) {
             if (robot.getType().equals(RobotType.SOLDIER)) {
                 friendlySoldierCount++;
-                if(robot.location.distanceSquaredTo(dest) > rc.getLocation().distanceSquaredTo(dest) + 6) {
-                    longerDistanceSoldierCount++;
-                }
-                else if (robot.location.distanceSquaredTo(dest) < rc.getLocation().distanceSquaredTo(dest) - 6) {
-                    shorterDistanceSoldierCount++;
-                }
+//                if(robot.location.distanceSquaredTo(dest) > rc.getLocation().distanceSquaredTo(dest) + 6) {
+//                    longerDistanceSoldierCount++;
+//                }
+//                else if (robot.location.distanceSquaredTo(dest) < rc.getLocation().distanceSquaredTo(dest) - 6) {
+//                    shorterDistanceSoldierCount++;
+//                }
             }
         }
-        if (longerDistanceSoldierCount > shorterDistanceSoldierCount + 3)
-            f += 10000;
-
-        if (longerDistanceSoldierCount < shorterDistanceSoldierCount - 3) {
-            f -= 100;
-        }
+//        if (longerDistanceSoldierCount > shorterDistanceSoldierCount + 3)
+//            f += 10000;
+//
+//        if (longerDistanceSoldierCount < shorterDistanceSoldierCount - 3) {
+//            f -= 100;
+//        }
 
         int enemySoldierCount = 0;
         RobotInfo[] nearbyEnemyRobots = rc.senseNearbyRobots(16,rc.getTeam().opponent());
@@ -93,9 +93,9 @@ strictfp class SoldierStrategy {
         }
 
         if (rc.getMapHeight()*rc.getMapWidth() > 1000)
-            f += (int)(((rc.getMapHeight()*rc.getMapWidth())/8)*((double)friendlySoldierCount*0.5 - enemySoldierCount + 1.2));
+            f += (int)(((rc.getMapHeight()*rc.getMapWidth())/8)*((double)friendlySoldierCount*0.5 - enemySoldierCount + 0.5));
         else
-            f += (int)(((rc.getMapHeight()+rc.getMapWidth())*20)*((double)friendlySoldierCount*0.5 - enemySoldierCount + 1.2));
+            f += (int)(((rc.getMapHeight()+rc.getMapWidth())*20)*((double)friendlySoldierCount*0.5 - enemySoldierCount + 0.5));
 
         MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchon(rc.getLocation()).location;
 

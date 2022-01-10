@@ -77,12 +77,12 @@ strictfp class SoldierStrategy {
                 }
             }
         }
-//
+
 //        // If more nearby friendly soldiers are farther from the destination, add to cost for moving
 //        if (longerDistanceSoldierCount > shorterDistanceSoldierCount + 3)
 //            f += 100;
 //
-//        // If more nearby friendly soldiers are closer to the destination, add to cost for moving
+//        // If more nearby friendly soldiers are closer to the destination, decrease cost for moving
 //        if (longerDistanceSoldierCount < shorterDistanceSoldierCount - 2) {
 //            f -= 100;
 //        }
@@ -100,7 +100,8 @@ strictfp class SoldierStrategy {
 //        else
 //            f += (int)(((rc.getMapHeight()+rc.getMapWidth())*20)*((double)friendlySoldierCount*-1 + enemySoldierCount + 1.2));
 //
-        f += ((double)friendlySoldierCount*-1 + enemySoldierCount + 1.1) * myLoc.distanceSquaredTo(dest);
+        f += ((double)friendlySoldierCount*-1 + enemySoldierCount + 0.5) * 100;
+                //Math.sqrt(myLoc.distanceSquaredTo(dest));
 
         MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchon(rc.getLocation()).location;
 

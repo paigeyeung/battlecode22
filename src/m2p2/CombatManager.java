@@ -100,7 +100,7 @@ strictfp class CombatManager {
         double allyCombatScore = evaluateLocalCombatScore(rc, rc.getTeam(), false);
         double enemyCombatScore = evaluateLocalCombatScore(rc, rc.getTeam().opponent(), true);
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;
-        if (enemyCombatScore > allyCombatScore * 0.5) {
+        if (enemyCombatScore > allyCombatScore) {
             chosenAction = COMBAT_DROID_ACTIONS.RETREAT;
         }
         return chosenAction;
