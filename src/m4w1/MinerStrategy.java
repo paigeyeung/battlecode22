@@ -21,6 +21,7 @@ strictfp class MinerStrategy {
                 MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
                 while (RobotPlayer.rc.senseGold(mineLocation) > 0 && actionCooldown < 10) {
                     RobotPlayer.rc.mineGold(mineLocation);
+                    actionCooldown -= 2;
                 }
             }
         }
@@ -31,6 +32,7 @@ strictfp class MinerStrategy {
                 MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
                 while (RobotPlayer.rc.senseLead(mineLocation) > 1 && actionCooldown < 10) {
                     RobotPlayer.rc.mineLead(mineLocation);
+                    actionCooldown -= 2;
                 }
             }
         }
