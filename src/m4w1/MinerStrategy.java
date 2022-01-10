@@ -18,7 +18,7 @@ strictfp class MinerStrategy {
             for (int dy = -1; dy <= 1; dy++) {
                 int x = myLocation.x + dx;
                 int y = myLocation.y + dy;
-                if (x < 0 || x > GeneralManager.mapWidth || y < 0 || y > GeneralManager.mapHeight) {
+                if (x < 0 || x >= GeneralManager.mapWidth || y < 0 || y >= GeneralManager.mapHeight) {
                     continue;
                 }
                 MapLocation mineLocation = new MapLocation(x, y);
@@ -33,7 +33,7 @@ strictfp class MinerStrategy {
             for (int dy = -1; dy <= 1; dy++) {
                 int x = myLocation.x + dx;
                 int y = myLocation.y + dy;
-                if (x < 0 || x > GeneralManager.mapWidth || y < 0 || y > GeneralManager.mapHeight) {
+                if (x < 0 || x >= GeneralManager.mapWidth || y < 0 || y >= GeneralManager.mapHeight) {
                     continue;
                 }
                 MapLocation mineLocation = new MapLocation(x, y);
