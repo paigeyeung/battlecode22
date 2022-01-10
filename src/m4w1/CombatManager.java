@@ -83,7 +83,7 @@ strictfp class CombatManager {
 
     /** Calculates combat score for all locally visible robots of team */
     static double evaluateLocalCombatScore(Team team, boolean defensive) throws GameActionException {
-        RobotInfo[] visibleRobots = RobotPlayer.rc.senseNearbyRobots((RobotPlayer.rc.getType().actionRadiusSquared+RobotPlayer.rc.getType().actionRadiusSquared)/2,
+        RobotInfo[] visibleRobots = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared,
                 team);
         double combatScore = 0;
         for (int i = 0; i < visibleRobots.length; i++) {
@@ -100,12 +100,15 @@ strictfp class CombatManager {
     static COMBAT_DROID_ACTIONS getCombatDroidAction() throws GameActionException {
         double allyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false);
         double enemyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true);
+        MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation()),
+                nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(RobotPlayer.rc.getLocation());
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;
-        if (enemyCombatScore > allyCombatScore * 0.9) {
+        if (enemyCombatScore > allyCombatScore && (nearestEnemyArchonLoc != null && RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLoc) <
+            RobotPlayer.rc.getLocation().distanceSquaredTo(nearestEnemyArchonLoc))) {
             chosenAction = COMBAT_DROID_ACTIONS.RETREAT;
-            if (enemyCombatScore < allyCombatScore || allyCombatScore == 0) {
-                chosenAction = COMBAT_DROID_ACTIONS.HOLD;
-            }
+//            if (enemyCombatScore < allyCombatScore || allyCombatScore <= 100) {
+//                chosenAction = COMBAT_DROID_ACTIONS.HOLD;
+//            }
         }
         return chosenAction;
     }
