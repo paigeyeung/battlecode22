@@ -49,7 +49,12 @@ strictfp class ArchonResourceManager {
 
         void updateNearestEnemyArchon() {
             nearestEnemyArchon = ArchonTrackerManager.getNearestEnemyArchon(ArchonTrackerManager.allyArchonTrackers[index].location);
-            nearestEnemyArchonDistanceSquared = ArchonTrackerManager.allyArchonTrackers[index].location.distanceSquaredTo(ArchonTrackerManager.enemyArchonTrackers[nearestEnemyArchon].getGuessLocation());
+            if (nearestEnemyArchon == -1) {
+                nearestEnemyArchonDistanceSquared = 10000;
+            }
+            else {
+                nearestEnemyArchonDistanceSquared = ArchonTrackerManager.allyArchonTrackers[index].location.distanceSquaredTo(ArchonTrackerManager.enemyArchonTrackers[nearestEnemyArchon].getGuessLocation());
+            }
         }
 
         void setActionBuildMiner() {
