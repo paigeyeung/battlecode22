@@ -178,6 +178,20 @@ strictfp class ArchonResourceManager {
             }
         }
 
+        MapLocation farthestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonFarthestFromEnemies()].location,
+                closestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location;
+
+        for (int i = 0; i < allyArchonModels.length; i++) {
+            if (!allyArchonModels[i].alive) continue;
+            MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.enemyArchonTrackers[ArchonTrackerManager.getNearestEnemyArchon(ArchonTrackerManager.allyArchonTrackers[i].location)].getGuessLocation();
+            if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON &&
+                    GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)
+                            > ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(nearestEnemyArchonLoc))
+                if (ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location.distanceSquaredTo(ArchonTrackerManager.allyArchonTrackers[i].location) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
+                    allyArchonModels[i].setActionMove();
+                }
+        }
+
         while (true) {
             RobotType chosenBuild = null;
             // If an enemy has not been seen at any ally Archon, build only Miners
@@ -220,27 +234,6 @@ strictfp class ArchonResourceManager {
 
                 allyArchonModels[chosenArchonIndex].setActionBuildSoldier();
                 lead -= 75;
-
-                MapLocation farthestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonFarthestFromEnemies()].location,
-                        closestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location;
-
-//                if(closestAllyArchonLoc.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
-                    for (int i = 0; i < allyArchonModels.length; i++) {
-                        if (!allyArchonModels[i].alive) continue;
-                        boolean moving = false;
-                        MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.enemyArchonTrackers[ArchonTrackerManager.getNearestEnemyArchon(ArchonTrackerManager.allyArchonTrackers[i].location)].getGuessLocation();
-                        if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON &&
-                                GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)
-                                > ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(nearestEnemyArchonLoc))
-                            if (ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location.distanceSquaredTo(ArchonTrackerManager.allyArchonTrackers[i].location) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
-                                allyArchonModels[i].setActionMove();
-                                moving = true;
-                            }
-                        if(!moving) {
-                            allyArchonModels[i].setActionBuildSoldier();
-                        }
-                    }
-//                }
             }
 
 //            }
