@@ -68,8 +68,6 @@ strictfp class SoldierStrategy {
         MapLocation myLoc = RobotPlayer.rc.getLocation();
         MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
 
-        int f = 0;
-
         if(myLoc.equals(dest)) return null;
         if(myLoc.distanceSquaredTo(dest) < myLoc.distanceSquaredTo(nearestAllyArchonLocation))
             return GeneralManager.getDirToEncircle(dest,myLoc.distanceSquaredTo(dest) - 2);
@@ -77,22 +75,55 @@ strictfp class SoldierStrategy {
         RobotInfo[] nearbyTeamRobots = RobotPlayer.rc.senseNearbyRobots(20,RobotPlayer.rc.getTeam());
 
         int friendlySoldierCount = 0;
-        int longerDistanceSoldierCount = 0, shorterDistanceSoldierCount = 0;
+//        int longerDistanceSoldierCount = 0, shorterDistanceSoldierCount = 0;
         for(RobotInfo robot : nearbyTeamRobots) {
             if (robot.getType().equals(RobotType.SOLDIER)) {
                 friendlySoldierCount++;
-                if(robot.location.distanceSquaredTo(dest) > RobotPlayer.rc.getLocation().distanceSquaredTo(dest)) {
-                    longerDistanceSoldierCount++;
-                }
-                else if (robot.location.distanceSquaredTo(dest) <= RobotPlayer.rc.getLocation().distanceSquaredTo(dest)) {
-                    shorterDistanceSoldierCount++;
-                }
+//                if(robot.location.distanceSquaredTo(dest) > RobotPlayer.rc.getLocation().distanceSquaredTo(dest)) {
+//                    longerDistanceSoldierCount++;
+//                }
+//                else if (robot.location.distanceSquaredTo(dest) <= RobotPlayer.rc.getLocation().distanceSquaredTo(dest)) {
+//                    shorterDistanceSoldierCount++;
+//                }
             }
         }
 
         if(friendlySoldierCount < 2)
             return null;
 
-        return GeneralManager.getNextDir(dest);
+        Direction movementDir = null;
+
+        int f = Integer.MAX_VALUE;
+
+        for(Direction dir : GeneralManager.DIRECTIONS) {
+            if(RobotPlayer.rc.canMove(dir)) {
+                MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
+                int newDist = adj.distanceSquaredTo(dest);
+                int newRubble = RobotPlayer.rc.senseRubble(adj);
+                int newF = newDist + newRubble + 10*visitedTurns[adj.x][adj.y];
+
+                MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj,2);
+
+                for(MapLocation adj2 : adjToAdj) {
+                    newF += visitedTurns[adj2.x][adj2.y];
+                }
+
+                if(newF < f) {
+                    f = newF;
+                    movementDir = dir;
+                }
+                else if(newF == f){
+                    if(((int)Math.random()*2)==0) {
+                        f = newF;
+                        movementDir = dir;
+                    }
+                }
+            }
+        }
+        if(movementDir != null) {
+            MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
+            visitedTurns[adj.x][adj.y]++;
+        }
+        return movementDir;
     }
 }

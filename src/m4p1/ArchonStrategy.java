@@ -47,31 +47,63 @@ strictfp class ArchonStrategy {
     }
 
     static boolean archonTryMove(int archonIndex) throws GameActionException {
-        if (RobotPlayer.rc.getMode().canAct) {
-            if (RobotPlayer.rc.canTransform()) {
-                RobotPlayer.rc.transform();
-                return true;
-            }
-            return false;
-        }
-
         MapLocation locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies()].location;
 
-        if (RobotPlayer.rc.getLocation().distanceSquaredTo(locFarthestFromEnemies) < 8) {
-            if (RobotPlayer.rc.canTransform()) {
+        if (!RobotPlayer.rc.getMode().canMove) {
+            if (RobotPlayer.rc.canTransform() && RobotPlayer.rc.getLocation().distanceSquaredTo(locFarthestFromEnemies) >= ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
                 RobotPlayer.rc.transform();
                 return true;
             }
             return false;
         }
 
-        Direction nextDir = GeneralManager.getNextDir(locFarthestFromEnemies);
+        if (RobotPlayer.rc.getLocation().distanceSquaredTo(locFarthestFromEnemies) < ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
+            if (RobotPlayer.rc.getMode().canMove && RobotPlayer.rc.canTransform()) {
+                RobotPlayer.rc.transform();
+                return true;
+            }
+            return false;
+        }
+
+        Direction nextDir = getNextArchonDir(locFarthestFromEnemies);
         if(nextDir != null) {
             ArchonTrackerManager.allyArchonTrackers[archonIndex].location = RobotPlayer.rc.adjacentLocation(nextDir);
             ArchonTrackerManager.decodeAndUpdateLocalAllyArchonTracker(archonIndex,false);
         }
 
         return GeneralManager.tryMove(nextDir,false);
+    }
+
+    static Direction getNextArchonDir(MapLocation dest) throws GameActionException {
+        MapLocation myLoc = RobotPlayer.rc.getLocation();
+
+        if(myLoc.equals(dest) || dest == null) return null;
+
+        Direction movementDir = null;
+//        int minDist = myLoc.distanceSquaredTo(dest);
+        int f = Integer.MAX_VALUE;
+
+        for(Direction dir : GeneralManager.DIRECTIONS) {
+            if(RobotPlayer.rc.canMove(dir)) {
+                MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
+                int newDist = adj.distanceSquaredTo(dest);
+                int newRubble = RobotPlayer.rc.senseRubble(adj);
+                int newF = newDist + newRubble;
+
+                if(newF < f) {
+                    f = newF;
+                    movementDir = dir;
+                    DebugManager.log("f:    "+newF);
+                }
+                else if(newF == f){
+                    if(((int)Math.random()*2)==0) {
+                        f = newF;
+                        movementDir = dir;
+                    }
+                }
+            }
+        }
+        return movementDir;
     }
 
     /** Called by RobotPlayer */
@@ -168,7 +200,7 @@ strictfp class ArchonStrategy {
         int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
         int encodedResourceManager1Original = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
         int encodedResourceManager1 = encodedResourceManager1Original;
-        boolean onCooldown = RobotPlayer.rc.getActionCooldownTurns() > 10 || RobotPlayer.rc.getMovementCooldownTurns() < 10;
+        boolean onCooldown = RobotPlayer.rc.getActionCooldownTurns() > 10 || RobotPlayer.rc.getMovementCooldownTurns() > 10;
         encodedResourceManager1 = encodedResourceManager1 | (onCooldown ? 1 : 0) << mySharedArrayIndex;
         // If last alive Archon, copy cooldowns last turn to this turn
         if (mySharedArrayIndex == ArchonTrackerManager.getLastAliveAllyArchon()) {

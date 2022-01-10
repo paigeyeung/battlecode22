@@ -103,7 +103,11 @@ strictfp class CombatManager {
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;
         if (enemyCombatScore > allyCombatScore * 0.9) {
             chosenAction = COMBAT_DROID_ACTIONS.RETREAT;
-            if (enemyCombatScore < allyCombatScore || allyCombatScore == 0) {
+            if (allyCombatScore == 0) {
+//                chosenAction = COMBAT_DROID_ACTIONS.RETREAT;
+                chosenAction = COMBAT_DROID_ACTIONS.HOLD;
+            }
+            if (enemyCombatScore < allyCombatScore) {
                 chosenAction = COMBAT_DROID_ACTIONS.HOLD;
             }
         }

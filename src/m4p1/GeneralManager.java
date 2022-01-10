@@ -65,6 +65,14 @@ strictfp class GeneralManager {
     }
 
     /**
+     * Get midpoint between two map locations
+     */
+
+    static MapLocation getMidpoint(MapLocation loc1, MapLocation loc2) {
+        return new MapLocation((int)((loc1.x+loc2.x)/2),(loc1.y+loc2.y)/2);
+    }
+
+    /**
      * Get opposite direction to a direction
      */
     static Direction getOppositeDirection(Direction dir) {

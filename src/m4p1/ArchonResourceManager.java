@@ -6,6 +6,7 @@ import static m4p1.DebugManager.log;
 
 strictfp class ArchonResourceManager {
     static int farthestArchonIndex;
+    static final int MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON = 18;
 
     enum ARCHON_ROLES {
         OFFENSIVE,
@@ -150,7 +151,7 @@ strictfp class ArchonResourceManager {
             allyArchonModels[i].onCooldown = false;
         }
 
-        // Read from shared array indicies 8-9
+        // Read from shared array indices 8-9
         int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
         int encodedResourceManager1 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
         int lead = encodedResourceManager0 >>> 4;
@@ -178,77 +179,86 @@ strictfp class ArchonResourceManager {
         }
 
         while (true) {
-            if (RobotPlayer.rc.getMode().canAct) {
-                RobotType chosenBuild = null;
-                // If an enemy has not been seen at any ally Archon, build only Miners
-                // Unless too many miners already
-                if (!anySeenEnemy && (totalMinersBuilt < 40 || (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.8))) {
-                    chosenBuild = RobotType.MINER;
-                }
-                // Maintain 10% proportion of build miners
-                else if (totalMinersBuilt < totalDroidsBuilt * 0.1) {
-                    chosenBuild = RobotType.MINER;
-                }
-                // Otherwise, build soldiers
-                else {
-                    chosenBuild = RobotType.SOLDIER;
-                }
-
-                if (chosenBuild == null) continue;
-
-                if (chosenBuild == RobotType.MINER) {
-                    if (lead < 50) {
-                        break;
-                    }
-                    int chosenArchonIndex = findArchonWithFewestMinersBuilt(true);
-                    if (chosenArchonIndex == -1) {
-                        break;
-                    }
-
-                    allyArchonModels[chosenArchonIndex].setActionBuildMiner();
-                    lead -= 50;
-                }
-                else if (chosenBuild == RobotType.SOLDIER) {
-                    if (lead < 75) {
-                        break;
-                    }
-
-                    int chosenArchonIndex = findArchonWithFewestSoldiersBuilt(true, true);
-                    if (chosenArchonIndex == -1) {
-                        break;
-                    }
-
-                    allyArchonModels[chosenArchonIndex].setActionBuildSoldier();
-
-                    if(ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location.distanceSquaredTo(
-                            ArchonTrackerManager.allyArchonTrackers[findArchonFarthestFromEnemies()].location
-                            ) > 20) {
-                        for (int i = 0; i < allyArchonModels.length; i++) {
-                            if (ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location.distanceSquaredTo(ArchonTrackerManager.allyArchonTrackers[i].location) > 16
-                                    && RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared,
-                                    RobotPlayer.rc.getTeam().opponent()).length == 0)
-                                allyArchonModels[i].setActionMove();
-                        }
-                    }
-                }
-
+            RobotType chosenBuild = null;
+            // If an enemy has not been seen at any ally Archon, build only Miners
+            // Unless too many miners already
+            if (!anySeenEnemy && (totalMinersBuilt < 40 || (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.8))) {
+                chosenBuild = RobotType.MINER;
             }
-            else if(RobotPlayer.rc.getMode().canMove) {
+            // Maintain 10% proportion of build miners
+            else if (totalMinersBuilt < totalDroidsBuilt * 0.1) {
+                chosenBuild = RobotType.MINER;
+            }
+            // Otherwise, build soldiers
+            else {
+                chosenBuild = RobotType.SOLDIER;
+            }
+
+            if (chosenBuild == null) continue;
+
+            if (chosenBuild == RobotType.MINER) {
+                if (lead < 50) {
+                    break;
+                }
+                int chosenArchonIndex = findArchonWithFewestMinersBuilt(true);
+                if (chosenArchonIndex == -1) {
+                    break;
+                }
+
+                allyArchonModels[chosenArchonIndex].setActionBuildMiner();
+                lead -= 50;
+            }
+            else if (chosenBuild == RobotType.SOLDIER) {
+                if (lead < 75) {
+                    break;
+                }
+
                 int chosenArchonIndex = findArchonWithFewestSoldiersBuilt(true, true);
                 if (chosenArchonIndex == -1) {
                     break;
                 }
 
-//                int farthestArchonIndex = findArchonFarthestFromEnemies();
-                if (farthestArchonIndex == -1) {
-                    break;
-                }
+                allyArchonModels[chosenArchonIndex].setActionBuildSoldier();
+                lead -= 75;
 
-                for (int i = 0; i < allyArchonModels.length; i++) {
-                    if (farthestArchonIndex != i)
-                        allyArchonModels[i].setActionMove();
-                }
+                MapLocation farthestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonFarthestFromEnemies()].location,
+                        closestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location;
+
+//                if(closestAllyArchonLoc.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
+                    for (int i = 0; i < allyArchonModels.length; i++) {
+                        boolean moving = false;
+                        MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.enemyArchonTrackers[ArchonTrackerManager.getNearestEnemyArchon(ArchonTrackerManager.allyArchonTrackers[i].location)].getGuessLocation();
+                        if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON &&
+                                GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)
+                                > ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(nearestEnemyArchonLoc))
+                            if (ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location.distanceSquaredTo(ArchonTrackerManager.allyArchonTrackers[i].location) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
+                                allyArchonModels[i].setActionMove();
+                                moving = true;
+                            }
+                        if(!moving) {
+                            allyArchonModels[i].setActionBuildSoldier();
+                        }
+                    }
+//                }
             }
+
+//            }
+//            else if(RobotPlayer.rc.getMode().canMove) {
+//                int chosenArchonIndex = findArchonWithFewestSoldiersBuilt(true, true);
+//                if (chosenArchonIndex == -1) {
+//                    break;
+//                }
+
+//                int farthestArchonIndex = findArchonFarthestFromEnemies();
+//                if (farthestArchonIndex == -1) {
+//                    break;
+//                }
+//
+//                for (int i = 0; i < allyArchonModels.length; i++) {
+//                    if (farthestArchonIndex != i)
+//                        allyArchonModels[i].setActionMove();
+//                }
+//            }
         }
     }
 
