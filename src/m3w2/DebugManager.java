@@ -1,5 +1,7 @@
 package m3w2;
 
+import battlecode.common.*;
+
 strictfp class DebugManager {
     static String botName = "m3w2";
     static void log(String string) {
