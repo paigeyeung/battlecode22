@@ -181,27 +181,33 @@ strictfp class ArchonStrategy {
             RobotPlayer.rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1, encodedResourceManager1);
         }
 
-        // Get and perform action from ArchonResourceManager
-        ArchonResourceManager.computeArchonActions();
-        ArchonResourceManager.ARCHON_ACTIONS action = ArchonResourceManager.getArchonAction(mySharedArrayIndex);
-        if (action == ArchonResourceManager.ARCHON_ACTIONS.BUILD_MINER) {
-            archonTryBuild(RobotType.MINER);
-        }
-        else if (action == ArchonResourceManager.ARCHON_ACTIONS.BUILD_BUILDER) {
-            archonTryBuild(RobotType.BUILDER);
-        }
-        else if (action == ArchonResourceManager.ARCHON_ACTIONS.BUILD_SOLDIER) {
-            archonTryBuild(RobotType.SOLDIER);
-        }
-        else if (action == ArchonResourceManager.ARCHON_ACTIONS.MOVE) {
+        if (RobotPlayer.rc.getMode().canMove) {
+            // If we're portable, don't try to do anything else
             archonTryMove();
+        }
+        else {
+            // Get and perform action from ArchonResourceManager
+            ArchonResourceManager.computeArchonActions();
+            ArchonResourceManager.ARCHON_ACTIONS action = ArchonResourceManager.getArchonAction(mySharedArrayIndex);
+            if (action == ArchonResourceManager.ARCHON_ACTIONS.BUILD_MINER) {
+                archonTryBuild(RobotType.MINER);
+            }
+            else if (action == ArchonResourceManager.ARCHON_ACTIONS.BUILD_BUILDER) {
+                archonTryBuild(RobotType.BUILDER);
+            }
+            else if (action == ArchonResourceManager.ARCHON_ACTIONS.BUILD_SOLDIER) {
+                archonTryBuild(RobotType.SOLDIER);
+            }
+            else if (action == ArchonResourceManager.ARCHON_ACTIONS.MOVE) {
+                archonTryMove();
+            }
         }
 
         // Write to shared array indicies 8-9 for ArchonResourceManager
         int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
         int encodedResourceManager1Original = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
         int encodedResourceManager1 = encodedResourceManager1Original;
-        boolean onCooldown = RobotPlayer.rc.getActionCooldownTurns() > 10 || (RobotPlayer.rc.getMode() == RobotMode.PORTABLE && RobotPlayer.rc.getMovementCooldownTurns() > 10);
+        boolean onCooldown = RobotPlayer.rc.getActionCooldownTurns() > 10 || (RobotPlayer.rc.getMode().canMove && RobotPlayer.rc.getMovementCooldownTurns() > 10);
         encodedResourceManager1 = encodedResourceManager1 | (onCooldown ? 1 : 0) << mySharedArrayIndex;
         // If last alive Archon, copy cooldowns last turn to this turn
         if (mySharedArrayIndex == ArchonTrackerManager.getLastAliveAllyArchon()) {

@@ -121,13 +121,28 @@ public strictfp class RobotPlayer {
 
     static void runArchon(RobotController rc) throws GameActionException {
         int mapWidth = 60, mapHeight = 60;
+        MapLocation myLocation = rc.getLocation();
 
         startBytecodeTracker();
-        MapLocation myLocation = rc.getLocation();
-        int x = myLocation.x + 1;
-        int y = myLocation.y + 1;
-        if (!(x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)) {
-            MapLocation mineLocation = new MapLocation(x, y);
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
+                rc.canMineLead(mineLocation);
+            }
+        }
+        endBytecodeTracker();
+
+        startBytecodeTracker();
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                int x = myLocation.x + 1;
+                int y = myLocation.y + 1;
+                if (!(x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)) {
+                    MapLocation mineLocation = new MapLocation(x, y);
+                    rc.senseLead(mineLocation);
+                    rc.isActionReady();
+                }
+            }
         }
         endBytecodeTracker();
 

@@ -187,6 +187,7 @@ strictfp class ArchonResourceManager {
 
         for (int i = 0; i < allyArchonModels.length; i++) {
             if (!allyArchonModels[i].alive) continue;
+            DebugManager.log("Archon " + i + " on cooldown: " + allyArchonModels[i].onCooldown);
             MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(ArchonTrackerManager.allyArchonTrackers[i].location);
             if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON &&
                     GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)
@@ -306,7 +307,7 @@ strictfp class ArchonResourceManager {
                 fewestIndex = i;
             }
         }
-        if (fewestIndex == -1) {
+        if (fewestIndex == -1 && offensiveArchonPreference) {
             for (int i = 0; i < allyArchonModels.length; i++) {
                 if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
                     && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
