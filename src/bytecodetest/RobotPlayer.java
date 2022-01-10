@@ -135,13 +135,9 @@ public strictfp class RobotPlayer {
         startBytecodeTracker();
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
-                int x = myLocation.x + 1;
-                int y = myLocation.y + 1;
-                if (!(x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)) {
-                    MapLocation mineLocation = new MapLocation(x, y);
-                    rc.senseLead(mineLocation);
-                    rc.isActionReady();
-                }
+                MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
+                rc.canMineLead(mineLocation);
+                rc.senseLead(mineLocation);
             }
         }
         endBytecodeTracker();

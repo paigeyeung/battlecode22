@@ -1,4 +1,4 @@
-package m4w1;
+package m5;
 
 import battlecode.common.*;
 
@@ -56,7 +56,7 @@ strictfp class MinerStrategy {
 
         MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(myLoc);
         int distToNearestAllyArchon = myLoc.distanceSquaredTo(nearestAllyArchonLoc);
-        int f = 200 / distToNearestAllyArchon;
+        int f = 200 / (distToNearestAllyArchon + 1);
 
         // See if any enemy attack bots
         Team opponent = RobotPlayer.rc.getTeam().opponent();

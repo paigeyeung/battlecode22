@@ -207,7 +207,19 @@ m3w changelog
             - Last 4 bits store if a unit near ally Archons 0-3 have seen an enemy
             - 3 overridden | 1 overridden | 2 overridden | 0 overridden | 3 guess location 2 | 3 guess location 1 | 2 guess location 2 | 2 guess location 1 | 1 guess location 2 | 1 guess location 1 | 0 guess location 2 | 0 guess location 1 | 3 seen enemy | 2 seen enemy | 1 seen enemy | 0 seen enemy
 
+m3w and m2p merged into m4
+
 m4w changelog
-- General
-    - future
-        - Call rc.getLocation once per turn, rc.getType once per game
+- Miner
+    - m4w1
+        - Don't deplete lead if closer to ally Archon than Enemy Archon
+
+m4p changelog
+- Archon
+    - m4p1
+        - Move ally Archons
+
+m4w1 and m4p1 merged into m5
+
+- future
+  - Call rc.getLocation once per turn, rc.getType once per game
