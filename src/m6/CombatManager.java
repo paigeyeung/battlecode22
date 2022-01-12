@@ -6,6 +6,8 @@ import battlecode.common.RobotInfo;
 import battlecode.common.Team;
 
 strictfp class CombatManager {
+    static boolean retreating = false;
+
     enum COMBAT_DROID_ACTIONS {
         RETREAT,
         HOLD,
@@ -86,7 +88,7 @@ strictfp class CombatManager {
 
     /** Calculates combat score for all locally visible robots of team */
     static double evaluateLocalCombatScore(Team team, boolean defensive) throws GameActionException {
-        RobotInfo[] visibleRobots = RobotPlayer.rc.senseNearbyRobots((RobotPlayer.rc.getType().actionRadiusSquared+RobotPlayer.rc.getType().actionRadiusSquared)/2,
+        RobotInfo[] visibleRobots = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared,
                 team);
         double combatScore = 0;
         for (int i = 0; i < visibleRobots.length; i++) {
@@ -103,13 +105,35 @@ strictfp class CombatManager {
     static COMBAT_DROID_ACTIONS getCombatDroidAction() throws GameActionException {
         double allyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false);
         double enemyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true);
+        int distToNearestAllyArchon = RobotPlayer.rc.getLocation().distanceSquaredTo(ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation()));
+
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;
-        if (enemyCombatScore > allyCombatScore * 0.9) {
+
+//        DebugManager.log(allyCombatScore + "       " + (allyCombatScore < 10 + 10 * RobotPlayer.rc.getRoundNum() / 200));
+        if (enemyCombatScore > allyCombatScore * 0.8) {
             chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
-            if (enemyCombatScore < allyCombatScore) {
+            if (enemyCombatScore < allyCombatScore || distToNearestAllyArchon <= 25) {
                 chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
             }
+            else {
+                retreating = true;
+            }
         }
+
+        if(retreating) {
+            if (distToNearestAllyArchon > 25)
+                chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
+            else
+                retreating = false;
+        }
+
+
+//        else if(allyCombatScore < 30 + 10 * RobotPlayer.rc.getRoundNum() / 100 &&
+//            distToNearestAllyArchon <= 25 &&
+//            distToNearestAllyArchon >= allyCombatScore / 10) {
+//                chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
+//        }
+
         return chosenAction;
     }
 }
