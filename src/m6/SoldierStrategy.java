@@ -58,7 +58,7 @@ strictfp class SoldierStrategy {
 //            else {
 //                action = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
 //            }
-            GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation,9), true);
+            GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation,4), true);
             if (CombatManager.tryAttack()) {
                 // Try to attack
             }
