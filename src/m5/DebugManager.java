@@ -5,7 +5,7 @@ import battlecode.common.RobotType;
 strictfp class DebugManager {
     static String botName = "m5";
     static void log(String string) {
-        System.out.println(botName + " - " + RobotPlayer.rc.getRoundNum() + " - " + string);
+//        System.out.println(botName + " - " + RobotPlayer.rc.getRoundNum() + " - " + string);
         RobotPlayer.rc.setIndicatorString(string);
     }
 
