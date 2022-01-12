@@ -6,6 +6,7 @@ import jdk.nashorn.internal.runtime.Debug;
 strictfp class ArchonStrategy {
     static int mySharedArrayIndex = -1;
     static boolean mySharedArrayToggle = true;
+    static boolean[][] visited = null;
 
     static int droidsBuilt = 0;
     static int minersBuilt = 0;
@@ -46,7 +47,7 @@ strictfp class ArchonStrategy {
     }
 
     static boolean archonTryMove() throws GameActionException {
-        MapLocation locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies()].location;
+        MapLocation locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
 
         if (!RobotPlayer.rc.getMode().canMove) {
             if (RobotPlayer.rc.canTransform() && RobotPlayer.rc.getLocation().distanceSquaredTo(locFarthestFromEnemies) >= ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
@@ -89,15 +90,18 @@ strictfp class ArchonStrategy {
                 int newDist = adj.distanceSquaredTo(dest);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
                 int newF = newDist + newRubble;
+                if(visited[adj.x][adj.y]) newF += 100;
 
                 if(newF < f) {
                     f = newF;
                     movementDir = dir;
+                    visited[adj.x][adj.y] = true;
                 }
                 else if(newF == f){
                     if(((int)Math.random()*2)==0) {
                         f = newF;
                         movementDir = dir;
+                        visited[adj.x][adj.y] = true;
                     }
                 }
             }
@@ -122,6 +126,10 @@ strictfp class ArchonStrategy {
     /** Called by RobotPlayer */
     static void runArchon() throws GameActionException {
         MapLocation myLocation = RobotPlayer.rc.getLocation();
+
+        if (visited == null) {
+            visited = new boolean[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
+        }
 
         // First turn initializations
         if (GeneralManager.turnsAlive == 1) {
