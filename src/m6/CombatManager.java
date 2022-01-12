@@ -1,4 +1,4 @@
-package m5;
+package m6;
 
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
