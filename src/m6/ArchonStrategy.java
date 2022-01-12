@@ -47,10 +47,14 @@ strictfp class ArchonStrategy {
     }
 
     static boolean archonTryMove() throws GameActionException {
-        MapLocation locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
+        MapLocation locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
+
+        if(ArchonResourceManager.findArchonFarthestFromEnemies(true) != -1)
+            locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
 
         if (!RobotPlayer.rc.getMode().canMove) {
-            if (RobotPlayer.rc.canTransform() && RobotPlayer.rc.getLocation().distanceSquaredTo(locFarthestFromEnemies) >= ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
+            if (RobotPlayer.rc.canTransform() &&
+                    RobotPlayer.rc.getLocation().distanceSquaredTo(locFarthestFromEnemies) >= ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
                 RobotPlayer.rc.transform();
                 return true;
             }
