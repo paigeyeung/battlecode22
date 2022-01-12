@@ -41,23 +41,27 @@ strictfp class MinerStrategy {
         }
 
         // Calculate depleteLead for next turn
-        depleteLead = false;
         if (Clock.getBytecodesLeft() > 3000) {
-            // Deplete if nearby enemy units greater than nearby ally units
+            int depleteLeadScore = 0;
+
+            // If nearby enemy units greater than nearby ally units
             RobotInfo[] nearbyAllies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, RobotPlayer.rc.getTeam());
             RobotInfo[] nearbyEnemies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, RobotPlayer.rc.getTeam().opponent());
-            if (nearbyEnemies.length > nearbyAllies.length + 1) {
-                depleteLead = true;
+            depleteLeadScore += nearbyEnemies.length - nearbyAllies.length;
+
+            // If nearest enemy Archon closer to nearest ally Archon
+            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(myLocation);
+            MapLocation nearestEnemyArchonLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation);
+            if (nearestAllyArchonLocation != null && nearestEnemyArchonLocation != null) {
+                int nearestAllyArchonDistanceSquared = myLocation.distanceSquaredTo(nearestAllyArchonLocation);
+                int nearestEnemyArchonDistanceSquared = myLocation.distanceSquaredTo(nearestEnemyArchonLocation);
+                int proportion = nearestAllyArchonDistanceSquared / (nearestAllyArchonDistanceSquared + nearestEnemyArchonDistanceSquared);
+                if (proportion > 0.5) {
+                    depleteLeadScore += proportion * 5;
+                }
             }
 
-            // Deplete if nearest enemy Archon closer to nearest ally Archon
-//            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(myLocation);
-//            MapLocation nearestEnemyArchonLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation);
-//            if (nearestAllyArchonLocation != null && nearestEnemyArchonLocation != null) {
-//                if (myLocation.distanceSquaredTo(nearestAllyArchonLocation) > myLocation.distanceSquaredTo(nearestEnemyArchonLocation)) {
-//                    depleteLead = true;
-//                }
-//            }
+            depleteLead = depleteLeadScore >= 5;
         }
     }
 

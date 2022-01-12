@@ -1,6 +1,7 @@
 package m6;
 
 import battlecode.common.*;
+import jdk.nashorn.internal.runtime.Debug;
 
 strictfp class ArchonStrategy {
     static int mySharedArrayIndex = -1;
@@ -67,8 +68,6 @@ strictfp class ArchonStrategy {
         boolean moved = GeneralManager.tryMove(nextDir,false);
 
         if (moved) {
-//            ArchonTrackerManager.allyArchonTrackers[archonIndex].location = RobotPlayer.rc.adjacentLocation(nextDir);
-//            ArchonTrackerManager.decodeAndUpdateLocalAllyArchonTracker(archonIndex,false);
             ArchonTrackerManager.setAllyArchonLocation(mySharedArrayIndex, RobotPlayer.rc.getLocation());
         }
 
@@ -104,6 +103,20 @@ strictfp class ArchonStrategy {
             }
         }
         return movementDir;
+    }
+
+    static boolean archonTryRepair() throws GameActionException {
+        RobotInfo[] actionableAllies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().actionRadiusSquared, RobotPlayer.rc.getTeam());
+        for (int i = 0; i < actionableAllies.length; i++) {
+            RobotInfo allyRobot = actionableAllies[i];
+            if (allyRobot.getHealth() < allyRobot.getType().getMaxHealth(allyRobot.getLevel())) {
+                if (RobotPlayer.rc.canRepair(allyRobot.location)) {
+                    RobotPlayer.rc.repair(allyRobot.location);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /** Called by RobotPlayer */
@@ -152,12 +165,12 @@ strictfp class ArchonStrategy {
             ArchonResourceManager.initializeTurn2();
         }
 
-        // Toggle bit in shared array to show alive
+        // Toggle bit in shared array ALLY_ARCHON_TRACKERS_INDEX to show alive
         mySharedArrayToggle = !mySharedArrayToggle;
         ArchonTrackerManager.setAllyArchonToggle(mySharedArrayIndex, mySharedArrayToggle);
         ArchonTrackerManager.updateGlobalAllyArchonTracker(mySharedArrayIndex);
 
-        // If first alive Archon, write to shared array indices 8-9 for ArchonResourceManager
+        // If first alive Archon, write to shared array ARCHON_RESOURCE_MANAGER_INDEX
         // Reset the array indices except cooldowns last turn, then write lead and gold
         if (mySharedArrayIndex == ArchonTrackerManager.getFirstAliveAllyArchon()) {
             int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
@@ -199,56 +212,22 @@ strictfp class ArchonStrategy {
             else if (action == ArchonResourceManager.ARCHON_ACTIONS.MOVE) {
                 archonTryMove();
             }
+            else {
+                archonTryRepair();
+            }
         }
 
-        // Write to shared array indicies 8-9 for ArchonResourceManager
+        // Write to shared array ARCHON_RESOURCE_MANAGER_INDEX
         int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
-        int encodedResourceManager1Original = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
-        int encodedResourceManager1 = encodedResourceManager1Original;
+        int encodedResourceManager1 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
         boolean onCooldown = RobotPlayer.rc.getActionCooldownTurns() > 10 || RobotPlayer.rc.getMode() == RobotMode.PORTABLE;
-        encodedResourceManager1 = encodedResourceManager1 | (onCooldown ? 1 : 0) << mySharedArrayIndex;
+        encodedResourceManager1 = encodedResourceManager1 | ((onCooldown ? 1 : 0) << mySharedArrayIndex);
         // If last alive Archon, copy cooldowns last turn to this turn
         if (mySharedArrayIndex == ArchonTrackerManager.getLastAliveAllyArchon()) {
             encodedResourceManager0 = encodedResourceManager0 & 0xFFF0;
-            encodedResourceManager0 = encodedResourceManager0 | (encodedResourceManager1Original & 0xF);
+            encodedResourceManager0 = encodedResourceManager0 | (encodedResourceManager1 & 0xF);
             RobotPlayer.rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX, encodedResourceManager0);
         }
         RobotPlayer.rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1, encodedResourceManager1);
-
-//        // Start game by building miners
-//        if (minersBuilt < 3) {
-//            archonTryBuild(rc, RobotType.MINER, null);
-//        }
-//        else {
-//            // If there are combat enemies nearby, build soldiers and repair soldiers
-//            // Otherwise, build droids
-//            RobotInfo[] visibleEnemies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, RobotPlayer.rc.getTeam().opponent());
-//            if (visibleEnemies.length > 0) {
-//                // Combat enemies nearby
-//                if (archonTryBuild(rc, RobotType.SOLDIER, RobotPlayer.rc.getLocation().directionTo(visibleEnemies[0].location))) {
-//                }
-//                else {
-//                    // Repair soldier
-//                    RobotInfo[] actionableAllies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().actionRadiusSquared, RobotPlayer.rc.getTeam());
-//                    for (int i = 0; i < actionableAllies.length; i++) {
-//                        RobotInfo allyRobot = actionableAllies[i];
-//                        if (allyRobot.type == RobotType.SOLDIER && allyRobot.getHealth() < allyRobot.getType().getMaxHealth(allyRobot.getLevel())) {
-//                            if (RobotPlayer.rc.canRepair(allyRobot.location)) {
-//                                RobotPlayer.rc.repair(allyRobot.location);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            else {
-//                // No combat enemies nearby
-//                if (minersBuilt < droidsBuilt * 0.3) {
-//                    archonTryBuild(rc, RobotType.MINER, null);
-//                }
-//                else {
-//                    archonTryBuild(rc, RobotType.SOLDIER, null);
-//                }
-//            }
-//        }
     }
 }

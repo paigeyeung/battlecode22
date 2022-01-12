@@ -224,8 +224,10 @@ m4w1 and m4p1 merged into m5
 m5 became m6
 
 m6 changelog
+- Archon
+    - Repair nearby robots if nothing else to do
 - Miner
-    - Deplete lead if more enemies than allies nearby
+    - Deplete lead calculation
 - Shared array
     - Split index 10 general strategy into ALLY_ARCHON_ADDITIONAL_INFO and ENEMY_ARCHON_ADDITIONAL_INFO
     - ALLY_ARCHON_ADDITIONAL_INFO
