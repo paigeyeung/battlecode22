@@ -226,8 +226,11 @@ m5 became m6
 m6 changelog
 - Archon
     - Repair nearby robots if nothing else to do
+    - Start building soldiers earlier
+    - Increase cost for Archons moving back to places they already visited
 - Miner
     - Deplete lead calculation
+    - Decrease penalty for moving on visited tiles
 - Shared array
     - Split index 10 general strategy into ALLY_ARCHON_ADDITIONAL_INFO and ENEMY_ARCHON_ADDITIONAL_INFO
     - ALLY_ARCHON_ADDITIONAL_INFO
@@ -238,6 +241,10 @@ m6 changelog
         - Second 8 bits store guess location index of enemy Archons 0-3
         - Last 4 bits unused
         - 3 overridden | 1 overridden | 2 overridden | 0 overridden | 3 guess location 2 | 3 guess location 1 | 2 guess location 2 | 2 guess location 1 | 1 guess location 2 | 1 guess location 1 | 0 guess location 2 | 0 guess location 1 | unused...
-
+- Soldier
+  - Modify movement cost calculation
+  - Retreating soldiers don't stop until they are within squared distance 25 from nearest ally archon
+  - Attack when retreating
 - future
   - Call rc.getLocation once per turn, rc.getType once per game
+  - Move archons off rubble
