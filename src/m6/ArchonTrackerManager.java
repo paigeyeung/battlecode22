@@ -176,10 +176,10 @@ strictfp class ArchonTrackerManager {
         int encoded = encodeEnemyArchonTracker(alive, location, seen);
         RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + index, encoded);
 
-        int encoded2 = RobotPlayer.rc.readSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX);
+        int encoded2 = RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO);
         encoded2 = (encoded2 & (~(3 << (4 + index * 2)))) | (guessLocation << (4 + index * 2));
         encoded2 = (encoded2 & (~(1 << (12 + index)))) | ((guessLocationOverridden ? 1 : 0) << (12 + index));
-        RobotPlayer.rc.writeSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX, encoded2);
+        RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO, encoded2);
     }
 
     /** Update local functions that read shared array and update local trackers */
@@ -205,7 +205,7 @@ strictfp class ArchonTrackerManager {
         MapLocation location = new MapLocation((encoded >>> 8) & 0x3F, (encoded >>> 2) & 0x3F);
         boolean seen = (encoded & 0x1) == 1;
 
-        int encoded2 = RobotPlayer.rc.readSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX);
+        int encoded2 = RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO);
         int guessLocation = (encoded2 >>> (4 + index * 2)) & 0x3;
         boolean guessLocationOverridden = ((encoded2 >>> (12 + index)) & 0x1) == 1;
         if (firstTime) {
@@ -249,9 +249,6 @@ strictfp class ArchonTrackerManager {
     static void goToEnemyArchonNextGuessLocation(int index) throws GameActionException {
         DebugManager.log("Go to enemy Archon " + index + " next guess location");
         enemyArchonTrackers[index].goToNextGuessLocation();
-//        int encoded = RobotPlayer.rc.readSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX);
-//        encoded = (encoded & (~(3 << (4 + index * 2)))) | (enemyArchonTrackers[index].guessLocation << (4 + index * 2));
-//        RobotPlayer.rc.writeSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX, encoded);
         updateGlobalEnemyArchonTracker(index);
     }
     static void unmissingEnemyArchon(MapLocation location) throws GameActionException {

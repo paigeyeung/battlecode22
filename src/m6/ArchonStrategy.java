@@ -179,7 +179,7 @@ strictfp class ArchonStrategy {
             RobotPlayer.rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1, encodedResourceManager1);
         }
 
-        if (RobotPlayer.rc.getMode().canMove) {
+        if (RobotPlayer.rc.getMode() == RobotMode.PORTABLE) {
             // If we're portable, don't try to do anything else
             archonTryMove();
         }
@@ -205,7 +205,7 @@ strictfp class ArchonStrategy {
         int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
         int encodedResourceManager1Original = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
         int encodedResourceManager1 = encodedResourceManager1Original;
-        boolean onCooldown = RobotPlayer.rc.getActionCooldownTurns() > 10 || (RobotPlayer.rc.getMode().canMove && RobotPlayer.rc.getMovementCooldownTurns() > 10);
+        boolean onCooldown = RobotPlayer.rc.getActionCooldownTurns() > 10 || RobotPlayer.rc.getMode() == RobotMode.PORTABLE;
         encodedResourceManager1 = encodedResourceManager1 | (onCooldown ? 1 : 0) << mySharedArrayIndex;
         // If last alive Archon, copy cooldowns last turn to this turn
         if (mySharedArrayIndex == ArchonTrackerManager.getLastAliveAllyArchon()) {

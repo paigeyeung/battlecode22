@@ -50,14 +50,14 @@ strictfp class AllUnitStrategy {
         // If this is near the start of the game, check if this is the first time we see an enemy near this Archon
         // It would be nice for Archons to run this too, but may screw up ArchonResourceManager if shared array is modified in between Archon turns
         if (Clock.getBytecodesLeft() > 1000 && RobotPlayer.rc.getType() != RobotType.ARCHON) {
-            int encodedGeneralStrategy0 = RobotPlayer.rc.readSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX);
+            int encodedAllyArchonAdditionalInfo = RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO);
             int nearestAllyArchon = ArchonTrackerManager.getNearestAllyArchon(myLocation);
-            boolean seenEnemy = ((encodedGeneralStrategy0 >>> nearestAllyArchon) & 0x1) == 1;
+            boolean seenEnemy = ((encodedAllyArchonAdditionalInfo >>> nearestAllyArchon) & 0x1) == 1;
             if (!seenEnemy) {
                 // There is an enemy
                 if (RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, RobotPlayer.rc.getTeam().opponent()).length > 0) {
-                    encodedGeneralStrategy0 = encodedGeneralStrategy0 | (1 << nearestAllyArchon);
-                    RobotPlayer.rc.writeSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX, encodedGeneralStrategy0);
+                    encodedAllyArchonAdditionalInfo = encodedAllyArchonAdditionalInfo | (1 << nearestAllyArchon);
+                    RobotPlayer.rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO, encodedAllyArchonAdditionalInfo);
                     DebugManager.log("First time seen enemy near Archon " + nearestAllyArchon);
                 }
             }

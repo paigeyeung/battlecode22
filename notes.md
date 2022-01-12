@@ -221,5 +221,21 @@ m4p changelog
 
 m4w1 and m4p1 merged into m5
 
+m5 became m6
+
+m6 changelog
+- Miner
+    - Deplete lead if more enemies than allies nearby
+- Shared array
+    - Split index 10 general strategy into ALLY_ARCHON_ADDITIONAL_INFO and ENEMY_ARCHON_ADDITIONAL_INFO
+    - ALLY_ARCHON_ADDITIONAL_INFO
+        - Last 4 bits store if a unit near ally Archons 0-3 have seen an enemy
+        - unused... | 3 seen enemy | 2 seen enemy | 1 seen enemy | 0 seen enemy
+    - ENEMY_ARCHON_ADDITIONAL_INFO 
+        - First 4 bits store if enemy Archon 0-3 guess location is manually overridden
+        - Second 8 bits store guess location index of enemy Archons 0-3
+        - Last 4 bits unused
+        - 3 overridden | 1 overridden | 2 overridden | 0 overridden | 3 guess location 2 | 3 guess location 1 | 2 guess location 2 | 2 guess location 1 | 1 guess location 2 | 1 guess location 1 | 0 guess location 2 | 0 guess location 1 | unused...
+
 - future
   - Call rc.getLocation once per turn, rc.getType once per game

@@ -158,7 +158,7 @@ strictfp class ArchonResourceManager {
             allyArchonModels[i].onCooldown = false;
         }
 
-        // Read from shared array indices 8-9
+        // Read from shared array
         int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
         int encodedResourceManager1 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
         int lead = encodedResourceManager0 >>> 4;
@@ -171,15 +171,15 @@ strictfp class ArchonResourceManager {
             allyArchonModels[i].setActionDoNothing();
         }
 
-        // Read from shared array index 10
-        int encodedGeneralStrategy0 = RobotPlayer.rc.readSharedArray(CommunicationManager.GENERAL_STRATEGY_INDEX);
+        // Read from shared array
+        int encodedAllyArchonAdditionalInfo = RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO);
         boolean anySeenEnemy = false;
         boolean seenEnemyArchons[] = new boolean[allyArchonModels.length]; // Not used to modify which Archon produces soldiers at the moment
         for (int i = 0; i < allyArchonModels.length; i++) {
             if (!allyArchonModels[i].alive) {
                 continue;
             }
-            seenEnemyArchons[i] = ((encodedGeneralStrategy0 >>> i) & 0x1) == 1;
+            seenEnemyArchons[i] = ((encodedAllyArchonAdditionalInfo >>> i) & 0x1) == 1;
             if (!anySeenEnemy && seenEnemyArchons[i]) {
                 anySeenEnemy = true;
             }
