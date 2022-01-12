@@ -25,15 +25,15 @@ strictfp class MinerStrategy {
 
         // Try to mine lead
         boolean depleteLead = false;
-        if (Clock.getBytecodesLeft() > 3000) {
-            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(myLocation);
-            MapLocation nearestEnemyArchonLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation);
-            if (nearestAllyArchonLocation != null && nearestEnemyArchonLocation != null) {
-                if (myLocation.distanceSquaredTo(nearestAllyArchonLocation) > myLocation.distanceSquaredTo(nearestEnemyArchonLocation)) {
-                    depleteLead = true;
-                }
-            }
-        }
+//        if (Clock.getBytecodesLeft() > 3000) {
+//            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(myLocation);
+//            MapLocation nearestEnemyArchonLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation);
+//            if (nearestAllyArchonLocation != null && nearestEnemyArchonLocation != null) {
+//                if (myLocation.distanceSquaredTo(nearestAllyArchonLocation) > myLocation.distanceSquaredTo(nearestEnemyArchonLocation)) {
+//                    depleteLead = true;
+//                }
+//            }
+//        }
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
