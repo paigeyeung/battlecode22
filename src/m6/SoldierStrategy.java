@@ -44,7 +44,7 @@ strictfp class SoldierStrategy {
                         // Unless there is no known enemy Archon
                         // Then move towards the center of the map
 //                        GeneralManager.tryMove(getNextSoldierDir(GeneralManager.getMapCenter()), true);
-                        GeneralManager.tryMove(GeneralManager.getDirToEncircle(nearestAllyArchonLocation,9), false);
+                        GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation,9), false);
                     }
                 }
             }
@@ -58,13 +58,33 @@ strictfp class SoldierStrategy {
 //            else {
 //                action = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
 //            }
-            GeneralManager.tryMove(GeneralManager.getDirToEncircle(nearestAllyArchonLocation,9), true);
-        }
-        if (action == CombatManager.COMBAT_DROID_ACTIONS.HOLD) {
+            GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation,9), true);
             if (CombatManager.tryAttack()) {
                 // Try to attack
             }
         }
+        if (action == CombatManager.COMBAT_DROID_ACTIONS.HOLD) {
+            RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared);
+            if(enemies.length > 0) {
+                GeneralManager.tryMove(getNextSoldierDir(enemies[(int)(Math.random()*enemies.length)].location),false);
+            }
+            if (CombatManager.tryAttack()) {
+                // Try to attack
+            }
+        }
+    }
+
+    static Direction getSoldierDirToEncircle(MapLocation loc, int rSq) throws GameActionException {
+        double r = Math.sqrt(rSq);
+
+        int xOffset = 1000, yOffset = 1000;
+
+        while (!GeneralManager.onMap(loc.x + xOffset, loc.y + yOffset)){
+            xOffset = (int) (Math.random() * ((int) r + 1)) * ((int) (Math.random() * 3) - 1);
+            yOffset = (int) Math.ceil(Math.sqrt(rSq - xOffset * xOffset)) * ((int) (Math.random() * 3) - 1);
+        }
+
+        return getNextSoldierDir(new MapLocation(loc.x + xOffset, loc.y + yOffset));
     }
 
     static Direction getNextSoldierDir(MapLocation dest) throws GameActionException {
@@ -75,29 +95,6 @@ strictfp class SoldierStrategy {
         if(myLoc.distanceSquaredTo(dest) <= myLoc.distanceSquaredTo(nearestAllyArchonLocation))
             return GeneralManager.getDirToEncircle(dest,RobotPlayer.rc.getType().actionRadiusSquared);
 
-        RobotInfo[] nearbyTeamRobots = RobotPlayer.rc.senseNearbyRobots(20,RobotPlayer.rc.getTeam());
-
-        int friendlySoldierCount = 0;
-//        int longerDistanceSoldierCount = 0, shorterDistanceSoldierCount = 0;
-        for(RobotInfo robot : nearbyTeamRobots) {
-            if (robot.getType().equals(RobotType.SOLDIER)) {
-                friendlySoldierCount++;
-//                if(robot.location.distanceSquaredTo(dest) > RobotPlayer.rc.getLocation().distanceSquaredTo(dest)) {
-//                    longerDistanceSoldierCount++;
-//                }
-//                else if (robot.location.distanceSquaredTo(dest) <= RobotPlayer.rc.getLocation().distanceSquaredTo(dest)) {
-//                    shorterDistanceSoldierCount++;
-//                }
-            }
-        }
-
-//        if(friendlySoldierCount < 2)
-//            return null;
-
-        if(friendlySoldierCount < 9 && (myLoc.distanceSquaredTo(nearestAllyArchonLocation) <= 25 &&
-                myLoc.distanceSquaredTo(nearestAllyArchonLocation) >= 9))
-            return null;
-
         Direction movementDir = null;
 
         int f = Integer.MAX_VALUE;
@@ -107,12 +104,12 @@ strictfp class SoldierStrategy {
                 MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
                 int newDist = adj.distanceSquaredTo(dest);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
-                int newF = newDist + newRubble/5 + 10*visitedTurns[adj.x][adj.y];
+                int newF = (int)Math.sqrt(newDist) * 2 + newRubble + 20*visitedTurns[adj.x][adj.y];
 
                 MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj,2);
 
                 for(MapLocation adj2 : adjToAdj) {
-                    newF += visitedTurns[adj2.x][adj2.y];
+                    newF += 2*visitedTurns[adj2.x][adj2.y];
                 }
 
                 if(newF < f) {
@@ -127,14 +124,10 @@ strictfp class SoldierStrategy {
                 }
             }
         }
-        if(Math.random() < 0.5) {
-            if (movementDir != null) {
-                MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
-                visitedTurns[adj.x][adj.y]++;
-            }
-            return movementDir;
+        if (movementDir != null) {
+            MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
+            visitedTurns[adj.x][adj.y]++;
         }
-
-        return null;
+        return movementDir;
     }
 }
