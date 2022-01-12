@@ -4,11 +4,9 @@ import battlecode.common.*;
 
 strictfp class MinerStrategy {
     static boolean[][] visited = null;
+    static boolean depleteLead = false;
 
-    /**
-     * Called by RobotPlayer
-     **/
-
+    /** Called by RobotPlayer **/
     static void runMiner() throws GameActionException {
         MapLocation myLocation = RobotPlayer.rc.getLocation();
 
@@ -27,16 +25,6 @@ strictfp class MinerStrategy {
         }
 
         // Try to mine lead
-        boolean depleteLead = false;
-        if (Clock.getBytecodesLeft() > 3000) {
-            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(myLocation);
-            MapLocation nearestEnemyArchonLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation);
-            if (nearestAllyArchonLocation != null && nearestEnemyArchonLocation != null) {
-                if (myLocation.distanceSquaredTo(nearestAllyArchonLocation) > myLocation.distanceSquaredTo(nearestEnemyArchonLocation)) {
-                    depleteLead = true;
-                }
-            }
-        }
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
@@ -46,10 +34,30 @@ strictfp class MinerStrategy {
             }
         }
 
+        // Move
         Direction dir = getNextMiningDir();
-
         if (dir != null) {
             GeneralManager.tryMove(dir, false);
+        }
+
+        // Calculate depleteLead for next turn
+        depleteLead = false;
+        if (Clock.getBytecodesLeft() > 3000) {
+            // Deplete if nearby enemy units greater than nearby ally units
+            RobotInfo[] nearbyAllies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, RobotPlayer.rc.getTeam());
+            RobotInfo[] nearbyEnemies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, RobotPlayer.rc.getTeam().opponent());
+            if (nearbyEnemies.length > nearbyAllies.length + 1) {
+                depleteLead = true;
+            }
+
+            // Deplete if nearest enemy Archon closer to nearest ally Archon
+//            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(myLocation);
+//            MapLocation nearestEnemyArchonLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation);
+//            if (nearestAllyArchonLocation != null && nearestEnemyArchonLocation != null) {
+//                if (myLocation.distanceSquaredTo(nearestAllyArchonLocation) > myLocation.distanceSquaredTo(nearestEnemyArchonLocation)) {
+//                    depleteLead = true;
+//                }
+//            }
         }
     }
 
