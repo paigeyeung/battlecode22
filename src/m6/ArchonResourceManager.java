@@ -4,6 +4,7 @@ import battlecode.common.*;
 
 strictfp class ArchonResourceManager {
     static final int MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON = 25;
+    static int farthestArchonIndex;
 
     enum ARCHON_ROLES {
         OFFENSIVE,
@@ -95,6 +96,8 @@ strictfp class ArchonResourceManager {
             allyArchonModels[i] = new ArchonModel(i);
         }
 
+        farthestArchonIndex = findArchonFarthestFromEnemies(true);
+
         computeArchonRoles();
     }
 
@@ -182,12 +185,14 @@ strictfp class ArchonResourceManager {
         }
 
         // Compute move Archon actions
-        MapLocation farthestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonFarthestFromEnemies()].location;
-        MapLocation closestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location;
+
         for (int i = 0; i < allyArchonModels.length; i++) {
             if (!allyArchonModels[i].alive || allyArchonModels[i].onCooldown) {
                 continue;
             }
+            MapLocation farthestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location;
+            MapLocation closestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location;
+
             MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(ArchonTrackerManager.allyArchonTrackers[i].location);
             if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON
                 && (nearestEnemyArchonLoc != null && GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)
@@ -196,6 +201,23 @@ strictfp class ArchonResourceManager {
                     allyArchonModels[i].setActionMove();
                     DebugManager.log("I'm Archon " + ArchonStrategy.mySharedArrayIndex + " and I want ally Archon " + i + " at " + ArchonTrackerManager.allyArchonTrackers[i].location + " to move");
                 }
+//
+//        if(RobotPlayer.rc.getRoundNum() >= 2) {
+//            MapLocation farthestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location,
+//                    closestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location;
+//
+//            for (int i = 0; i < allyArchonModels.length; i++) {
+//                if (!allyArchonModels[i].alive) continue;
+////            DebugManager.log("Archon " + i + " on cooldown: " + allyArchonModels[i].onCooldown);
+//                MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(ArchonTrackerManager.allyArchonTrackers[i].location);
+//                if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON &&
+//                        (nearestEnemyArchonLoc != null && GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)
+//                                > ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(nearestEnemyArchonLoc)))
+//                    if (ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location.distanceSquaredTo(ArchonTrackerManager.allyArchonTrackers[i].location) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
+//                        allyArchonModels[i].setActionMove();
+//                        DebugManager.log("Want ally Archon " + i + " at " + ArchonTrackerManager.allyArchonTrackers[i].location + " to move");
+//                    }
+//
             }
         }
 
@@ -203,11 +225,11 @@ strictfp class ArchonResourceManager {
             RobotType chosenBuild = null;
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
-            if (!anySeenEnemy && (totalMinersBuilt < 30 || (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.8))) {
+            if (!anySeenEnemy && (totalMinersBuilt < 10 || (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.8))) {
                 chosenBuild = RobotType.MINER;
             }
             // Maintain 10% proportion of build miners
-            else if (totalMinersBuilt < totalDroidsBuilt * 0.1) {
+            else if (totalMinersBuilt < totalDroidsBuilt * 0.15) {
                 chosenBuild = RobotType.MINER;
             }
             // Otherwise, build soldiers
@@ -342,11 +364,27 @@ strictfp class ArchonResourceManager {
         return fewestIndex;
     }
 
-    static int findArchonFarthestFromEnemies() {
+    static int findArchonFarthestFromEnemies(boolean allEnemies) {
         int farthestIndex = -1;
-        for (int i = allyArchonModels.length - 1; i >= 0; i--) {
-            if((farthestIndex == -1 || allyArchonModels[i].nearestEnemyArchonDistanceSquared > allyArchonModels[farthestIndex].nearestEnemyArchonDistanceSquared))
-                farthestIndex = i;
+        int minDist = Integer.MAX_VALUE;
+        if (allEnemies) {
+            for (int i = allyArchonModels.length - 1; i >= 0; i--) {
+                if (!allyArchonModels[i].alive) continue;
+                    int dist = 0;
+                    for (ArchonTrackerManager.EnemyArchonTracker enemyArchonTracker : ArchonTrackerManager.enemyArchonTrackers) {
+                        dist += ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(enemyArchonTracker.getGuessLocation());
+                    }
+                    if (dist < minDist) {
+                        farthestIndex = i;
+                    }
+            }
+        }
+        else {
+            for (int i = allyArchonModels.length - 1; i >= 0; i--) {
+                if (farthestIndex == -1 ||
+                        allyArchonModels[i].nearestEnemyArchonDistanceSquared > allyArchonModels[farthestIndex].nearestEnemyArchonDistanceSquared)
+                    farthestIndex = i;
+            }
         }
         return farthestIndex;
     }
@@ -354,7 +392,8 @@ strictfp class ArchonResourceManager {
     static int findArchonClosestToEnemies() {
         int closestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
-            if((closestIndex == -1 || allyArchonModels[i].nearestEnemyArchonDistanceSquared < allyArchonModels[closestIndex].nearestEnemyArchonDistanceSquared))
+            if(allyArchonModels[i].alive &&
+                    (closestIndex == -1 || allyArchonModels[i].nearestEnemyArchonDistanceSquared < allyArchonModels[closestIndex].nearestEnemyArchonDistanceSquared))
                 closestIndex = i;
         }
         return closestIndex;
