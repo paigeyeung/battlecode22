@@ -372,7 +372,8 @@ strictfp class ArchonResourceManager {
                 if (!allyArchonModels[i].alive) continue;
                     int dist = 0;
                     for (ArchonTrackerManager.EnemyArchonTracker enemyArchonTracker : ArchonTrackerManager.enemyArchonTrackers) {
-                        dist += ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(enemyArchonTracker.getGuessLocation());
+                        if(enemyArchonTracker.getGuessLocation() != null)
+                            dist += ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(enemyArchonTracker.getGuessLocation());
                     }
                     if (dist < minDist) {
                         farthestIndex = i;
