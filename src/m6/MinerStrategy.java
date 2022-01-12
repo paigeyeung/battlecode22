@@ -114,7 +114,7 @@ strictfp class MinerStrategy {
                     }
                 }
 
-//                if (visited[adj.x][adj.y]) newF += 90;
+                if (visited[adj.x][adj.y]) newF += 40;
 
                 int e = 0;
 
