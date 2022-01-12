@@ -123,8 +123,17 @@ strictfp class CombatManager {
         if(retreating) {
             if (distToNearestAllyArchon > 25)
                 chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
-            else
-                retreating = false;
+            else {
+                if(RobotPlayer.rc.getHealth() < 0.2 * RobotPlayer.rc.getType().getMaxHealth(RobotPlayer.rc.getLevel())) {
+                    if(distToNearestAllyArchon <= 4) {
+                        DebugManager.log("I'm disintegrating");
+                        RobotPlayer.rc.disintegrate();
+                    }
+                    else
+                        chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
+                }
+                else retreating = false;
+            }
         }
 
 
