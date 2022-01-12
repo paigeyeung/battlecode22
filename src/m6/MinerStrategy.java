@@ -70,7 +70,7 @@ strictfp class MinerStrategy {
         MapLocation myLoc = RobotPlayer.rc.getLocation();
 
         MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(myLoc);
-        int distToNearestAllyArchon = myLoc.distanceSquaredTo(nearestAllyArchonLoc);
+        int distToNearestAllyArchon = myLoc.distanceSquaredTo(nearestAllyArchonLoc) + 1;
         int f = 200 / distToNearestAllyArchon;
         if (RobotPlayer.rc.senseLead(myLoc) == 0) {
             f = Integer.MAX_VALUE;
