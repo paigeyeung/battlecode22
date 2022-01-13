@@ -4,6 +4,7 @@ import battlecode.common.*;
 
 strictfp class ArchonResourceManager {
     static final int MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON = 25;
+    static final double MINER_BUILD_PROPORTION = 0.15;
     static int farthestArchonIndex;
 
     enum ARCHON_ROLES {
@@ -90,7 +91,7 @@ strictfp class ArchonResourceManager {
     }
 
     /** Initialize, should always be called on turn 2 */
-    static void initializeTurn2() {
+    static void initializeTurn2() throws GameActionException {
         allyArchonModels = new ArchonModel[ArchonTrackerManager.allyArchonTrackers.length];
         for (int i = 0; i < allyArchonModels.length; i++) {
             allyArchonModels[i] = new ArchonModel(i);
@@ -99,6 +100,8 @@ strictfp class ArchonResourceManager {
         farthestArchonIndex = findArchonFarthestFromEnemies(true);
 
         computeArchonRoles();
+
+        RobotPlayer.rc.writeSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE, 0);
     }
 
     static void setArchonAlive(int index, boolean alive) {
@@ -225,11 +228,12 @@ strictfp class ArchonResourceManager {
             RobotType chosenBuild = null;
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
-            if (!anySeenEnemy && (totalMinersBuilt < 10 || (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.8))) {
+            if (!anySeenEnemy && (totalMinersBuilt < 5 ||
+                    (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.7))) {
                 chosenBuild = RobotType.MINER;
             }
-            // Maintain 10% proportion of build miners
-            else if (totalMinersBuilt < totalDroidsBuilt * 0.15) {
+            // Maintain 15% proportion of build miners
+            else if (totalMinersBuilt < totalDroidsBuilt * MINER_BUILD_PROPORTION) {
                 chosenBuild = RobotType.MINER;
             }
             // Otherwise, build soldiers
@@ -343,18 +347,6 @@ strictfp class ArchonResourceManager {
 
     static int findArchonWithFewestSoldiersBuilt(boolean ableToBuild) {
         int fewestIndex = -1;
-        for (int i = 0; i < allyArchonModels.length; i++) {
-            if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
-                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
-                fewestIndex = i;
-            }
-        }
-        return fewestIndex;
-    }
-
-    static int findArchonNeedingSoldiers(boolean ableToBuild) {
-        int fewestIndex = -1;
-//        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared,RobotPlayer.rc.getTeam().opponent());
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
                     && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
