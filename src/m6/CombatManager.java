@@ -108,7 +108,7 @@ strictfp class CombatManager {
 
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;
 
-        if(savedEnemyCombatScore <= allyCombatScore * 0.8) {
+        if(savedEnemyCombatScore <= allyCombatScore * (0.7 + 1/(RobotPlayer.rc.getRoundNum()/10+2))) {
             RobotPlayer.rc.writeSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE, 0);
             retreating = false;
             chosenAction = CombatManager.COMBAT_DROID_ACTIONS.ATTACK;
