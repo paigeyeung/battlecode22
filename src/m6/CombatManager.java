@@ -1,9 +1,6 @@
 package m6;
 
-import battlecode.common.GameActionException;
-import battlecode.common.MapLocation;
-import battlecode.common.RobotInfo;
-import battlecode.common.Team;
+import battlecode.common.*;
 
 strictfp class CombatManager {
     static boolean retreating = false;
