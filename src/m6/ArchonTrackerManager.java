@@ -102,7 +102,10 @@ strictfp class ArchonTrackerManager {
             if (missing) {
                 return null;
             }
-            return guessLocations.get(guessLocation);
+            if(guessLocation < guessLocations.size())
+                return guessLocations.get(guessLocation);
+
+            return null;
         }
 
         void goToNextGuessLocation() {
@@ -355,7 +358,12 @@ strictfp class ArchonTrackerManager {
     static int getNearestEnemyArchon(MapLocation fromLocation) {
         int nearest = -1;
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (enemyArchonTrackers[i].alive && !enemyArchonTrackers[i].missing && (nearest == -1 || enemyArchonTrackers[i].getGuessLocation().distanceSquaredTo(fromLocation) < enemyArchonTrackers[nearest].getGuessLocation().distanceSquaredTo(fromLocation))) {
+            if (enemyArchonTrackers[i].alive && !enemyArchonTrackers[i].missing &&
+                    (nearest == -1 ||
+                            ((fromLocation != null &&
+                                    enemyArchonTrackers[i].getGuessLocation() != null
+                                    && enemyArchonTrackers[nearest].getGuessLocation() != null) &&
+                                    enemyArchonTrackers[i].getGuessLocation().distanceSquaredTo(fromLocation) < enemyArchonTrackers[nearest].getGuessLocation().distanceSquaredTo(fromLocation)))) {
                 nearest = i;
             }
         }
