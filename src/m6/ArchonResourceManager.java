@@ -199,9 +199,7 @@ strictfp class ArchonResourceManager {
             MapLocation closestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location;
 
             MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(ArchonTrackerManager.allyArchonTrackers[i].location);
-            if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON
-                    && (nearestEnemyArchonLoc != null && GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)
-                    > ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(nearestEnemyArchonLoc))) {
+            if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
                 if (farthestAllyArchonLoc.distanceSquaredTo(ArchonTrackerManager.allyArchonTrackers[i].location) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
                     allyArchonModels[i].setActionMove();
                     DebugManager.log("I'm Archon " + ArchonStrategy.mySharedArrayIndex + " and I want ally Archon " + i + " at " + ArchonTrackerManager.allyArchonTrackers[i].location + " to move");
