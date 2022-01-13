@@ -1,4 +1,4 @@
-package m6p1;
+package m7;
 
 import battlecode.common.*;
 
@@ -370,6 +370,32 @@ strictfp class ArchonTrackerManager {
             }
         }
         return nearest;
+    }
+    static int getCentralEnemyArchon() {
+        int xSum = 0, ySum = 0, numArchons = 0;
+        int index = -1;
+        for (int i = 0; i < enemyArchonTrackers.length; i++) {
+            if (enemyArchonTrackers[i].getGuessLocation() != null) {
+                xSum += enemyArchonTrackers[i].getGuessLocation().x;
+                ySum += enemyArchonTrackers[i].getGuessLocation().y;
+                numArchons++;
+            }
+        }
+
+        if(numArchons == 0) return index;
+
+        int minDist = Integer.MAX_VALUE;
+        MapLocation centerLoc = new MapLocation(xSum/numArchons,ySum/numArchons);
+        for (int i = 0; i < enemyArchonTrackers.length; i++) {
+            if (enemyArchonTrackers[i].alive && enemyArchonTrackers[i].getGuessLocation() != null) {
+                int dist = enemyArchonTrackers[i].getGuessLocation().distanceSquaredTo(centerLoc);
+                if(dist < minDist) {
+                    minDist = dist;
+                    index = i;
+                }
+            }
+        }
+        return index;
     }
     static MapLocation getNearestAllyArchonLocation(MapLocation fromLocation) {
         int nearest = getNearestAllyArchon(fromLocation);
