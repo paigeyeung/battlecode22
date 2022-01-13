@@ -33,7 +33,19 @@ strictfp class MinerStrategy {
         }
 
         // Move
-        Direction dir = getNextMiningDir();
+        Direction dir = null;
+        if(RobotPlayer.rc.getHealth() <
+                CombatManager.HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING * RobotPlayer.rc.getType().getMaxHealth(RobotPlayer.rc.getLevel())) {
+            MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
+            if((RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLoc) <= 9 && RobotPlayer.rc.senseLead(RobotPlayer.rc.getLocation()) == 0)
+                || RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLoc) <= 1)
+                RobotPlayer.rc.disintegrate();
+            else
+                dir = GeneralManager.getNextDir(nearestAllyArchonLoc);
+        }
+        else {
+            dir = getNextMiningDir();
+        }
         if (dir != null) {
             GeneralManager.tryMove(dir, false);
         }
