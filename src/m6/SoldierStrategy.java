@@ -4,6 +4,7 @@ import battlecode.common.*;
 
 strictfp class SoldierStrategy {
     static int[][] visitedTurns;
+    static boolean scouting = false;
 
     /** Called by RobotPlayer */
     static void runSoldier() throws GameActionException {
@@ -32,22 +33,47 @@ strictfp class SoldierStrategy {
                     GeneralManager.tryMove(getNextSoldierDir(visibleAttackTarget), false);
                 }
                 else {
-                    MapLocation nearestEnemyArchonGuessLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(GeneralManager.myLocation);
-                    if (nearestEnemyArchonGuessLocation != null) {
+                    MapLocation targetEnemyArchonGuessLocation = null;
+                    if (ArchonTrackerManager.getCentralEnemyArchon() != -1)
+                        targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[ArchonTrackerManager.getCentralEnemyArchon()].getGuessLocation();
+                //change from getNearestEnemyArchonGuessLocation(GeneralManager.myLocation);
+                    if (targetEnemyArchonGuessLocation != null) {
+                        if(scouting) {
+                            scouting = false;
+                            int scoutCount = RobotPlayer.rc.readSharedArray(CommunicationManager.SCOUT_COUNT);
+                            RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, scoutCount - 1);
+                        }
+
                         // If no enemies are visible, move towards nearest enemy Archon
-                        GeneralManager.tryMove(getNextSoldierDir(nearestEnemyArchonGuessLocation), false);
+                        GeneralManager.tryMove(getNextSoldierDir(targetEnemyArchonGuessLocation), false);
                     }
                     else {
-                        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
                         // Unless there is no known enemy Archon
-                        // Then move towards the center of the map
-//                        GeneralManager.tryMove(getNextSoldierDir(GeneralManager.getMapCenter()), true);
-                        GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation,9), false);
+                        // Then scout / retreat
+                        int scoutCount = RobotPlayer.rc.readSharedArray(CommunicationManager.SCOUT_COUNT);
+
+                        if(!scouting && scoutCount < RobotPlayer.rc.readSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE)/20) {
+                            scouting = true;
+                            if (scoutCount <= 0) RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, 1);
+                            else RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, scoutCount + 1);
+                        }
+                        if(scouting) GeneralManager.tryMove(getSoldierDirToScout(), false);
+                        else {
+                            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
+                            GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation, 9), false);
+                        }
                     }
                 }
             }
         }
         else if (action == CombatManager.COMBAT_DROID_ACTIONS.RETREAT) {
+
+            if(scouting) {
+                scouting = false;
+                int scoutCount = RobotPlayer.rc.readSharedArray(CommunicationManager.SCOUT_COUNT);
+                RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, scoutCount - 1);
+            }
+
             MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
 //            if (myLocation.distanceSquaredTo(nearestAllyArchonLocation) > 10) {
 //                // Move towards nearest ally Archon
@@ -62,6 +88,13 @@ strictfp class SoldierStrategy {
             }
         }
         if (action == CombatManager.COMBAT_DROID_ACTIONS.HOLD) {
+
+            if(scouting) {
+                scouting = false;
+                int scoutCount = RobotPlayer.rc.readSharedArray(CommunicationManager.SCOUT_COUNT);
+                RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, scoutCount - 1);
+            }
+
             RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared);
             if(enemies.length > 0) {
                 GeneralManager.tryMove(getNextSoldierDir(enemies[(int)(Math.random()*enemies.length)].location),false);
@@ -122,6 +155,46 @@ strictfp class SoldierStrategy {
                 }
             }
         }
+        if (movementDir != null) {
+            MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
+            visitedTurns[adj.x][adj.y]++;
+        }
+        return movementDir;
+    }
+
+    static Direction getSoldierDirToScout() throws GameActionException {
+        int f = Integer.MAX_VALUE;
+
+        Direction movementDir = null;
+
+        for (Direction dir : GeneralManager.DIRECTIONS) {
+            if (RobotPlayer.rc.canMove(dir)) {
+                MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
+                int newRubble = RobotPlayer.rc.senseRubble(adj);
+                int newF = (int) (newRubble * 0.5) + 20*visitedTurns[adj.x][adj.y];
+
+                MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj, 2);
+
+                // Higher cost to move to visited locations
+                for (MapLocation adj2 : adjToAdj) {
+                    newF += (int) (newRubble * 0.5) + 4*visitedTurns[adj.x][adj.y];
+                }
+
+                int e = 0;
+
+                // If cost smaller than previous smallest cost, move
+                if (newF < f - e) {
+                    f = newF;
+                    movementDir = dir;
+                } else if (newF <= f + e) {
+                    if (((int) (Math.random() * 2) == 0)) {
+                        f = newF;
+                        movementDir = dir;
+                    }
+                }
+            }
+        }
+
         if (movementDir != null) {
             MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
             visitedTurns[adj.x][adj.y]++;
