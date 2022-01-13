@@ -22,7 +22,8 @@ strictfp class DebugManager {
             }
             if (numAllyArchonsAlive != RobotPlayer.rc.getArchonCount()) {
                 if (archonMismatchTurns >= 2) {
-                    log("SOMETHING WENT WRONG: Ally Archon count mismatch " + numAllyArchonsAlive + " and " + RobotPlayer.rc.getArchonCount());
+                    log("SOMETHING WENT WRONG: Ally Archon count mismatch " + numAllyArchonsAlive +
+                            " (calculated) and " + RobotPlayer.rc.getArchonCount() + " (expected)");
                 }
                 else {
                     archonMismatchTurns++;
