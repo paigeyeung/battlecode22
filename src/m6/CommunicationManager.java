@@ -45,6 +45,9 @@ strictfp class CommunicationManager {
      */
     static final int ENEMY_ARCHON_ADDITIONAL_INFO = 11; // 11
 
-    // Unused
-    static final int ALLY_ARCHON_INDEX = 12; // 12
+    /**
+     * Saved enemy combat score from a robot with enemy Archon in vision range
+     * 8 unused | 8 combat score
+     */
+    static final int SAVED_ENEMY_COMBAT_SCORE = 12;
 }

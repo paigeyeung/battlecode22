@@ -104,20 +104,30 @@ strictfp class CombatManager {
 
     /** Decides what a combat droid should do */
     static COMBAT_DROID_ACTIONS getCombatDroidAction() throws GameActionException {
+        int savedEnemyCombatScore = RobotPlayer.rc.readSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE);
         double allyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false);
         double enemyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true);
         int distToNearestAllyArchon = RobotPlayer.rc.getLocation().distanceSquaredTo(ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation()));
 
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;
 
+        if(savedEnemyCombatScore <= allyCombatScore * 0.8) {
+            RobotPlayer.rc.writeSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE, 0);
+            retreating = false;
+            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.ATTACK;
+        }
+
 //        DebugManager.log(allyCombatScore + "       " + (allyCombatScore < 10 + 10 * RobotPlayer.rc.getRoundNum() / 200));
-        if (enemyCombatScore > allyCombatScore * 0.8) {
+        if ((enemyCombatScore > allyCombatScore * 0.9 || savedEnemyCombatScore > allyCombatScore * 0.9) &&
+                !retreating) {
             chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
-            if (enemyCombatScore < allyCombatScore || distToNearestAllyArchon <= 25) {
+            if (enemyCombatScore < allyCombatScore || distToNearestAllyArchon <= 16) {
                 chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
             }
             else {
                 retreating = true;
+                if(enemyCombatScore > savedEnemyCombatScore)
+                    RobotPlayer.rc.writeSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE, (int)enemyCombatScore);
             }
         }
 
