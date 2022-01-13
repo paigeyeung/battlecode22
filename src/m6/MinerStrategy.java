@@ -53,9 +53,9 @@ strictfp class MinerStrategy {
             if (nearestAllyArchonLocation != null && nearestEnemyArchonLocation != null) {
                 int nearestAllyArchonDistanceSquared = GeneralManager.myLocation.distanceSquaredTo(nearestAllyArchonLocation);
                 int nearestEnemyArchonDistanceSquared = GeneralManager.myLocation.distanceSquaredTo(nearestEnemyArchonLocation);
-                int proportion = nearestAllyArchonDistanceSquared / (nearestAllyArchonDistanceSquared + nearestEnemyArchonDistanceSquared);
+                double proportion = (double)nearestAllyArchonDistanceSquared / (nearestAllyArchonDistanceSquared + nearestEnemyArchonDistanceSquared);
                 if (proportion > 0.5) {
-                    depleteLeadScore += proportion * 5;
+                    depleteLeadScore += proportion * 8;
                 }
             }
 
