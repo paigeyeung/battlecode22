@@ -85,7 +85,7 @@ strictfp class AllUnitStrategy {
         }
 
         // If an enemy Archon is seen or destroyed, broadcast it to shared array
-        if (Clock.getBytecodesLeft() > 1000) {
+        if (Clock.getBytecodesLeft() > 1000 && updatedArchonsLastTurn) {
             int visionRadiusSquared = GeneralManager.myType.visionRadiusSquared;
 
             // Check for alive and nonmissing enemy Archons
@@ -98,13 +98,16 @@ strictfp class AllUnitStrategy {
                 MapLocation guessLocation = ArchonTrackerManager.enemyArchonTrackers[i].getGuessLocation();
                 // if (rc.canSenseLocation(estimatedLocation)) {
                 // ^ Doesn't work for some reason, bug in Battlecode?
-                if (GeneralManager.myLocation.distanceSquaredTo(guessLocation) <= visionRadiusSquared - 2) {
+                if (GeneralManager.myLocation.distanceSquaredTo(guessLocation) <= visionRadiusSquared) {
                     RobotInfo robotInfo = RobotPlayer.rc.senseRobotAtLocation(guessLocation);
                     boolean enemyArchonSeen = !(robotInfo == null || robotInfo.getType() != RobotType.ARCHON || robotInfo.getTeam() == RobotPlayer.rc.getTeam());
                     if (ArchonTrackerManager.enemyArchonTrackers[i].seen) {
                         if (!enemyArchonSeen) {
-                            // We've seen it before and now it's gone, so assume it's dead
-                            ArchonTrackerManager.setEnemyArchonAlive(i, false);
+//                            // We've seen it before and now it's gone, so assume it's dead
+//                            ArchonTrackerManager.setEnemyArchonAlive(i, false);
+
+                            // We've seen it before and now it's gone, so mark it as missing
+                            ArchonTrackerManager.setEnemyArchonMissing(i);
                         }
                     }
                     else {
@@ -114,26 +117,36 @@ strictfp class AllUnitStrategy {
                         }
                         else {
                             // We're here and we don't see it, and no one else has either
-                            DebugManager.log("Enemy Archon missing at " + guessLocation);
+                            DebugManager.log("Enemy Archon " + i + " missing at " + guessLocation);
                             ArchonTrackerManager.goToEnemyArchonNextGuessLocation(i);
                         }
                     }
                 }
             }
 
-            // Check for alive and missing enemy Archons
-            int numEnemyArchonsMissing = ArchonTrackerManager.numEnemyArchonMissing();
-            if (numEnemyArchonsMissing > 0) {
-                RobotInfo[] robotInfos = RobotPlayer.rc.senseNearbyRobots(visionRadiusSquared, RobotPlayer.rc.getTeam().opponent());
-                for (RobotInfo robotInfo : robotInfos) {
-                    if (robotInfo.getType() == RobotType.ARCHON) {
-                        if (!ArchonTrackerManager.existsEnemyArchonAtLocation(robotInfo.location)) {
-                            ArchonTrackerManager.unmissingEnemyArchon(robotInfo.location);
-                            numEnemyArchonsMissing--;
-                            if (numEnemyArchonsMissing == 0) {
-                                break;
-                            }
-                        }
+//            // Check for alive and missing enemy Archons
+//            int numEnemyArchonsMissing = ArchonTrackerManager.numEnemyArchonMissing();
+//            if (numEnemyArchonsMissing > 0) {
+//                RobotInfo[] robotInfos = RobotPlayer.rc.senseNearbyRobots(visionRadiusSquared, RobotPlayer.rc.getTeam().opponent());
+//                for (RobotInfo robotInfo : robotInfos) {
+//                    if (robotInfo.getType() == RobotType.ARCHON) {
+//                        if (!ArchonTrackerManager.existsEnemyArchonAtLocation(robotInfo.location)) {
+//                            ArchonTrackerManager.foundEnemyArchon(robotInfo.location);
+//                            numEnemyArchonsMissing--;
+//                            if (numEnemyArchonsMissing == 0) {
+//                                break;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+
+            // Check for alive and unseen enemy Archons
+            RobotInfo[] robotInfos = RobotPlayer.rc.senseNearbyRobots(visionRadiusSquared, RobotPlayer.rc.getTeam().opponent());
+            for (RobotInfo robotInfo : robotInfos) {
+                if (robotInfo.getType() == RobotType.ARCHON) {
+                    if (!ArchonTrackerManager.existsEnemyArchonAtLocation(robotInfo.location)) {
+                        ArchonTrackerManager.foundEnemyArchon(robotInfo.location);
                     }
                 }
             }
