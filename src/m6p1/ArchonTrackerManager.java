@@ -102,10 +102,10 @@ strictfp class ArchonTrackerManager {
             if (missing) {
                 return null;
             }
-            if(guessLocation < guessLocations.size())
-                return guessLocations.get(guessLocation);
-
-            return null;
+            if (guessLocation >= guessLocations.size()) {
+                DebugManager.log("SOMETHING WENT WRONG: guessLocation is " + guessLocation + " but guessLocations.size() is " + guessLocations.size());
+            }
+            return guessLocations.get(guessLocation);
         }
 
         void goToNextGuessLocation() {
@@ -300,7 +300,7 @@ strictfp class ArchonTrackerManager {
             if (!enemyArchonTrackers[i].alive) {
                 continue;
             }
-            if (enemyArchonTrackers[i].missing && !enemyArchonTrackers[i].seen && !enemyArchonTrackers[i].guessLocationOverridden) {
+            if (enemyArchonTrackers[i].missing) {
                 DebugManager.log("Decided to find missing enemy Archon " + i);
                 enemyArchonTrackers[i].update(true, location, true, 0, true);
                 updateGlobalEnemyArchonTracker(i);
@@ -312,7 +312,7 @@ strictfp class ArchonTrackerManager {
             if (!enemyArchonTrackers[i].alive) {
                 continue;
             }
-            if (!enemyArchonTrackers[i].seen && !enemyArchonTrackers[i].guessLocationOverridden) {
+            if (!enemyArchonTrackers[i].seen) {
                 DebugManager.log("Decided to find unseen enemy Archon " + i);
                 enemyArchonTrackers[i].update(true, location, true, 0, true);
                 updateGlobalEnemyArchonTracker(i);

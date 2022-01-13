@@ -130,6 +130,8 @@ strictfp class ArchonStrategy {
 
     /** Called by RobotPlayer */
     static void runArchon() throws GameActionException {
+//        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 1");
+
         if (visited == null) {
             visited = new boolean[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
         }
@@ -176,10 +178,14 @@ strictfp class ArchonStrategy {
             ArchonResourceManager.initializeTurn2();
         }
 
+//        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 2");
+
         // Toggle bit in shared array ALLY_ARCHON_TRACKERS_INDEX to show alive
         mySharedArrayToggle = !mySharedArrayToggle;
         ArchonTrackerManager.setAllyArchonToggle(mySharedArrayIndex, mySharedArrayToggle);
         ArchonTrackerManager.updateGlobalAllyArchonTracker(mySharedArrayIndex);
+
+//        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 3");
 
         // If first alive Archon, write to shared array ARCHON_RESOURCE_MANAGER_INDEX
         // Reset the array indices except cooldowns last turn, then write lead and gold
@@ -202,6 +208,8 @@ strictfp class ArchonStrategy {
             RobotPlayer.rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX, encodedResourceManager0);
             RobotPlayer.rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1, encodedResourceManager1);
         }
+
+//        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 4");
 
         if (RobotPlayer.rc.getMode() == RobotMode.PORTABLE) {
             // If we're portable, don't try to do anything else
@@ -228,6 +236,8 @@ strictfp class ArchonStrategy {
             }
         }
 
+//        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 5");
+
         // Write to shared array ARCHON_RESOURCE_MANAGER_INDEX
         int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
         int encodedResourceManager1 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
@@ -240,5 +250,7 @@ strictfp class ArchonStrategy {
             RobotPlayer.rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX, encodedResourceManager0);
         }
         RobotPlayer.rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1, encodedResourceManager1);
+
+//        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 6");
     }
 }

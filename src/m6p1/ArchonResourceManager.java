@@ -7,12 +7,6 @@ strictfp class ArchonResourceManager {
     static final double MINER_BUILD_PROPORTION = 0.15;
     static int farthestArchonIndex;
 
-    enum ARCHON_ROLES {
-        OFFENSIVE,
-        NONOFFENSIVE,
-        DO_NOTHING
-    }
-
     enum ARCHON_ACTIONS {
         BUILD_MINER,
         BUILD_BUILDER,
@@ -29,7 +23,6 @@ strictfp class ArchonResourceManager {
         int nearestEnemyArchon;
         int nearestEnemyArchonDistanceSquared;
 
-        ARCHON_ROLES archonRole;
         ARCHON_ACTIONS archonAction;
 
         int droidsBuilt = 0;
@@ -101,52 +94,15 @@ strictfp class ArchonResourceManager {
 
         farthestArchonIndex = findArchonFarthestFromEnemies(true);
 
-        computeArchonRoles();
-
         RobotPlayer.rc.writeSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE, 0);
     }
 
     static void setArchonAlive(int index, boolean alive) {
         allyArchonModels[index].alive = alive;
-        computeArchonRoles();
-    }
-
-    /** Compute Archon roles */
-    static void computeArchonRoles() {
-        for (int i = 0; i < allyArchonModels.length; i++) {
-            allyArchonModels[i].updateNearestEnemyArchon();
-        }
-
-        int closestToEnemyDistanceSquared = 10000;
-        for (int i = 0; i < allyArchonModels.length; i++) {
-            if (!allyArchonModels[i].alive) {
-                continue;
-            }
-            if (allyArchonModels[i].nearestEnemyArchonDistanceSquared < closestToEnemyDistanceSquared) {
-                closestToEnemyDistanceSquared = allyArchonModels[i].nearestEnemyArchonDistanceSquared;
-            }
-        }
-
-        for (int i = 0; i < allyArchonModels.length; i++) {
-            if (!allyArchonModels[i].alive) {
-                continue;
-            }
-            if (allyArchonModels[i].nearestEnemyArchonDistanceSquared - closestToEnemyDistanceSquared <= 10) {
-                allyArchonModels[i].archonRole = ARCHON_ROLES.OFFENSIVE;
-            }
-            else {
-                allyArchonModels[i].archonRole = ARCHON_ROLES.NONOFFENSIVE;
-            }
-//            log("Archon at location " + ArchonTrackerManager.allyArchonTrackers[i].location + " allyArchonModels[" + i + "].archonRole: " + allyArchonModels[i].archonRole);
-        }
     }
 
     /** Compute Archon actions */
     static void computeArchonActions() throws GameActionException {
-        // TODO: Change check later for bytecode
-        // For location changes
-        computeArchonRoles();
-
         int turn = RobotPlayer.rc.getRoundNum();
         int totalDroidsBuilt = 0;
         int totalMinersBuilt = 0;
@@ -335,25 +291,6 @@ strictfp class ArchonResourceManager {
             if ((fewestIndex == -1 || allyArchonModels[i].buildersBuilt < allyArchonModels[fewestIndex].buildersBuilt)
                 && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
                 fewestIndex = i;
-            }
-        }
-        return fewestIndex;
-    }
-    static int findArchonWithFewestSoldiersBuilt(boolean ableToBuild, boolean offensiveArchonPreference) {
-        int fewestIndex = -1;
-        for (int i = 0; i < allyArchonModels.length; i++) {
-            if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
-                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))
-                && (!offensiveArchonPreference || allyArchonModels[i].archonRole == ARCHON_ROLES.OFFENSIVE)) {
-                fewestIndex = i;
-            }
-        }
-        if (fewestIndex == -1 && offensiveArchonPreference) {
-            for (int i = 0; i < allyArchonModels.length; i++) {
-                if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
-                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
-                    fewestIndex = i;
-                }
             }
         }
         return fewestIndex;
