@@ -116,7 +116,9 @@ strictfp class ArchonStrategy {
         RobotInfo[] actionableAllies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.actionRadiusSquared, RobotPlayer.rc.getTeam());
         for (int i = 0; i < actionableAllies.length; i++) {
             RobotInfo allyRobot = actionableAllies[i];
-            if (allyRobot.getHealth() < allyRobot.getType().getMaxHealth(allyRobot.getLevel())) {
+            if (allyRobot.getHealth() < allyRobot.getType().getMaxHealth(allyRobot.getLevel()) &&
+                !(allyRobot.getType().canAttack() && allyRobot.getHealth() >=
+                        CombatManager.HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING * allyRobot.getType().getMaxHealth(allyRobot.getLevel()))) {
                 if (RobotPlayer.rc.canRepair(allyRobot.location)) {
                     RobotPlayer.rc.repair(allyRobot.location);
                     return true;

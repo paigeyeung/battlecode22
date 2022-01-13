@@ -7,6 +7,7 @@ import battlecode.common.Team;
 
 strictfp class CombatManager {
     static boolean retreating = false;
+    static final double HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING = 0.2;
 
     enum COMBAT_DROID_ACTIONS {
         RETREAT,
@@ -124,7 +125,8 @@ strictfp class CombatManager {
             if (distToNearestAllyArchon > 25)
                 chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
             else {
-                if(RobotPlayer.rc.getHealth() < 0.2 * GeneralManager.myType.getMaxHealth(RobotPlayer.rc.getLevel())) {
+                if(RobotPlayer.rc.getHealth() < HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING
+                    * GeneralManager.myType.getMaxHealth(RobotPlayer.rc.getLevel())) {
                     if(distToNearestAllyArchon <= 4) {
                         DebugManager.log("I'm disintegrating");
                         RobotPlayer.rc.disintegrate();
