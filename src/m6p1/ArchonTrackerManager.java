@@ -1,4 +1,4 @@
-package m6;
+package m6p1;
 
 import battlecode.common.*;
 
@@ -37,7 +37,7 @@ strictfp class ArchonTrackerManager {
         MapLocation correspondingAllyArchonStartingLocation;
         boolean seen;
         ArrayList<MapLocation> guessLocations;
-        int guessLocation; // This can't ever be greater than 4, otherwise shared array breaks
+        int guessLocation = -1; // This can't ever be greater than 4, otherwise shared array breaks. Also setting to -1 to force proper initialization in constructor
         boolean missing;
         boolean guessLocationOverridden;
         MapLocation overriddenGuessLocation;
@@ -50,6 +50,11 @@ strictfp class ArchonTrackerManager {
             guessLocations = new ArrayList<>();
             for (int i = 0; i <= 1; i++) {
                 for (int j = 0; j <= 1; j++) {
+                    // If we're about to not apply a mirror on any axis
+                    if (i == 1 && j == 1) {
+                        continue;
+                    }
+
                     MapLocation oppositeLocation = GeneralManager.getOppositeLocation(correspondingAllyArchonStartingLocation, i == 0, j == 0);
                     boolean isValidGuess = true;
                     for (MapLocation previousGuessLocation : guessLocations) {
@@ -58,19 +63,26 @@ strictfp class ArchonTrackerManager {
                             break;
                         }
                     }
-                    if (isValidGuess) {
-                        for (int k = 0; k < _allyArchonTrackers.length; k++) {
-                            if (oppositeLocation.distanceSquaredTo(_allyArchonTrackers[k].location) <= 2) {
-                                isValidGuess = false;
-                                break;
-                            }
-                        }
-                    }
+
+                    // This flexible check no longer works because ally Archons can move, used fixed check instead
+//                    if (isValidGuess) {
+//                        for (int k = 0; k < _allyArchonTrackers.length; k++) {
+//                            if (oppositeLocation.distanceSquaredTo(_allyArchonTrackers[k].location) <= 2) {
+//                                isValidGuess = false;
+//                                break;
+//                            }
+//                        }
+//                    }
+
                     if (isValidGuess) {
                         guessLocations.add(oppositeLocation);
 //                        DebugManager.log("Add guess location " + location);
                     }
                 }
+            }
+//            DebugManager.log("Enemy Archon tracker " + index + " guess locations: " + guessLocations);
+            if (guessLocations.size() > 3) {
+                DebugManager.log("SOMETHING WENT WRONG: There are more than 3 guess locations!");
             }
 
             updateGuessLocation(_guessLocation);
@@ -90,20 +102,27 @@ strictfp class ArchonTrackerManager {
             if (missing) {
                 return null;
             }
-            return guessLocations.get(guessLocation);
+            if(guessLocation < guessLocations.size())
+                return guessLocations.get(guessLocation);
+
+            return null;
         }
 
         void goToNextGuessLocation() {
-            guessLocation++;
-            updateGuessLocation(guessLocation);
-            DebugManager.log("Enemy Archon tracker new guess location: " + getGuessLocation());
+            updateGuessLocation(guessLocation + 1);
+            DebugManager.log("Enemy Archon tracker " + index + " new guess location: " + getGuessLocation());
         }
 
         void updateGuessLocation(int _guessLocation) {
+            if (guessLocation == _guessLocation) {
+                return;
+            }
+
+//            int debugOldGuessLocation = guessLocation;
             guessLocation = _guessLocation;
-            if (guessLocation >= guessLocations.size()) {
-                guessLocation = guessLocations.size();
-//                DebugManager.log("Enemy Archon tracker ran out of guess locations!");
+//            DebugManager.log("Enemy Archon tracker " + index + " updated guess location from " + debugOldGuessLocation + " to " + guessLocation);
+            if (guessLocation == guessLocations.size()) {
+//                DebugManager.log("Enemy Archon tracker " + index + " ran out of guess locations!");
                 missing = true;
             }
             else {
@@ -241,6 +260,23 @@ strictfp class ArchonTrackerManager {
         enemyArchonTrackers[index].alive = alive;
         updateGlobalEnemyArchonTracker(index);
     }
+    static void setEnemyArchonAlive(MapLocation location, boolean alive) throws GameActionException {
+        int index = -1;
+        for (int i = 0; i < enemyArchonTrackers.length; i++) {
+            if (!enemyArchonTrackers[i].guessLocationOverridden) {
+                continue;
+            }
+            if (enemyArchonTrackers[i].overriddenGuessLocation.equals(location)) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            DebugManager.log("SOMETHING WENT WRONG: Didn't find enemy Archon at location " + location + " while trying to set alive " + alive);
+            return;
+        }
+        setEnemyArchonAlive(index, alive);
+    }
     static void setEnemyArchonSeen(int index, boolean seen) throws GameActionException {
         DebugManager.log("Set enemy Archon " + index + " seen " + seen);
         enemyArchonTrackers[index].seen = seen;
@@ -251,19 +287,62 @@ strictfp class ArchonTrackerManager {
         enemyArchonTrackers[index].goToNextGuessLocation();
         updateGlobalEnemyArchonTracker(index);
     }
-    static void unmissingEnemyArchon(MapLocation location) throws GameActionException {
-        DebugManager.log("Unmissing enemy Archon at " + location);
+    static void setEnemyArchonMissing(int index) throws GameActionException {
+        DebugManager.log("Set enemy Archon " + index + " missing");
+        enemyArchonTrackers[index].seen = false;
+        enemyArchonTrackers[index].updateGuessLocation(3);
+        updateGlobalEnemyArchonTracker(index);
+    }
+    static void foundEnemyArchon(MapLocation location) throws GameActionException {
+        DebugManager.log("Found enemy Archon at " + location);
+        // Check for missing enemy Archons
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
             if (!enemyArchonTrackers[i].alive) {
                 continue;
             }
-            if (enemyArchonTrackers[i].missing) {
+            if (enemyArchonTrackers[i].missing && !enemyArchonTrackers[i].seen && !enemyArchonTrackers[i].guessLocationOverridden) {
+                DebugManager.log("Decided to find missing enemy Archon " + i);
                 enemyArchonTrackers[i].update(true, location, true, 0, true);
                 updateGlobalEnemyArchonTracker(i);
                 return;
             }
         }
-        DebugManager.log("SOMETHING WENT WRONG: Tried to unmissing enemy Archon but didn't find one to");
+        // Check for unseen enemy Archons
+        for (int i = 0; i < enemyArchonTrackers.length; i++) {
+            if (!enemyArchonTrackers[i].alive) {
+                continue;
+            }
+            if (!enemyArchonTrackers[i].seen && !enemyArchonTrackers[i].guessLocationOverridden) {
+                DebugManager.log("Decided to find unseen enemy Archon " + i);
+                enemyArchonTrackers[i].update(true, location, true, 0, true);
+                updateGlobalEnemyArchonTracker(i);
+                return;
+            }
+        }
+        // No missing or unseen enemy Archons, so some enemy Archon relocated since we've last seen it
+        // Check for enemy Archons without overridden locations
+        for (int i = 0; i < enemyArchonTrackers.length; i++) {
+            if (!enemyArchonTrackers[i].alive) {
+                continue;
+            }
+            if (!enemyArchonTrackers[i].guessLocationOverridden) {
+                DebugManager.log("Decided to find un-guess-location-overridden enemy Archon " + i);
+                enemyArchonTrackers[i].update(true, location, true, 0, true);
+                updateGlobalEnemyArchonTracker(i);
+                return;
+            }
+        }
+        // Check for any enemy Archons
+        for (int i = 0; i < enemyArchonTrackers.length; i++) {
+            if (!enemyArchonTrackers[i].alive) {
+                continue;
+            }
+            DebugManager.log("Decided to find normal enemy Archon " + i);
+            enemyArchonTrackers[i].update(true, location, true, 0, true);
+            updateGlobalEnemyArchonTracker(i);
+            return;
+        }
+        DebugManager.log("SOMETHING WENT WRONG: Does this mean no enemy Archons are alive?");
     }
 
     /** Get functions */
@@ -279,7 +358,12 @@ strictfp class ArchonTrackerManager {
     static int getNearestEnemyArchon(MapLocation fromLocation) {
         int nearest = -1;
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (enemyArchonTrackers[i].alive && !enemyArchonTrackers[i].missing && (nearest == -1 || enemyArchonTrackers[i].getGuessLocation().distanceSquaredTo(fromLocation) < enemyArchonTrackers[nearest].getGuessLocation().distanceSquaredTo(fromLocation))) {
+            if (enemyArchonTrackers[i].alive && !enemyArchonTrackers[i].missing &&
+                    (nearest == -1 ||
+                            ((fromLocation != null &&
+                                    enemyArchonTrackers[i].getGuessLocation() != null
+                                    && enemyArchonTrackers[nearest].getGuessLocation() != null) &&
+                                    enemyArchonTrackers[i].getGuessLocation().distanceSquaredTo(fromLocation) < enemyArchonTrackers[nearest].getGuessLocation().distanceSquaredTo(fromLocation)))) {
                 nearest = i;
             }
         }
@@ -335,7 +419,7 @@ strictfp class ArchonTrackerManager {
 
     static boolean existsEnemyArchonAtLocation(MapLocation location) {
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (!enemyArchonTrackers[i].alive || !enemyArchonTrackers[i].missing) {
+            if (!enemyArchonTrackers[i].alive || enemyArchonTrackers[i].missing) {
                 continue;
             }
             if (location.equals(enemyArchonTrackers[i].getGuessLocation())) {

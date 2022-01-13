@@ -1,4 +1,4 @@
-package m6;
+package m6p1;
 
 import battlecode.common.*;
 
@@ -54,7 +54,7 @@ strictfp class ArchonResourceManager {
             else {
                 if(ArchonTrackerManager.enemyArchonTrackers[nearestEnemyArchon].getGuessLocation() != null)
                     nearestEnemyArchonDistanceSquared =
-                            ArchonTrackerManager.allyArchonTrackers[index].location.distanceSquaredTo(ArchonTrackerManager.enemyArchonTrackers[nearestEnemyArchon].getGuessLocation());
+                        ArchonTrackerManager.allyArchonTrackers[index].location.distanceSquaredTo(ArchonTrackerManager.enemyArchonTrackers[nearestEnemyArchon].getGuessLocation());
             }
         }
 
@@ -200,8 +200,8 @@ strictfp class ArchonResourceManager {
 
             MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(ArchonTrackerManager.allyArchonTrackers[i].location);
             if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON
-                    && (nearestEnemyArchonLoc != null && GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)
-                    > ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(nearestEnemyArchonLoc))) {
+                && (nearestEnemyArchonLoc != null && GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)
+                > ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(nearestEnemyArchonLoc))) {
                 if (farthestAllyArchonLoc.distanceSquaredTo(ArchonTrackerManager.allyArchonTrackers[i].location) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
                     allyArchonModels[i].setActionMove();
                     DebugManager.log("I'm Archon " + ArchonStrategy.mySharedArrayIndex + " and I want ally Archon " + i + " at " + ArchonTrackerManager.allyArchonTrackers[i].location + " to move");
@@ -313,7 +313,7 @@ strictfp class ArchonResourceManager {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].droidsBuilt < allyArchonModels[fewestIndex].droidsBuilt)
-                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
                 fewestIndex = i;
             }
         }
@@ -323,7 +323,7 @@ strictfp class ArchonResourceManager {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].minersBuilt < allyArchonModels[fewestIndex].minersBuilt)
-                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
                 fewestIndex = i;
             }
         }
@@ -333,7 +333,7 @@ strictfp class ArchonResourceManager {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].buildersBuilt < allyArchonModels[fewestIndex].buildersBuilt)
-                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
                 fewestIndex = i;
             }
         }
@@ -343,15 +343,15 @@ strictfp class ArchonResourceManager {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
-                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))
-                    && (!offensiveArchonPreference || allyArchonModels[i].archonRole == ARCHON_ROLES.OFFENSIVE)) {
+                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))
+                && (!offensiveArchonPreference || allyArchonModels[i].archonRole == ARCHON_ROLES.OFFENSIVE)) {
                 fewestIndex = i;
             }
         }
         if (fewestIndex == -1 && offensiveArchonPreference) {
             for (int i = 0; i < allyArchonModels.length; i++) {
                 if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
-                        && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
                     fewestIndex = i;
                 }
             }
@@ -388,14 +388,14 @@ strictfp class ArchonResourceManager {
         if (allEnemies) {
             for (int i = allyArchonModels.length - 1; i >= 0; i--) {
                 if (!allyArchonModels[i].alive) continue;
-                int dist = 0;
-                for (ArchonTrackerManager.EnemyArchonTracker enemyArchonTracker : ArchonTrackerManager.enemyArchonTrackers) {
-                    if(enemyArchonTracker.getGuessLocation() != null)
-                        dist += ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(enemyArchonTracker.getGuessLocation());
-                }
-                if (dist > maxDist) {
-                    farthestIndex = i;
-                }
+                    int dist = 0;
+                    for (ArchonTrackerManager.EnemyArchonTracker enemyArchonTracker : ArchonTrackerManager.enemyArchonTrackers) {
+                        if(enemyArchonTracker.getGuessLocation() != null)
+                            dist += ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(enemyArchonTracker.getGuessLocation());
+                    }
+                    if (dist > maxDist) {
+                        farthestIndex = i;
+                    }
             }
         }
         else {
