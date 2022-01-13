@@ -8,12 +8,16 @@ public strictfp class RobotPlayer {
     public static void run(RobotController _rc) throws GameActionException {
         rc = _rc;
 
+        // Once per game statics
+        GeneralManager.myType = rc.getType();
         GeneralManager.startingLocation = rc.getLocation();
         GeneralManager.mapWidth = rc.getMapWidth();
         GeneralManager.mapHeight = rc.getMapHeight();
 
         while (true) {
+            // Once per turn statics
             GeneralManager.turnsAlive++;
+            GeneralManager.myLocation = rc.getLocation();
 
             try {
                 AllUnitStrategy.runAllEarly();

@@ -8,8 +8,6 @@ strictfp class MinerStrategy {
 
     /** Called by RobotPlayer **/
     static void runMiner() throws GameActionException {
-        MapLocation myLocation = RobotPlayer.rc.getLocation();
-
         if (visited == null) {
             visited = new boolean[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
         }
@@ -17,7 +15,7 @@ strictfp class MinerStrategy {
         // Try to mine gold
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
-                MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
+                MapLocation mineLocation = new MapLocation(GeneralManager.myLocation.x + dx, GeneralManager.myLocation.y + dy);
                 while (RobotPlayer.rc.canMineGold(mineLocation)) {
                     RobotPlayer.rc.mineGold(mineLocation);
                 }
@@ -27,7 +25,7 @@ strictfp class MinerStrategy {
         // Try to mine lead
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
-                MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
+                MapLocation mineLocation = new MapLocation(GeneralManager.myLocation.x + dx, GeneralManager.myLocation.y + dy);
                 while (RobotPlayer.rc.canMineLead(mineLocation) && (depleteLead || RobotPlayer.rc.senseLead(mineLocation) > 1)) {
                     RobotPlayer.rc.mineLead(mineLocation);
                 }
@@ -45,16 +43,16 @@ strictfp class MinerStrategy {
             int depleteLeadScore = 0;
 
             // If nearby enemy units greater than nearby ally units
-            RobotInfo[] nearbyAllies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, RobotPlayer.rc.getTeam());
-            RobotInfo[] nearbyEnemies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, RobotPlayer.rc.getTeam().opponent());
+            RobotInfo[] nearbyAllies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, RobotPlayer.rc.getTeam());
+            RobotInfo[] nearbyEnemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, RobotPlayer.rc.getTeam().opponent());
             depleteLeadScore += nearbyEnemies.length - nearbyAllies.length;
 
             // If nearest enemy Archon closer to nearest ally Archon
-            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(myLocation);
-            MapLocation nearestEnemyArchonLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation);
+            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
+            MapLocation nearestEnemyArchonLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(GeneralManager.myLocation);
             if (nearestAllyArchonLocation != null && nearestEnemyArchonLocation != null) {
-                int nearestAllyArchonDistanceSquared = myLocation.distanceSquaredTo(nearestAllyArchonLocation);
-                int nearestEnemyArchonDistanceSquared = myLocation.distanceSquaredTo(nearestEnemyArchonLocation);
+                int nearestAllyArchonDistanceSquared = GeneralManager.myLocation.distanceSquaredTo(nearestAllyArchonLocation);
+                int nearestEnemyArchonDistanceSquared = GeneralManager.myLocation.distanceSquaredTo(nearestEnemyArchonLocation);
                 int proportion = nearestAllyArchonDistanceSquared / (nearestAllyArchonDistanceSquared + nearestEnemyArchonDistanceSquared);
                 if (proportion > 0.5) {
                     depleteLeadScore += proportion * 5;
@@ -78,7 +76,7 @@ strictfp class MinerStrategy {
 
         // See if any enemy attack bots
         Team opponent = RobotPlayer.rc.getTeam().opponent();
-        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, opponent);
+        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, opponent);
 
 //        boolean hostileEnemiesNearby = false;
 //        for (RobotInfo enemy : enemies) {

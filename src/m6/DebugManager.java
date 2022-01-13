@@ -32,7 +32,7 @@ strictfp class DebugManager {
                 archonMismatchTurns = 0;
             }
 
-            if (RobotPlayer.rc.getType() == RobotType.ARCHON) {
+            if (GeneralManager.myType == RobotType.ARCHON) {
                 // Check ArchonTrackerManager consistent with ArchonResourceManager
                 for (int i = 0; i < ArchonTrackerManager.allyArchonTrackers.length; i++) {
                     if (ArchonTrackerManager.allyArchonTrackers[i].alive != ArchonResourceManager.allyArchonModels[i].alive) {

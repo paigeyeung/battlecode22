@@ -119,31 +119,31 @@ public strictfp class RobotPlayer {
      * (a2 & (1 << 2)) != 0 - 8 bytecode
      */
 
+    static RobotType myType;
+    static MapLocation myLocation;
     static void runArchon(RobotController rc) throws GameActionException {
-        int mapWidth = 60, mapHeight = 60;
-        MapLocation myLocation = rc.getLocation();
-
-        startBytecodeTracker();
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
-                rc.canMineLead(mineLocation);
+        if (rc.getRoundNum() == 1) {
+            startBytecodeTracker();
+            myType = rc.getType();
+            for (int i = 0; i < 100; i++) {
+                myLocation = rc.getLocation();
+                for (int j = 0; j < 10; j++) {
+                    System.out.println(myType + " " + myLocation);
+                }
             }
+            endBytecodeTracker();
         }
-        endBytecodeTracker();
-
-        startBytecodeTracker();
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                MapLocation mineLocation = new MapLocation(myLocation.x + dx, myLocation.y + dy);
-                rc.canMineLead(mineLocation);
-                rc.senseLead(mineLocation);
+        else {
+            startBytecodeTracker();
+            for (int i = 0; i < 100; i++) {
+                for (int j = 0; j < 10; j++) {
+                    System.out.println(rc.getType() + " " + rc.getLocation());
+                }
             }
-        }
-        endBytecodeTracker();
+            endBytecodeTracker();
 
-        System.out.println("Total bytecode used: " + Clock.getBytecodeNum());
-        rc.resign();
+            rc.resign();
+        }
     }
 
     static int testVar = 1;

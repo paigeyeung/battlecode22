@@ -195,7 +195,7 @@ strictfp class ArchonTrackerManager {
             allyArchonTrackers[index].update(alive, location, toggle);
         }
 
-        if (RobotPlayer.rc.getType() == RobotType.ARCHON && GeneralManager.turnsAlive > 2) {
+        if (GeneralManager.myType == RobotType.ARCHON && GeneralManager.turnsAlive > 2) {
             ArchonResourceManager.setArchonAlive(index, alive);
         }
     }
@@ -222,7 +222,7 @@ strictfp class ArchonTrackerManager {
         allyArchonTrackers[index].alive = alive;
         updateGlobalAllyArchonTracker(index);
 
-        if (RobotPlayer.rc.getType() == RobotType.ARCHON) {
+        if (GeneralManager.myType == RobotType.ARCHON) {
             ArchonResourceManager.setArchonAlive(index, alive);
         }
     }

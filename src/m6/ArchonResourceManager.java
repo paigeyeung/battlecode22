@@ -354,7 +354,7 @@ strictfp class ArchonResourceManager {
 
     static int findArchonNeedingSoldiers(boolean ableToBuild) {
         int fewestIndex = -1;
-//        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared,RobotPlayer.rc.getTeam().opponent());
+//        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared,RobotPlayer.rc.getTeam().opponent());
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
                     && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {

@@ -28,15 +28,14 @@ strictfp class ArchonStrategy {
 
     /** Try to build a droid, returns boolean if successful */
     static boolean archonTryBuild(RobotType robotType) throws GameActionException {
-        MapLocation myLocation = RobotPlayer.rc.getLocation();
         Direction preferredDirection = null;
         if (robotType == RobotType.MINER) {
             if (nearestLeadLocation != null) {
-                preferredDirection = myLocation.directionTo(nearestLeadLocation);
+                preferredDirection = GeneralManager.myLocation.directionTo(nearestLeadLocation);
             }
         }
         else if (robotType == RobotType.SOLDIER) {
-            preferredDirection = myLocation.directionTo(ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation));
+            preferredDirection = GeneralManager.myLocation.directionTo(ArchonTrackerManager.getNearestEnemyArchonGuessLocation(GeneralManager.myLocation));
         }
         Direction buildDirection = GeneralManager.getBuildDirection(robotType, preferredDirection);
         if (buildDirection != null) {
@@ -114,7 +113,7 @@ strictfp class ArchonStrategy {
     }
 
     static boolean archonTryRepair() throws GameActionException {
-        RobotInfo[] actionableAllies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().actionRadiusSquared, RobotPlayer.rc.getTeam());
+        RobotInfo[] actionableAllies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.actionRadiusSquared, RobotPlayer.rc.getTeam());
         for (int i = 0; i < actionableAllies.length; i++) {
             RobotInfo allyRobot = actionableAllies[i];
             if (allyRobot.getHealth() < allyRobot.getType().getMaxHealth(allyRobot.getLevel())) {
@@ -129,8 +128,6 @@ strictfp class ArchonStrategy {
 
     /** Called by RobotPlayer */
     static void runArchon() throws GameActionException {
-        MapLocation myLocation = RobotPlayer.rc.getLocation();
-
         if (visited == null) {
             visited = new boolean[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
         }
@@ -151,8 +148,8 @@ strictfp class ArchonStrategy {
                 DebugManager.log("SOMETHING WENT WRONG: Archon did not find empty array element");
             }
             else {
-                ArchonTrackerManager.updateGlobalAllyArchonTrackerFirstTime(mySharedArrayIndex, true, myLocation, mySharedArrayToggle);
-                ArchonTrackerManager.updateGlobalEnemyArchonTrackerFirstTime(mySharedArrayIndex, true, myLocation, false, 0, false);
+                ArchonTrackerManager.updateGlobalAllyArchonTrackerFirstTime(mySharedArrayIndex, true, GeneralManager.myLocation, mySharedArrayToggle);
+                ArchonTrackerManager.updateGlobalEnemyArchonTrackerFirstTime(mySharedArrayIndex, true, GeneralManager.myLocation, false, 0, false);
             }
 
             // Initialize resource manager

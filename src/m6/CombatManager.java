@@ -24,7 +24,7 @@ strictfp class CombatManager {
             // Increase score by 0-10 based on percent of missing health
             double thisEnemyScore = 10 * (1 - thisEnemy.getHealth() / thisEnemy.getType().getMaxHealth(thisEnemy.level));
             // Increase score by 100 if I can one shot kill
-            if (RobotPlayer.rc.getType().getDamage(RobotPlayer.rc.getLevel()) >= thisEnemy.getHealth()) {
+            if (GeneralManager.myType.getDamage(RobotPlayer.rc.getLevel()) >= thisEnemy.getHealth()) {
                 thisEnemyScore += 100;
             }
             // Increase score by 0-50 based on target type
@@ -50,7 +50,7 @@ strictfp class CombatManager {
 
     /** Try to perform an attack, returns boolean if successful */
     static boolean tryAttack() throws GameActionException {
-        MapLocation attackLocation = getAttackTarget(RobotPlayer.rc.getType().actionRadiusSquared);
+        MapLocation attackLocation = getAttackTarget(GeneralManager.myType.actionRadiusSquared);
         if (attackLocation != null) {
             RobotPlayer.rc.attack(attackLocation);
             return true;
@@ -88,7 +88,7 @@ strictfp class CombatManager {
 
     /** Calculates combat score for all locally visible robots of team */
     static double evaluateLocalCombatScore(Team team, boolean defensive) throws GameActionException {
-        RobotInfo[] visibleRobots = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared,
+        RobotInfo[] visibleRobots = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared,
                 team);
         double combatScore = 0;
         for (int i = 0; i < visibleRobots.length; i++) {
@@ -96,7 +96,7 @@ strictfp class CombatManager {
         }
         // Include self in calculation if on same team
         if (team == RobotPlayer.rc.getTeam()) {
-            combatScore += calculateRobotCombatScore(new RobotInfo(RobotPlayer.rc.getID(), RobotPlayer.rc.getTeam(), RobotPlayer.rc.getType(), RobotPlayer.rc.getMode(), RobotPlayer.rc.getLevel(), RobotPlayer.rc.getHealth(), RobotPlayer.rc.getLocation()), defensive);
+            combatScore += calculateRobotCombatScore(new RobotInfo(RobotPlayer.rc.getID(), RobotPlayer.rc.getTeam(), GeneralManager.myType, RobotPlayer.rc.getMode(), RobotPlayer.rc.getLevel(), RobotPlayer.rc.getHealth(), RobotPlayer.rc.getLocation()), defensive);
         }
         return combatScore;
     }
@@ -124,7 +124,7 @@ strictfp class CombatManager {
             if (distToNearestAllyArchon > 25)
                 chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
             else {
-                if(RobotPlayer.rc.getHealth() < 0.2 * RobotPlayer.rc.getType().getMaxHealth(RobotPlayer.rc.getLevel())) {
+                if(RobotPlayer.rc.getHealth() < 0.2 * GeneralManager.myType.getMaxHealth(RobotPlayer.rc.getLevel())) {
                     if(distToNearestAllyArchon <= 4) {
                         DebugManager.log("I'm disintegrating");
                         RobotPlayer.rc.disintegrate();

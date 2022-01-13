@@ -30,7 +30,7 @@ strictfp class BuilderStrategy {
     /** Called by RobotPlayer */
     static void runBuilder() throws GameActionException {
         // Try to repair prototype building
-        RobotInfo[] actionableAllies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().actionRadiusSquared, RobotPlayer.rc.getTeam());
+        RobotInfo[] actionableAllies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.actionRadiusSquared, RobotPlayer.rc.getTeam());
         for (int i = 0; i < actionableAllies.length; i++) {
             RobotInfo allyRobot = actionableAllies[i];
             if (Arrays.asList(GeneralManager.BUILDINGS).contains(allyRobot.getType())) {
@@ -64,6 +64,7 @@ strictfp class BuilderStrategy {
             Direction dir = GeneralManager.getRandomDirection();
             if (RobotPlayer.rc.canMove(dir)) {
                 RobotPlayer.rc.move(dir);
+                GeneralManager.myLocation = RobotPlayer.rc.getLocation();
             }
         }
     }

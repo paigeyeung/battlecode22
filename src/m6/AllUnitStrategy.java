@@ -45,17 +45,15 @@ strictfp class AllUnitStrategy {
             return;
         }
 
-        MapLocation myLocation = RobotPlayer.rc.getLocation();
-
         // If this is near the start of the game, check if this is the first time we see an enemy near this Archon
         // It would be nice for Archons to run this too, but may screw up ArchonResourceManager if shared array is modified in between Archon turns
-        if (Clock.getBytecodesLeft() > 1000 && RobotPlayer.rc.getType() != RobotType.ARCHON) {
+        if (Clock.getBytecodesLeft() > 1000 && GeneralManager.myType != RobotType.ARCHON) {
             int encodedAllyArchonAdditionalInfo = RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO);
-            int nearestAllyArchon = ArchonTrackerManager.getNearestAllyArchon(myLocation);
+            int nearestAllyArchon = ArchonTrackerManager.getNearestAllyArchon(GeneralManager.myLocation);
             boolean seenEnemy = ((encodedAllyArchonAdditionalInfo >>> nearestAllyArchon) & 0x1) == 1;
             if (!seenEnemy) {
                 // There is an enemy
-                if (RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared, RobotPlayer.rc.getTeam().opponent()).length > 0) {
+                if (RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, RobotPlayer.rc.getTeam().opponent()).length > 0) {
                     encodedAllyArchonAdditionalInfo = encodedAllyArchonAdditionalInfo | (1 << nearestAllyArchon);
                     RobotPlayer.rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO, encodedAllyArchonAdditionalInfo);
                     DebugManager.log("First time seen enemy near Archon " + nearestAllyArchon);
@@ -69,7 +67,7 @@ strictfp class AllUnitStrategy {
                 boolean toggleBefore = ArchonTrackerManager.allyArchonTrackers[i].toggle;
                 ArchonTrackerManager.decodeAndUpdateLocalAllyArchonTracker(i, false);
                 boolean toggleAfter = ArchonTrackerManager.allyArchonTrackers[i].toggle;
-                if (RobotPlayer.rc.getType() == RobotType.ARCHON && ArchonStrategy.mySharedArrayIndex != i && ArchonTrackerManager.allyArchonTrackers[i].alive && updatedArchonsLastTurn && toggleBefore == toggleAfter) {
+                if (GeneralManager.myType == RobotType.ARCHON && ArchonStrategy.mySharedArrayIndex != i && ArchonTrackerManager.allyArchonTrackers[i].alive && updatedArchonsLastTurn && toggleBefore == toggleAfter) {
                     // Toggle did not change since last turn, so ally Archon is dead
                     ArchonTrackerManager.setAllyArchonAlive(i, false);
                 }
@@ -85,7 +83,7 @@ strictfp class AllUnitStrategy {
 
         // If an enemy Archon is seen or destroyed, broadcast it to shared array
         if (Clock.getBytecodesLeft() > 1000) {
-            int visionRadiusSquared = RobotPlayer.rc.getType().visionRadiusSquared;
+            int visionRadiusSquared = GeneralManager.myType.visionRadiusSquared;
 
             // Check for alive and nonmissing enemy Archons
             for (int i = 0; i < ArchonTrackerManager.enemyArchonTrackers.length; i++) {
@@ -97,7 +95,7 @@ strictfp class AllUnitStrategy {
                 MapLocation guessLocation = ArchonTrackerManager.enemyArchonTrackers[i].getGuessLocation();
                 // if (rc.canSenseLocation(estimatedLocation)) {
                 // ^ Doesn't work for some reason, bug in Battlecode?
-                if (myLocation.distanceSquaredTo(guessLocation) <= visionRadiusSquared - 2) {
+                if (GeneralManager.myLocation.distanceSquaredTo(guessLocation) <= visionRadiusSquared - 2) {
                     RobotInfo robotInfo = RobotPlayer.rc.senseRobotAtLocation(guessLocation);
                     boolean enemyArchonSeen = !(robotInfo == null || robotInfo.getType() != RobotType.ARCHON || robotInfo.getTeam() == RobotPlayer.rc.getTeam());
                     if (ArchonTrackerManager.enemyArchonTrackers[i].seen) {

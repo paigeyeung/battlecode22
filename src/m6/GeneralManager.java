@@ -43,9 +43,14 @@ strictfp class GeneralManager {
         return DIRECTIONS[rng.nextInt(DIRECTIONS.length)];
     }
 
+    /** Statics that are set once at start of game */
+    static RobotType myType;
+    static MapLocation startingLocation;
+    static int mapWidth, mapHeight;
+
+    /** Statics that are updated once per turn at start of turn */
     static int turnsAlive = 0;
-    static MapLocation startingLocation = null;
-    static int mapWidth = 0, mapHeight = 0;
+    static MapLocation myLocation;
 
     /** Get center the map */
     static MapLocation getMapCenter() {
@@ -153,7 +158,6 @@ strictfp class GeneralManager {
 
     /** Get best build direction relative to preferred direction, returns null if no direction is found */
     static Direction getBuildDirection(RobotType robotType, Direction preferredDirection) throws GameActionException {
-        MapLocation myLocation = RobotPlayer.rc.getLocation();
         if (preferredDirection == null) {
             preferredDirection = getRandomDirection();
         }
@@ -189,6 +193,7 @@ strictfp class GeneralManager {
     static boolean tryMove(Direction direction, boolean moveRandomlyIfFailed) throws GameActionException {
         if (direction != null && RobotPlayer.rc.canMove(direction)) {
             RobotPlayer.rc.move(direction);
+            GeneralManager.myLocation = RobotPlayer.rc.getLocation();
             return true;
         }
 
@@ -201,6 +206,7 @@ strictfp class GeneralManager {
             }
             if (RobotPlayer.rc.canMove(direction)) {
                 RobotPlayer.rc.move(direction);
+                GeneralManager.myLocation = RobotPlayer.rc.getLocation();
                 return true;
             }
         }
@@ -209,8 +215,7 @@ strictfp class GeneralManager {
 
     /** Get nearest location with lead, expensive bytecode, will not return myLocation even if I'm sitting on lead */
     static MapLocation getNearestLeadLocation() throws GameActionException {
-        MapLocation myLocation = RobotPlayer.rc.getLocation();
-        MapLocation[] locations = RobotPlayer.rc.senseNearbyLocationsWithLead(RobotPlayer.rc.getType().visionRadiusSquared);
+        MapLocation[] locations = RobotPlayer.rc.senseNearbyLocationsWithLead(GeneralManager.myType.visionRadiusSquared);
         MapLocation nearestLocation = null;
         for (int i = 0; i < locations.length; i++) {
             if ((nearestLocation == null || myLocation.distanceSquaredTo(locations[i]) < myLocation.distanceSquaredTo(nearestLocation))

@@ -20,27 +20,25 @@ strictfp class SoldierStrategy {
             return;
         }
 
-        MapLocation myLocation = RobotPlayer.rc.getLocation();
-
         CombatManager.COMBAT_DROID_ACTIONS action = CombatManager.getCombatDroidAction();
         if (action == CombatManager.COMBAT_DROID_ACTIONS.ATTACK) {
             if (CombatManager.tryAttack()) {
                 // Try to attack
             }
             else {
-                MapLocation visibleAttackTarget = CombatManager.getAttackTarget(RobotPlayer.rc.getType().visionRadiusSquared);
+                MapLocation visibleAttackTarget = CombatManager.getAttackTarget(GeneralManager.myType.visionRadiusSquared);
                 if (visibleAttackTarget != null) {
                     // Move towards nearest visible enemy
                     GeneralManager.tryMove(getNextSoldierDir(visibleAttackTarget), false);
                 }
                 else {
-                    MapLocation nearestEnemyArchonGuessLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(myLocation);
+                    MapLocation nearestEnemyArchonGuessLocation = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(GeneralManager.myLocation);
                     if (nearestEnemyArchonGuessLocation != null) {
                         // If no enemies are visible, move towards nearest enemy Archon
                         GeneralManager.tryMove(getNextSoldierDir(nearestEnemyArchonGuessLocation), false);
                     }
                     else {
-                        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(myLocation);
+                        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
                         // Unless there is no known enemy Archon
                         // Then move towards the center of the map
 //                        GeneralManager.tryMove(getNextSoldierDir(GeneralManager.getMapCenter()), true);
@@ -50,7 +48,7 @@ strictfp class SoldierStrategy {
             }
         }
         else if (action == CombatManager.COMBAT_DROID_ACTIONS.RETREAT) {
-            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(myLocation);
+            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
 //            if (myLocation.distanceSquaredTo(nearestAllyArchonLocation) > 10) {
 //                // Move towards nearest ally Archon
 //                GeneralManager.tryMove(getNextSoldierDir(nearestAllyArchonLocation), true);
@@ -64,7 +62,7 @@ strictfp class SoldierStrategy {
             }
         }
         if (action == CombatManager.COMBAT_DROID_ACTIONS.HOLD) {
-            RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().visionRadiusSquared);
+            RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared);
             if(enemies.length > 0) {
                 GeneralManager.tryMove(getNextSoldierDir(enemies[(int)(Math.random()*enemies.length)].location),false);
             }
@@ -93,7 +91,7 @@ strictfp class SoldierStrategy {
 
         if(myLoc.equals(dest)) return null;
         if(myLoc.distanceSquaredTo(dest) <= myLoc.distanceSquaredTo(nearestAllyArchonLocation))
-            return GeneralManager.getDirToEncircle(dest,RobotPlayer.rc.getType().actionRadiusSquared);
+            return GeneralManager.getDirToEncircle(dest,GeneralManager.myType.actionRadiusSquared);
 
         Direction movementDir = null;
 
