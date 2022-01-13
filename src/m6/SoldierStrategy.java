@@ -56,7 +56,7 @@ strictfp class SoldierStrategy {
 //            else {
 //                action = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
 //            }
-            GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation,4), true);
+            GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation,4), false);
             if (CombatManager.tryAttack()) {
                 // Try to attack
             }
@@ -102,7 +102,7 @@ strictfp class SoldierStrategy {
                 MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
                 int newDist = adj.distanceSquaredTo(dest);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
-                int newF = (int)Math.sqrt(newDist) * 2 + newRubble + 20*visitedTurns[adj.x][adj.y];
+                int newF = (int)Math.sqrt(newDist) * 4 + newRubble + 20*visitedTurns[adj.x][adj.y];
 
                 MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj,2);
 
