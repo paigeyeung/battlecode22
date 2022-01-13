@@ -50,4 +50,9 @@ strictfp class CommunicationManager {
      * 8 unused | 8 combat score
      */
     static final int SAVED_ENEMY_COMBAT_SCORE = 12;
+
+    /**
+     * Number of soldiers scouting (combine with above)
+     */
+    static final int SCOUT_COUNT = 13;
 }
