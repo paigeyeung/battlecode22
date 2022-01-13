@@ -1,32 +1,36 @@
 package m6;
 
-import battlecode.common.GameActionException;
-import battlecode.common.MapLocation;
-import battlecode.common.RobotInfo;
-import battlecode.common.Team;
+import battlecode.common.*;
 
 strictfp class CombatManager {
-    static boolean retreating = false;
-    static final double HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING = 0.2;
-
     enum COMBAT_DROID_ACTIONS {
         RETREAT,
         HOLD,
         ATTACK
     }
 
+    static boolean retreating = false;
+    static final double HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING = 0.2;
+
+    static boolean lastAttackTargetIsOneShotKill = false;
+    static boolean lastAttackTargetIsArchon = false;
+
     /** Select an enemy to attack, returns null if no enemy is found */
     static MapLocation getAttackTarget(int radius) {
         RobotInfo[] actionableEnemies = RobotPlayer.rc.senseNearbyRobots(radius, RobotPlayer.rc.getTeam().opponent());
         RobotInfo targetEnemy = null;
         double targetEnemyScore = -1;
+        boolean targetIsOneShotKill = false;
+        boolean targetIsArchon = false;
         for (int i = 0; i < actionableEnemies.length; i++) {
             RobotInfo thisEnemy = actionableEnemies[i];
             // Increase score by 0-10 based on percent of missing health
             double thisEnemyScore = 10 * (1 - thisEnemy.getHealth() / thisEnemy.getType().getMaxHealth(thisEnemy.level));
             // Increase score by 100 if I can one shot kill
+            boolean thisTargetIsOneShotKill = false;
             if (GeneralManager.myType.getDamage(RobotPlayer.rc.getLevel()) >= thisEnemy.getHealth()) {
                 thisEnemyScore += 100;
+                thisTargetIsOneShotKill = true;
             }
             // Increase score by 0-50 based on target type
             switch (thisEnemy.getType()) {
@@ -41,19 +45,26 @@ strictfp class CombatManager {
             if ((targetEnemy == null || thisEnemyScore > targetEnemyScore) && RobotPlayer.rc.canAttack(thisEnemy.location)) {
                 targetEnemy = thisEnemy;
                 targetEnemyScore = thisEnemyScore;
+                targetIsOneShotKill = thisTargetIsOneShotKill;
+                targetIsArchon = thisEnemy.getType() == RobotType.ARCHON;
             }
         }
         if (targetEnemy == null) {
             return null;
         }
+        lastAttackTargetIsOneShotKill = targetIsOneShotKill;
+        lastAttackTargetIsArchon = targetIsArchon;
         return targetEnemy.location;
     }
 
     /** Try to perform an attack, returns boolean if successful */
     static boolean tryAttack() throws GameActionException {
         MapLocation attackLocation = getAttackTarget(GeneralManager.myType.actionRadiusSquared);
-        if (attackLocation != null) {
+        if (attackLocation != null && RobotPlayer.rc.canAttack(attackLocation)) {
             RobotPlayer.rc.attack(attackLocation);
+            if (lastAttackTargetIsOneShotKill && lastAttackTargetIsArchon) {
+                ArchonTrackerManager.setEnemyArchonAlive(attackLocation, false);
+            }
             return true;
         }
         return false;
