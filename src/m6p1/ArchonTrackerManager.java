@@ -265,10 +265,8 @@ strictfp class ArchonTrackerManager {
     static void setEnemyArchonAlive(MapLocation location, boolean alive) throws GameActionException {
         int index = -1;
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (!enemyArchonTrackers[i].guessLocationOverridden) {
-                continue;
-            }
-            if (enemyArchonTrackers[i].overriddenGuessLocation.equals(location)) {
+            if ((!enemyArchonTrackers[i].guessLocationOverridden && enemyArchonTrackers[i].seen && enemyArchonTrackers[i].getGuessLocation().equals(location))
+                || (enemyArchonTrackers[i].guessLocationOverridden && enemyArchonTrackers[i].overriddenGuessLocation.equals(location))) {
                 index = i;
                 break;
             }
