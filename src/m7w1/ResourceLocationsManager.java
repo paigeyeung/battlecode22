@@ -126,7 +126,7 @@ strictfp class ResourceLocationsManager {
     /** Compute score, MUST BE BETWEEN 1-7 INCLUSIVE */
     static int computeResourceLocationScore(MapLocation location, boolean isGold) {
         if (isGold) {
-            return 5;
+            return 7;
         }
         return 3;
     }
@@ -148,6 +148,7 @@ strictfp class ResourceLocationsManager {
         }
         // Only return the location if score is high enough
         if (chosenCombinedScore >= 3) {
+            DebugManager.log("Miner at " + GeneralManager.myLocation + " go to resource location " + resourceLocations[chosenIndex].location);
             return resourceLocations[chosenIndex].location;
         }
         return null;
