@@ -55,4 +55,14 @@ strictfp class CommunicationManager {
      * Number of soldiers scouting (combine with above)
      */
     static final int SCOUT_COUNT = 13;
+
+    /** RESOURCE_LOCATIONS_INDEX
+     * Index 0 to RESOURCE_LOCATIONS_NUM_ELEMENTS:
+     * First 6 bits stores x location and second 6 bits stores y location
+     * Third 1 bit stores whether it's gold (1) or lead (0)
+     * Last 3 bits stores need miners score (0 is unused, 1-7 is how much miners are needed)
+     * x | x | x | x | x | x | y | y | y | y | y | y | gold or lead | score | score | score
+     */
+    static final int RESOURCE_LOCATIONS_INDEX = 60;
+    static final int RESOURCE_LOCATIONS_NUM_ELEMENTS = 4;
 }

@@ -57,6 +57,11 @@ strictfp class AllUnitStrategy {
             return;
         }
 
+        // Update resource locations
+        if (Clock.getBytecodesLeft() > 1000 && GeneralManager.myType == RobotType.MINER) {
+            ResourceLocationsManager.updateResourceLocations();
+        }
+
         // If this is near the start of the game, check if this is the first time we see an enemy near this ally Archon
         // It would be nice for Archons to run this too, but may screw up ArchonResourceManager if shared array is modified in between Archon turns
         if (Clock.getBytecodesLeft() > 1000 && GeneralManager.myType != RobotType.ARCHON) {
