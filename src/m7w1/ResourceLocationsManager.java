@@ -9,6 +9,7 @@ strictfp class ResourceLocationsManager {
 
     static final int MIN_SQUARED_DISTANCE_BETWEEN_LOCATIONS = 15;
     static final int MIN_LEAD = 10;
+    static final int MAX_SQUARED_DISTANCE_MARK_DEPLETED = 5;
 
     static class ResourceLocation {
         boolean isUsed;
@@ -27,6 +28,9 @@ strictfp class ResourceLocationsManager {
             if (isUsed) {
                 DebugManager.log("SOMETHING WENT WRONG: Why are you using this constructor?");
             }
+            location = new MapLocation(0, 0);
+            isGold = false;
+            score = 0;
         }
     }
 
@@ -36,10 +40,24 @@ strictfp class ResourceLocationsManager {
         MapLocation[] nearbyLead = RobotPlayer.rc.senseNearbyLocationsWithLead(GeneralManager.myType.visionRadiusSquared, MIN_LEAD);
         ResourceLocation[] resourceLocations = readResourceLocations();
 
+        // If I'm at somewhere mentioned in the shared array and there aren't a lot of resources anymore, remove it
+        int nearestResourceLocationIndex = getNearestResourceLocationIndex(resourceLocations);
+        if (nearestResourceLocationIndex != -1) {
+            ResourceLocation nearestResourceLocation = resourceLocations[nearestResourceLocationIndex];
+            if (nearestResourceLocation.location.distanceSquaredTo(GeneralManager.myLocation) <= MAX_SQUARED_DISTANCE_MARK_DEPLETED) {
+                if (nearbyGold.length == 0 && nearbyLead.length == 0) {
+                    ResourceLocation removeResourceLocation = new ResourceLocation(false);
+                    writeResourceLocation(nearestResourceLocationIndex, removeResourceLocation);
+                    resourceLocations[nearestResourceLocationIndex] = removeResourceLocation;
+                }
+            }
+        }
+        if (Clock.getBytecodesLeft() < 500) return;
+
         // If I see lots of resources and it isn't in the shared array, add it
         for (int i = 0; i < nearbyGold.length; i++) {
             if (!existsResourceLocationNearby(resourceLocations, nearbyGold[i], true)) {
-                int newResourceLocationScore = computeResourceLocationScore(nearbyGold[i], true);
+                int newResourceLocationScore = computeGoldResourceLocationScore(nearbyGold);
                 int newResourceLocationIndex = getLowestScoreResourceLocationIndex(resourceLocations);
                 if (newResourceLocationIndex != -1 && (!resourceLocations[newResourceLocationIndex].isUsed || resourceLocations[newResourceLocationIndex].score < newResourceLocationScore)) {
                     ResourceLocation newResourceLocation = new ResourceLocation(true, nearbyGold[i], true, newResourceLocationScore);
@@ -51,7 +69,7 @@ strictfp class ResourceLocationsManager {
         if (Clock.getBytecodesLeft() < 500) return;
         for (int i = 0; i < nearbyLead.length; i++) {
             if (!existsResourceLocationNearby(resourceLocations, nearbyLead[i], false)) {
-                int newResourceLocationScore = computeResourceLocationScore(nearbyLead[i], false);
+                int newResourceLocationScore = computeLeadResourceLocationScore(nearbyLead);
                 int newResourceLocationIndex = getLowestScoreResourceLocationIndex(resourceLocations);
                 if (newResourceLocationIndex != -1 && (!resourceLocations[newResourceLocationIndex].isUsed || resourceLocations[newResourceLocationIndex].score < newResourceLocationScore)) {
                     ResourceLocation newResourceLocation = new ResourceLocation(true, nearbyLead[i], false, newResourceLocationScore);
@@ -60,9 +78,6 @@ strictfp class ResourceLocationsManager {
                 }
             }
         }
-        if (Clock.getBytecodesLeft() < 500) return;
-
-        // If I'm at somewhere mentioned in the shared array and there aren't a lot of resources anymore, remove it
     }
 
     /** Read functions */
@@ -122,13 +137,28 @@ strictfp class ResourceLocationsManager {
         }
         return false;
     }
+    static int getNearestResourceLocationIndex(ResourceLocation[] resourceLocations) {
+        int nearestIndex = -1;
+        int nearestDistanceSquared = 10000;
+        for (int i = 0; i < resourceLocations.length; i++) {
+            if (!resourceLocations[i].isUsed) {
+                continue;
+            }
+            int distanceSquared = GeneralManager.myLocation.distanceSquaredTo(resourceLocations[i].location);
+            if (nearestIndex == -1 || distanceSquared < nearestDistanceSquared) {
+                nearestIndex = i;
+                nearestDistanceSquared = distanceSquared;
+            }
+        }
+        return nearestIndex;
+    }
 
     /** Compute score, MUST BE BETWEEN 1-7 INCLUSIVE */
-    static int computeResourceLocationScore(MapLocation location, boolean isGold) {
-        if (isGold) {
-            return 7;
-        }
-        return 3;
+    static int computeGoldResourceLocationScore(MapLocation[] nearbyGold) {
+        return 7;
+    }
+    static int computeLeadResourceLocationScore(MapLocation[] nearbylead) {
+        return Math.max(nearbylead.length, 6);
     }
 
     /** Called by miner if no resources in sight, can return null */
@@ -140,15 +170,15 @@ strictfp class ResourceLocationsManager {
             if (!resourceLocations[i].isUsed) {
                 continue;
             }
-            double combinedScore = 100 * resourceLocations[i].score / (GeneralManager.myLocation.distanceSquaredTo(resourceLocations[i].location) + 1);
+            double combinedScore = 500 * resourceLocations[i].score / (GeneralManager.myLocation.distanceSquaredTo(resourceLocations[i].location) + 1);
             if (chosenIndex == -1 || combinedScore > chosenCombinedScore) {
                 chosenIndex = i;
                 chosenCombinedScore = combinedScore;
             }
         }
         // Only return the location if score is high enough
-        if (chosenCombinedScore >= 3) {
-            DebugManager.log("Miner at " + GeneralManager.myLocation + " go to resource location " + resourceLocations[chosenIndex].location);
+        if (chosenCombinedScore >= 15) {
+//            DebugManager.log("Miner at " + GeneralManager.myLocation + " go to resource location " + resourceLocations[chosenIndex].location);
             return resourceLocations[chosenIndex].location;
         }
         return null;

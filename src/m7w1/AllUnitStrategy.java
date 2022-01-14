@@ -1,6 +1,7 @@
 package m7w1;
 
 import battlecode.common.*;
+import java.util.Arrays;
 
 strictfp class AllUnitStrategy {
     static boolean updatedArchonsLastTurn = false;
@@ -58,7 +59,8 @@ strictfp class AllUnitStrategy {
         }
 
         // Update resource locations
-        if (Clock.getBytecodesLeft() > 1000 && GeneralManager.myType == RobotType.MINER) {
+        if (Clock.getBytecodesLeft() > 500 && GeneralManager.turnsAlive % 2 == 0 && RobotPlayer.rc.getRoundNum() > 50
+            && Arrays.asList(GeneralManager.DROIDS).contains(GeneralManager.myType)) {
             ResourceLocationsManager.updateResourceLocations();
         }
 

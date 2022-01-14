@@ -33,21 +33,23 @@ strictfp class MinerStrategy {
         }
 
         // Move
-        Direction dir = null;
-        if(RobotPlayer.rc.getHealth() <
+        if (RobotPlayer.rc.getMovementCooldownTurns() < 10) {
+            Direction dir = null;
+            if (RobotPlayer.rc.getHealth() <
                 CombatManager.HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING * RobotPlayer.rc.getType().getMaxHealth(RobotPlayer.rc.getLevel())) {
-            MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
-            if((RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLoc) <= 9 && RobotPlayer.rc.senseLead(RobotPlayer.rc.getLocation()) == 0)
-                || RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLoc) <= 1)
-                RobotPlayer.rc.disintegrate();
-            else
-                dir = GeneralManager.getNextDir(nearestAllyArchonLoc);
-        }
-        else {
-            dir = getNextMiningDir();
-        }
-        if (dir != null) {
-            GeneralManager.tryMove(dir, false);
+                MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
+                if((RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLoc) <= 9 && RobotPlayer.rc.senseLead(RobotPlayer.rc.getLocation()) == 0)
+                    || RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLoc) <= 1)
+                    RobotPlayer.rc.disintegrate();
+                else
+                    dir = GeneralManager.getNextDir(nearestAllyArchonLoc);
+            }
+            else {
+                dir = getNextMiningDir();
+            }
+            if (dir != null) {
+                GeneralManager.tryMove(dir, false);
+            }
         }
 
         // Calculate depleteLead for next turn
@@ -77,12 +79,10 @@ strictfp class MinerStrategy {
 
     // Get direction to get more resources
     static Direction getNextMiningDir() throws GameActionException {
-        MapLocation myLoc = RobotPlayer.rc.getLocation();
-
-        MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(myLoc);
-        int distToNearestAllyArchon = myLoc.distanceSquaredTo(nearestAllyArchonLoc) + 1;
+        MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
+        int distToNearestAllyArchon = GeneralManager.myLocation.distanceSquaredTo(nearestAllyArchonLoc) + 1;
         int f = 200 / (distToNearestAllyArchon + 1);
-        if (RobotPlayer.rc.senseLead(myLoc) == 0) {
+        if (RobotPlayer.rc.senseLead(GeneralManager.myLocation) == 0) {
             f = Integer.MAX_VALUE;
         }
 
@@ -100,7 +100,7 @@ strictfp class MinerStrategy {
         Direction movementDir = null;
         boolean noResources = true;
 
-        for (MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(myLoc, 2)) {
+        for (MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(GeneralManager.myLocation, 2)) {
             f -= 2 * RobotPlayer.rc.senseLead(adj) + 5 * RobotPlayer.rc.senseGold(adj);
         }
 
@@ -108,22 +108,24 @@ strictfp class MinerStrategy {
             if (RobotPlayer.rc.canMove(dir)) {
                 MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
-                int newF = (int) (newRubble * 0.5);
+                int newF = (int)(newRubble * 0.5);
 
                 MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj, 2);
 
                 // Lower cost to move if resources available there or location has not been visited
                 for (MapLocation adj2 : adjToAdj) {
-                    if(RobotPlayer.rc.senseLead(adj2) <= 1 || RobotPlayer.rc.senseGold(adj2) <= 1) noResources = false;
-                    newF -= RobotPlayer.rc.senseLead(adj2) + RobotPlayer.rc.senseGold(adj2) * 5;
+                    int senseLead = RobotPlayer.rc.senseLead(adj2);
+                    int senseGold = RobotPlayer.rc.senseGold(adj2);
+                    if (senseLead == 1 && !depleteLead) senseLead = 0;
+                    if (senseLead > 0 || senseGold > 0) noResources = false;
+                    newF -= senseLead + senseGold * 5;
                     if (!visited[adj2.x][adj2.y]) newF -= 5;
                 }
 
                 // Lower cost to move if move makes miner farther away from enemies
                 for (RobotInfo enemy : enemies) {
                     if (enemy.type.canAttack()) {
-                        newF -= GeneralManager.getSqDistance(adj, enemy.location) - GeneralManager.getSqDistance(myLoc, enemy.location);
-                        ;
+                        newF -= GeneralManager.getSqDistance(adj, enemy.location) - GeneralManager.getSqDistance(GeneralManager.myLocation, enemy.location);
                     }
                 }
 
@@ -136,7 +138,7 @@ strictfp class MinerStrategy {
                     f = newF;
                     movementDir = dir;
                 } else if (newF <= f + e) {
-                    if (((int) (Math.random() * 2) == 0)) {
+                    if (((int)(Math.random() * 2) == 0)) {
                         f = newF;
                         movementDir = dir;
                     }
@@ -144,9 +146,11 @@ strictfp class MinerStrategy {
             }
         }
 
-        MapLocation resourceLocation = ResourceLocationsManager.minerGetWhereToGo();
-        if(noResources && resourceLocation != null) {
-            return GeneralManager.getNextDir(resourceLocation);
+        if (noResources) {
+            MapLocation resourceLocation = ResourceLocationsManager.minerGetWhereToGo();
+            if (resourceLocation != null) {
+                return GeneralManager.getNextDir(resourceLocation);
+            }
         }
 
         if (movementDir != null) {
