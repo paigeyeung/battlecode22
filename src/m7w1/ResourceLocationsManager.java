@@ -140,7 +140,7 @@ strictfp class ResourceLocationsManager {
             if (!resourceLocations[i].isUsed) {
                 continue;
             }
-            double combinedScore = 100 * resourceLocations[i].score / (GeneralManager.myLocation.distanceSquaredTo(resourceLocations[i].location));
+            double combinedScore = 100 * resourceLocations[i].score / (GeneralManager.myLocation.distanceSquaredTo(resourceLocations[i].location) + 1);
             if (chosenIndex == -1 || combinedScore > chosenCombinedScore) {
                 chosenIndex = i;
                 chosenCombinedScore = combinedScore;
