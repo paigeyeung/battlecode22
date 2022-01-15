@@ -81,7 +81,7 @@ strictfp class MinerStrategy {
     static Direction getNextMiningDir() throws GameActionException {
         MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
         int distToNearestAllyArchon = GeneralManager.myLocation.distanceSquaredTo(nearestAllyArchonLoc) + 1;
-        int f = 200 / (distToNearestAllyArchon + 1);
+        int f = 200 / (distToNearestAllyArchon + 1 + RobotPlayer.rc.getRoundNum()/100);
         if (RobotPlayer.rc.senseLead(GeneralManager.myLocation) == 0) {
             f = Integer.MAX_VALUE;
         }
