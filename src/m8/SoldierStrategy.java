@@ -75,13 +75,9 @@ strictfp class SoldierStrategy {
             }
 
             MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
-//            if (myLocation.distanceSquaredTo(nearestAllyArchonLocation) > 10) {
-//                // Move towards nearest ally Archon
-//                GeneralManager.tryMove(getNextSoldierDir(nearestAllyArchonLocation), true);
-//            }
-//            else {
-//                action = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
-//            }
+
+//            MapLocation retreatArchonLocation = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonNeedingSoldiers(false)].location;
+
             GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation,4), false);
             if (CombatManager.tryAttack()) {
                 // Try to attack
