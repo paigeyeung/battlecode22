@@ -56,6 +56,14 @@ strictfp class CommunicationManager {
      */
     static final int SCOUT_COUNT = 13;
 
+    /**
+     * Enemy combat score at ally archons
+     * First 7 bits store combat score of 1st ally archon
+     * Next 7 bits store combat score of next ally archon
+     * Same for next array index
+     */
+    static final int ALLY_ARCHON_ENEMY_COMBAT_SCORE = 14; // 14, 15
+
     /** RESOURCE_LOCATIONS_INDEX
      * Index 0 to RESOURCE_LOCATIONS_NUM_ELEMENTS:
      * First 6 bits stores x location and second 6 bits stores y location
