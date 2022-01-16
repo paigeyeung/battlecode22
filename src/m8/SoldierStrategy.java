@@ -52,7 +52,7 @@ strictfp class SoldierStrategy {
                         // Then scout / retreat
                         int scoutCount = RobotPlayer.rc.readSharedArray(CommunicationManager.SCOUT_COUNT);
 
-                        if(!scouting && scoutCount < RobotPlayer.rc.readSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE)/20) {
+                        if(!scouting && scoutCount < RobotPlayer.rc.readSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE)/15) {
                             scouting = true;
                             if (scoutCount <= 0) RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, 1);
                             else RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, scoutCount + 1);
@@ -116,11 +116,11 @@ strictfp class SoldierStrategy {
 
     static Direction getNextSoldierDir(MapLocation dest) throws GameActionException {
         MapLocation myLoc = RobotPlayer.rc.getLocation();
-        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
+//        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
 
         if(myLoc.equals(dest)) return null;
-        if(myLoc.distanceSquaredTo(dest) <= myLoc.distanceSquaredTo(nearestAllyArchonLocation))
-            return GeneralManager.getDirToEncircle(dest,GeneralManager.myType.actionRadiusSquared);
+//        if(myLoc.distanceSquaredTo(dest) <= myLoc.distanceSquaredTo(nearestAllyArchonLocation))
+//            return GeneralManager.getDirToEncircle(dest,4);
 
         Direction movementDir = null;
 
