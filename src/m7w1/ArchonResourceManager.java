@@ -156,27 +156,8 @@ strictfp class ArchonResourceManager {
 
             MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(ArchonTrackerManager.allyArchonTrackers[i].location);
             if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
-                if (farthestAllyArchonLoc.distanceSquaredTo(ArchonTrackerManager.allyArchonTrackers[i].location) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
-                    allyArchonModels[i].setActionMove();
-                    DebugManager.log("I'm Archon " + ArchonStrategy.mySharedArrayIndex + " and I want ally Archon " + i + " at " + ArchonTrackerManager.allyArchonTrackers[i].location + " to move");
-                }
-//
-//        if(RobotPlayer.rc.getRoundNum() >= 2) {
-//            MapLocation farthestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location,
-//                    closestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location;
-//
-//            for (int i = 0; i < allyArchonModels.length; i++) {
-//                if (!allyArchonModels[i].alive) continue;
-////            DebugManager.log("Archon " + i + " on cooldown: " + allyArchonModels[i].onCooldown);
-//                MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(ArchonTrackerManager.allyArchonTrackers[i].location);
-//                if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON &&
-//                        (nearestEnemyArchonLoc != null && GeneralManager.getMidpoint(ArchonTrackerManager.allyArchonTrackers[i].location, farthestAllyArchonLoc).distanceSquaredTo(nearestEnemyArchonLoc)
-//                                > ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(nearestEnemyArchonLoc)))
-//                    if (ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location.distanceSquaredTo(ArchonTrackerManager.allyArchonTrackers[i].location) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
-//                        allyArchonModels[i].setActionMove();
-//                        DebugManager.log("Want ally Archon " + i + " at " + ArchonTrackerManager.allyArchonTrackers[i].location + " to move");
-//                    }
-//
+                allyArchonModels[i].setActionMove();
+                DebugManager.log("I'm Archon " + ArchonStrategy.mySharedArrayIndex + " and I want ally Archon " + i + " at " + ArchonTrackerManager.allyArchonTrackers[i].location + " to move");
             }
         }
 
