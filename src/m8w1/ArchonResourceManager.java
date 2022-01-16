@@ -169,7 +169,7 @@ strictfp class ArchonResourceManager {
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
 
-            if (!anySeenEnemy && (totalMinersBuilt < 10 ||
+            if (!anySeenEnemy && (totalMinersBuilt < 8 ||
                     (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.7))) {
                 chosenBuild = RobotType.MINER;
             }
@@ -184,7 +184,7 @@ strictfp class ArchonResourceManager {
 
             if(turn < 100 &&
                     allyArchonModels[findArchonWithClosestEnemy()].nearestEnemyArchonDistanceSquared < 25 &&
-                    totalMinersBuilt >= 4) {
+                    totalMinersBuilt >= 2) {
                 chosenBuild = RobotType.SOLDIER;
             }
 
@@ -274,8 +274,8 @@ strictfp class ArchonResourceManager {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].buildersBuilt < allyArchonModels[fewestIndex].buildersBuilt)
-                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown
-                && !ArchonTrackerManager.isMovingArchon(i)))) {
+                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown
+                    && !ArchonTrackerManager.isMovingArchon(i)))) {
                 fewestIndex = i;
             }
         }
