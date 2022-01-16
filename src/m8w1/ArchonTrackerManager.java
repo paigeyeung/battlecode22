@@ -468,6 +468,7 @@ strictfp class ArchonTrackerManager {
     static boolean isMovingArchon(int index) throws GameActionException {
         int encodedAllyArchonAdditionalInfo = RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO);
         if (!allyArchonTrackers[index].alive) return false;
+//        DebugManager.log("archon " + index + " is moving? " + (((encodedAllyArchonAdditionalInfo >>> (4 + index)) & 0x1) == 1));
         return ((encodedAllyArchonAdditionalInfo >>> (4 + index)) & 0x1) == 1;
     }
 
@@ -478,8 +479,8 @@ strictfp class ArchonTrackerManager {
         if(((encodedAllyArchonAdditionalInfo >>> (4 + index)) & 0x1) == m) return;
 
         RobotPlayer.rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO,
-                (encodedAllyArchonAdditionalInfo >>> (4 + index + 1)) |
-                m | (encodedAllyArchonAdditionalInfo & ((int)(Math.pow(2, 4 + index))-1)));
+                ((encodedAllyArchonAdditionalInfo >>> (4 + index + 1)) << (4 + index + 1)) |
+                        (m << (4 + index)) | (encodedAllyArchonAdditionalInfo & ((int)(Math.pow(2, 4 + index))-1)));
     }
 
     static int numArchonsMoving() throws GameActionException {
