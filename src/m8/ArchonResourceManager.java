@@ -3,8 +3,8 @@ package m8;
 import battlecode.common.*;
 
 strictfp class ArchonResourceManager {
-    static final int MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON = 25;
-    static final double MINER_BUILD_PROPORTION = 0.15;
+    static final int MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON = 30;
+    static final double MINER_BUILD_PROPORTION = 0.07;
     static int farthestArchonIndex;
     static AnomalyScheduleEntry[] anomalyScheduleEntries;
 
@@ -154,26 +154,24 @@ strictfp class ArchonResourceManager {
                 continue;
             }
             MapLocation farthestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location;
+            //MapLocation closestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location;
+            //MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(ArchonTrackerManager.allyArchonTrackers[i].location);
 
-//            MapLocation closestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location;
-//            MapLocation nearestEnemyArchonLoc = ArchonTrackerManager.getNearestEnemyArchonGuessLocation(ArchonTrackerManager.allyArchonTrackers[i].location);
-
-//            if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
-//                allyArchonModels[i].setActionMove();
-//                DebugManager.log("I'm Archon " + ArchonStrategy.mySharedArrayIndex + " and I want ally Archon " + i + " at " + ArchonTrackerManager.allyArchonTrackers[i].location + " to move");
-//            }
+            if (ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(farthestAllyArchonLoc) > MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
+                allyArchonModels[i].setActionMove();
+                DebugManager.log("I'm Archon " + ArchonStrategy.mySharedArrayIndex + " and I want ally Archon " + i + " at " + ArchonTrackerManager.allyArchonTrackers[i].location + " to move");
+            }
         }
 
         while (true) {
             RobotType chosenBuild = null;
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
-
             if (!anySeenEnemy && (totalMinersBuilt < 5 ||
                     (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.7))) {
                 chosenBuild = RobotType.MINER;
             }
-            // Maintain 15% proportion of build miners
+            // Maintain 10% proportion of build miners
             else if (totalMinersBuilt < totalDroidsBuilt * MINER_BUILD_PROPORTION) {
                 chosenBuild = RobotType.MINER;
             }
@@ -184,7 +182,7 @@ strictfp class ArchonResourceManager {
 
             if(turn < 100 &&
                     allyArchonModels[findArchonWithClosestEnemy()].nearestEnemyArchonDistanceSquared < 25 &&
-                    totalMinersBuilt >= 4) {
+                    totalMinersBuilt >= 3) {
                 chosenBuild = RobotType.SOLDIER;
             }
 
@@ -210,9 +208,9 @@ strictfp class ArchonResourceManager {
                 int chosenArchonIndex = findArchonNeedingSoldiers(true);
                         //findArchonWithFewestSoldiersBuilt(true);
 
-                if(turn < 100 &&
-                        allyArchonModels[findArchonWithClosestEnemy()].nearestEnemyArchonDistanceSquared < 25)
-                    chosenArchonIndex = findArchonWithClosestEnemy();
+//                if(turn < 100 &&
+//                        allyArchonModels[findArchonWithClosestEnemy()].nearestEnemyArchonDistanceSquared < 25)
+//                    chosenArchonIndex = findArchonWithClosestEnemy();
 
                 if (chosenArchonIndex == -1) {
                     break;
@@ -248,42 +246,46 @@ strictfp class ArchonResourceManager {
     }
 
     /** Helper functions to find Archons that meet criteria, returns -1 if no match is found */
-    static int findArchonWithFewestDroidsBuilt(boolean ableToBuild) {
+    static int findArchonWithFewestDroidsBuilt(boolean ableToBuild) throws GameActionException {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].droidsBuilt < allyArchonModels[fewestIndex].droidsBuilt)
-                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown
+                && !ArchonTrackerManager.isMovingArchon(i)))) {
                 fewestIndex = i;
             }
         }
         return fewestIndex;
     }
-    static int findArchonWithFewestMinersBuilt(boolean ableToBuild) {
+    static int findArchonWithFewestMinersBuilt(boolean ableToBuild) throws GameActionException {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].minersBuilt < allyArchonModels[fewestIndex].minersBuilt)
-                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown
+                && !ArchonTrackerManager.isMovingArchon(i)))) {
                 fewestIndex = i;
             }
         }
         return fewestIndex;
     }
-    static int findArchonWithFewestBuildersBuilt(boolean ableToBuild) {
+    static int findArchonWithFewestBuildersBuilt(boolean ableToBuild) throws GameActionException {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].buildersBuilt < allyArchonModels[fewestIndex].buildersBuilt)
-                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown
+                && !ArchonTrackerManager.isMovingArchon(i)))) {
                 fewestIndex = i;
             }
         }
         return fewestIndex;
     }
 
-    static int findArchonWithFewestSoldiersBuilt(boolean ableToBuild) {
+    static int findArchonWithFewestSoldiersBuilt(boolean ableToBuild) throws GameActionException {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
-                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown &&
+                    !ArchonTrackerManager.isMovingArchon(i)))) {
                 fewestIndex = i;
             }
         }
@@ -297,7 +299,8 @@ strictfp class ArchonResourceManager {
             for(int j = 0; j <= 1; j++) {
                 //for index i * 2 + (1 - j)
                 int score = ((RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ENEMY_COMBAT_SCORE+i) >>> (7*j)) & 0x7F);
-                if(score > maxScore && allyArchonModels[i * 2 + (1 - j)].alive) {
+                if(score > maxScore && allyArchonModels[i * 2 + (1 - j)].alive &&
+                        (!ableToBuild || (allyArchonModels[i * 2 + (1 - j)].alive && !allyArchonModels[i * 2 + (1 - j)].onCooldown))) {
                     maxScore = score;
                     index = i * 2 + (1 - j);
                     // 00 1 | 01 0 | 10 3 | 11 2
