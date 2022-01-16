@@ -33,7 +33,8 @@ strictfp class CommunicationManager {
 
     /** ALLY_ARCHON_ADDITIONAL_INFO
      * Last 4 bits store if a unit near ally Archons 0-3 have seen an enemy
-     * unused... | 3 seen enemy | 2 seen enemy | 1 seen enemy | 0 seen enemy
+     * Next 4 store if ally Archons 0-3 are moving
+     * 8 unused | 3 moving | 2 moving | 1 moving | 0 moving | 3 seen enemy | 2 seen enemy | 1 seen enemy | 0 seen enemy
      */
     static final int ALLY_ARCHON_ADDITIONAL_INFO = 10; // 10
 

@@ -55,10 +55,20 @@ strictfp class ArchonStrategy {
             return false;
         }
 
-        MapLocation locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
+        MapLocation locFarthestFromEnemies;
 
         if(ArchonResourceManager.findArchonFarthestFromEnemies(true) != -1)
             locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
+        else locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
+
+        if (RobotPlayer.rc.getLocation().distanceSquaredTo(locFarthestFromEnemies) < ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
+            if (RobotPlayer.rc.getMode().canMove && RobotPlayer.rc.canTransform()) {
+                RobotPlayer.rc.transform();
+                movedToArchonsDest = true;
+                return false;
+            }
+            return true;
+        }
 
         if (!RobotPlayer.rc.getMode().canMove) {
             if (RobotPlayer.rc.canTransform() &&
@@ -67,15 +77,6 @@ strictfp class ArchonStrategy {
                 RobotPlayer.rc.transform();
                 return true;
             }
-        }
-
-        if (RobotPlayer.rc.getLocation().distanceSquaredTo(locFarthestFromEnemies) < ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
-            if (RobotPlayer.rc.getMode().canMove && RobotPlayer.rc.canTransform()) {
-                RobotPlayer.rc.transform();
-                movedToArchonsDest = true;
-                return true;
-            }
-            return false;
         }
 
         boolean moved = GeneralManager.tryMove(getNextArchonDir(locFarthestFromEnemies), false);
@@ -93,13 +94,14 @@ strictfp class ArchonStrategy {
         MapLocation myLocation = RobotPlayer.rc.getLocation();
         MapLocation lowRubbleDest = null;
 
-        if(dest == null || (RobotPlayer.rc.canSenseLocation(dest) && RobotPlayer.rc.canSenseRobotAtLocation(dest))) {
+        if(dest == null || (!myLocation.equals(dest) &&
+                RobotPlayer.rc.canSenseLocation(dest) && RobotPlayer.rc.canSenseRobotAtLocation(dest))) {
             int rubble = RobotPlayer.rc.senseRubble(myLocation), minRubble = RobotPlayer.rc.senseRubble(myLocation);
             for (MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(myLocation, 4)) {
                 if (RobotPlayer.rc.senseRubble(adj) <= minRubble) {
                     if (RobotPlayer.rc.senseRubble(adj) < minRubble ||
                             (lowRubbleDest != null &&
-                            (myLocation.distanceSquaredTo(adj) < myLocation.distanceSquaredTo(lowRubbleDest)))) {
+                                    (myLocation.distanceSquaredTo(adj) < myLocation.distanceSquaredTo(lowRubbleDest)))) {
                         minRubble = RobotPlayer.rc.senseRubble(adj);
                         lowRubbleDest = adj;
                     }
@@ -115,8 +117,9 @@ strictfp class ArchonStrategy {
                 dest = null;
                 movedOffRubble = true;
                 RobotPlayer.rc.transform();
+                return false;
             }
-            return false;
+            return true;
         }
 
         if (!RobotPlayer.rc.getMode().canMove) {
@@ -291,15 +294,22 @@ strictfp class ArchonStrategy {
             else if (action == ArchonResourceManager.ARCHON_ACTIONS.BUILD_SOLDIER) {
                 archonTryBuild(RobotType.SOLDIER);
             }
-//            else if (action == ArchonResourceManager.ARCHON_ACTIONS.MOVE) {
-//                archonTryMove();
-//            }
+            else if (action == ArchonResourceManager.ARCHON_ACTIONS.MOVE) {
+                ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMove());
+            }
             else {
                 archonTryRepair();
             }
         }
 
-        archonTryMove();
+        if(!movedToArchonsDest && ArchonTrackerManager.numArchonsMoving() < RobotPlayer.rc.getArchonCount() - 1)
+            ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMove());
+        else if(!movedOffRubble && ArchonTrackerManager.numArchonsMoving() < RobotPlayer.rc.getArchonCount() - 1) {
+            ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMoveLowerRubble());
+        }
+
+//        MapLocation mapCenter = GeneralManager.getMapCenter();
+//        if(RobotPlayer.rc.getLocation().distanceSquaredTo(mapCenter) > 25)
 
 //        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 5");
 
@@ -307,14 +317,17 @@ strictfp class ArchonStrategy {
         int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
         int encodedResourceManager1 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
 
-        double score = CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true) -
-                CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false) + 500;
+        double score = CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true)
+                - CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false) + 500;
+
+        if(score > 1270) score = 1270;
+        if(score < 0) score = 0;
 
         int encoded = RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ENEMY_COMBAT_SCORE + (int)(mySharedArrayIndex / 2));
 
         if((encoded >>> (7 * (1-mySharedArrayIndex % 2)) & 0x7F) != Math.round(score/10)) {
             int newEncodedScore;
-            if (mySharedArrayIndex % 2 == 0) newEncodedScore = (int)(score/10) << 7 | (encoded & 0x7F);
+            if (mySharedArrayIndex % 2 == 0) newEncodedScore = (int)Math.round(score/10) << 7 | (encoded & 0x7F);
             else newEncodedScore = ((encoded >>> 7) & 0x7F) | ((int)Math.round(score/10) & 0x7F);
 
             RobotPlayer.rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_ENEMY_COMBAT_SCORE + (int)(mySharedArrayIndex / 2),

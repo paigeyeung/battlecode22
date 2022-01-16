@@ -369,21 +369,27 @@ strictfp class ArchonTrackerManager {
         }
         return nearest;
     }
-    static int getCentralEnemyArchon() {
-        int xSum = 0, ySum = 0, numArchons = 0;
-        int index = -1;
+    static int getFarthestEnemyArchon(MapLocation fromLocation) {
+        int farthest = -1;
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (enemyArchonTrackers[i].getGuessLocation() != null) {
-                xSum += enemyArchonTrackers[i].getGuessLocation().x;
-                ySum += enemyArchonTrackers[i].getGuessLocation().y;
-                numArchons++;
+            if (enemyArchonTrackers[i].alive && !enemyArchonTrackers[i].missing &&
+                    (farthest == -1 ||
+                            ((fromLocation != null &&
+                                    enemyArchonTrackers[i].getGuessLocation() != null
+                                    && enemyArchonTrackers[farthest].getGuessLocation() != null) &&
+                                    enemyArchonTrackers[i].getGuessLocation().distanceSquaredTo(fromLocation) > enemyArchonTrackers[farthest].getGuessLocation().distanceSquaredTo(fromLocation)))) {
+                farthest = i;
             }
         }
-
-        if(numArchons == 0) return index;
+        return farthest;
+    }
+    static int getCentralEnemyArchon() {
+//        int xSum = 0, ySum = 0, numArchons = 0;
+        int index = -1;
 
         int minDist = Integer.MAX_VALUE;
-        MapLocation centerLoc = new MapLocation(xSum/numArchons,ySum/numArchons);
+        MapLocation centerLoc = GeneralManager.getMapCenter();
+                //new MapLocation(xSum/numArchons,ySum/numArchons);
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
             if (enemyArchonTrackers[i].alive && enemyArchonTrackers[i].getGuessLocation() != null) {
                 int dist = enemyArchonTrackers[i].getGuessLocation().distanceSquaredTo(centerLoc);
@@ -453,5 +459,36 @@ strictfp class ArchonTrackerManager {
             }
         }
         return false;
+    }
+
+    static int getEnemyCombatScoreAtArchon(int index) throws GameActionException {
+        return ((RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ENEMY_COMBAT_SCORE+index/2) >>> (7 * (index % 2))) & 0x7F);
+    }
+
+    static boolean isMovingArchon(int index) throws GameActionException {
+        int encodedAllyArchonAdditionalInfo = RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO);
+        if (!allyArchonTrackers[index].alive) return false;
+        return ((encodedAllyArchonAdditionalInfo >>> (4 + index)) & 0x1) == 1;
+    }
+
+    static void setMoving(int index, boolean moving) throws GameActionException {
+        int encodedAllyArchonAdditionalInfo = RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO);
+
+        int m = moving ? 1 : 0;
+        if(((encodedAllyArchonAdditionalInfo >>> (4 + index)) & 0x1) == m) return;
+
+        RobotPlayer.rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO,
+                (encodedAllyArchonAdditionalInfo >>> (4 + index + 1)) |
+                m | (encodedAllyArchonAdditionalInfo & ((int)(Math.pow(2, 4 + index))-1)));
+    }
+
+    static int numArchonsMoving() throws GameActionException {
+        int count = 0;
+        for(int i = allyArchonTrackers.length - 1; i >= 0; i--) {
+            if(isMovingArchon(i)) {
+                count++;
+            }
+        }
+        return count;
     }
 }

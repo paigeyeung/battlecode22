@@ -169,7 +169,7 @@ strictfp class ArchonResourceManager {
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
 
-            if (!anySeenEnemy && (totalMinersBuilt < 5 ||
+            if (!anySeenEnemy && (totalMinersBuilt < 10 ||
                     (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.7))) {
                 chosenBuild = RobotType.MINER;
             }
@@ -248,42 +248,46 @@ strictfp class ArchonResourceManager {
     }
 
     /** Helper functions to find Archons that meet criteria, returns -1 if no match is found */
-    static int findArchonWithFewestDroidsBuilt(boolean ableToBuild) {
+    static int findArchonWithFewestDroidsBuilt(boolean ableToBuild) throws GameActionException {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].droidsBuilt < allyArchonModels[fewestIndex].droidsBuilt)
-                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown
+                && !ArchonTrackerManager.isMovingArchon(i)))) {
                 fewestIndex = i;
             }
         }
         return fewestIndex;
     }
-    static int findArchonWithFewestMinersBuilt(boolean ableToBuild) {
+    static int findArchonWithFewestMinersBuilt(boolean ableToBuild) throws GameActionException {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].minersBuilt < allyArchonModels[fewestIndex].minersBuilt)
-                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown
+                && !ArchonTrackerManager.isMovingArchon(i)))) {
                 fewestIndex = i;
             }
         }
         return fewestIndex;
     }
-    static int findArchonWithFewestBuildersBuilt(boolean ableToBuild) {
+    static int findArchonWithFewestBuildersBuilt(boolean ableToBuild) throws GameActionException {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].buildersBuilt < allyArchonModels[fewestIndex].buildersBuilt)
-                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown
+                && !ArchonTrackerManager.isMovingArchon(i)))) {
                 fewestIndex = i;
             }
         }
         return fewestIndex;
     }
 
-    static int findArchonWithFewestSoldiersBuilt(boolean ableToBuild) {
+    static int findArchonWithFewestSoldiersBuilt(boolean ableToBuild) throws GameActionException {
         int fewestIndex = -1;
         for (int i = 0; i < allyArchonModels.length; i++) {
             if ((fewestIndex == -1 || allyArchonModels[i].soldiersBuilt < allyArchonModels[fewestIndex].soldiersBuilt)
-                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown))) {
+                    && (!ableToBuild || (allyArchonModels[i].alive && !allyArchonModels[i].onCooldown &&
+                    !ArchonTrackerManager.isMovingArchon(i)))) {
                 fewestIndex = i;
             }
         }
@@ -297,7 +301,8 @@ strictfp class ArchonResourceManager {
             for(int j = 0; j <= 1; j++) {
                 //for index i * 2 + (1 - j)
                 int score = ((RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ENEMY_COMBAT_SCORE+i) >>> (7*j)) & 0x7F);
-                if(score > maxScore && allyArchonModels[i * 2 + (1 - j)].alive) {
+                if(score > maxScore && allyArchonModels[i * 2 + (1 - j)].alive &&
+                        (!ableToBuild || (allyArchonModels[i * 2 + (1 - j)].alive && !allyArchonModels[i * 2 + (1 - j)].onCooldown))) {
                     maxScore = score;
                     index = i * 2 + (1 - j);
                     // 00 1 | 01 0 | 10 3 | 11 2
