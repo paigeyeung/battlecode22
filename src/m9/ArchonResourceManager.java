@@ -169,7 +169,7 @@ strictfp class ArchonResourceManager {
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
 
-            if (!anySeenEnemy && (totalMinersBuilt < 13 && totalMinersBuilt < totalDroidsBuilt)) {
+            if (!anySeenEnemy && ((totalMinersBuilt < 2) || totalMinersBuilt < 13 && totalMinersBuilt < totalDroidsBuilt)) {
                 chosenBuild = RobotType.MINER;
             }
             // Maintain 15% proportion of build miners
@@ -303,7 +303,8 @@ strictfp class ArchonResourceManager {
                 //for index i * 2 + (1 - j)
                 int score = ((RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ENEMY_COMBAT_SCORE+i) >>> (7*j)) & 0x7F);
                 if(score > maxScore && allyArchonModels[i * 2 + (1 - j)].alive &&
-                        (!ableToBuild || (allyArchonModels[i * 2 + (1 - j)].alive && !allyArchonModels[i * 2 + (1 - j)].onCooldown))) {
+                        (!ableToBuild || (allyArchonModels[i * 2 + (1 - j)].alive && !allyArchonModels[i * 2 + (1 - j)].onCooldown
+                        && !ArchonTrackerManager.isMovingArchon(i * 2 + (1 - j))))) {
                     maxScore = score;
                     index = i * 2 + (1 - j);
                     // 00 1 | 01 0 | 10 3 | 11 2
@@ -327,7 +328,7 @@ strictfp class ArchonResourceManager {
     }
 
     static int findArchonFarthestFromEnemies(boolean allEnemies) {
-        int farthestIndex = -1;
+        int farthestIndex = 0; // Return 1st archon if none satisfy criteria
         int maxDist = 0;
         if (allEnemies) {
             for (int i = allyArchonModels.length - 1; i >= 0; i--) {
@@ -337,7 +338,7 @@ strictfp class ArchonResourceManager {
                         if(enemyArchonTracker.getGuessLocation() != null)
                             dist += ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(enemyArchonTracker.getGuessLocation());
                     }
-                    if (dist > maxDist) {
+                    if (dist > maxDist && ArchonTrackerManager.allyArchonTrackers[i].location.distanceSquaredTo(GeneralManager.getMapCenter()) > 16) {
                         farthestIndex = i;
                     }
             }

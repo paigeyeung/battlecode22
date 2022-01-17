@@ -57,9 +57,11 @@ strictfp class ArchonStrategy {
 
         MapLocation locFarthestFromEnemies;
 
-        if(ArchonResourceManager.findArchonFarthestFromEnemies(true) != -1)
-            locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
-        else locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
+//        if(ArchonResourceManager.findArchonFarthestFromEnemies(true) != -1)
+//            locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
+//        else locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
+
+        locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
 
         if (RobotPlayer.rc.getLocation().distanceSquaredTo(locFarthestFromEnemies) < ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
             if (RobotPlayer.rc.getMode().canMove && RobotPlayer.rc.canTransform()) {
@@ -326,10 +328,12 @@ strictfp class ArchonStrategy {
             }
         }
 
-        if(!movedToArchonsDest && ArchonTrackerManager.numArchonsMoving() < RobotPlayer.rc.getArchonCount() - 1)
-            ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMove());
-        else if(!movedOffRubble && ArchonTrackerManager.numArchonsMoving() < RobotPlayer.rc.getArchonCount() - 1) {
-            ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMoveLowerRubble());
+        if(RobotPlayer.rc.getRoundNum() > 2) {
+            if (!movedToArchonsDest && ArchonTrackerManager.numArchonsMoving() < RobotPlayer.rc.getArchonCount() - 1)
+                ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMove());
+            else if (!movedOffRubble && ArchonTrackerManager.numArchonsMoving() < RobotPlayer.rc.getArchonCount() - 1) {
+                ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMoveLowerRubble());
+            }
         }
 
 //        MapLocation mapCenter = GeneralManager.getMapCenter();
