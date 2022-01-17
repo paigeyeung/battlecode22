@@ -5,6 +5,7 @@ import battlecode.common.*;
 strictfp class SoldierStrategy {
     static int[][] visitedTurns;
     static boolean scouting = false;
+    static Direction storedAttackDirection = null;
 
     /** Called by RobotPlayer */
     static void runSoldier() throws GameActionException {
@@ -30,7 +31,8 @@ strictfp class SoldierStrategy {
                 MapLocation visibleAttackTarget = CombatManager.getAttackTarget(GeneralManager.myType.visionRadiusSquared);
                 if (visibleAttackTarget != null) {
                     // Move towards nearest visible enemy
-                    GeneralManager.tryMove(getNextSoldierDir(visibleAttackTarget), false);
+                    storedAttackDirection = getNextSoldierDir(visibleAttackTarget);
+                    GeneralManager.tryMove(storedAttackDirection, false);
                 }
                 else {
                     MapLocation targetEnemyArchonGuessLocation = null;
@@ -58,7 +60,11 @@ strictfp class SoldierStrategy {
                             else RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, scoutCount + 1);
                         }
                         if(scouting) GeneralManager.tryMove(getSoldierDirToScout(), false);
-                        else {
+                        else if (storedAttackDirection != null) {
+                            GeneralManager.tryMove(storedAttackDirection, false);
+                        }
+                        else
+                        {
                             MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
                             GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation, 9), false);
                         }
