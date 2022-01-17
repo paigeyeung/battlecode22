@@ -2,8 +2,9 @@ package m9;
 
 import battlecode.common.*;
 
+import static m9.GeneralManager.visitedTurns;
+
 strictfp class SoldierStrategy {
-    static int[][] visitedTurns;
     static boolean scouting = false;
     static Direction storedAttackDirection = null;
 

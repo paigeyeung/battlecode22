@@ -5,6 +5,8 @@ import battlecode.common.*;
 import java.util.Random;
 
 strictfp class GeneralManager {
+    static int[][] visitedTurns;
+
     static final Direction[] DIRECTIONS = {
         Direction.NORTH,
         Direction.NORTHEAST,
