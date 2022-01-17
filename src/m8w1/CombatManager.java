@@ -10,7 +10,7 @@ strictfp class CombatManager {
     }
 
     static boolean retreating = false;
-    static final double HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING = 0.2;
+    static final double HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING = 0.3;
 
     static boolean lastAttackTargetIsOneShotKill = false;
     static boolean lastAttackTargetIsArchon = false;
