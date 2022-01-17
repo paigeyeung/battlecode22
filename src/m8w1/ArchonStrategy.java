@@ -67,16 +67,18 @@ strictfp class ArchonStrategy {
                 movedToArchonsDest = true;
                 return false;
             }
-            return true;
+            if(!RobotPlayer.rc.getMode().canMove)
+                return false;
         }
 
         if (!RobotPlayer.rc.getMode().canMove) {
             if (RobotPlayer.rc.canTransform() &&
-                    (locFarthestFromEnemies == null ||
+                    (locFarthestFromEnemies != null &&
                             RobotPlayer.rc.getLocation().distanceSquaredTo(locFarthestFromEnemies) >= ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON)) {
                 RobotPlayer.rc.transform();
                 return true;
             }
+            return false;
         }
 
         boolean moved = GeneralManager.tryMove(getNextArchonDir(locFarthestFromEnemies), false);
@@ -127,6 +129,7 @@ strictfp class ArchonStrategy {
                 RobotPlayer.rc.transform();
                 return true;
             }
+            return false;
         }
 
         boolean moved = GeneralManager.tryMove(getNextArchonDir(dest), false);
