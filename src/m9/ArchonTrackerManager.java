@@ -110,8 +110,15 @@ strictfp class ArchonTrackerManager {
             return guessLocations.get(guessLocation);
         }
 
-        void goToNextGuessLocation() {
-            updateGuessLocation(guessLocation + 1);
+        void goToNextGuessLocation() throws GameActionException {
+            if (invalidEnemyArchonGuessLocations == -1) {
+                invalidEnemyArchonGuessLocations = RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO);
+            }
+            boolean invalid = false;
+            do {
+                updateGuessLocation(guessLocation + 1);
+                invalid = ((invalidEnemyArchonGuessLocations >> (index * 4 + guessLocation)) & 0x1) == 1;
+            } while (!missing && invalid);
             DebugManager.log("Enemy Archon tracker " + index + " new guess location: " + getGuessLocation());
         }
 
@@ -149,6 +156,7 @@ strictfp class ArchonTrackerManager {
     static boolean receivedArchonTrackers = false;
     static AllyArchonTracker[] allyArchonTrackers;
     static EnemyArchonTracker[] enemyArchonTrackers;
+    static int invalidEnemyArchonGuessLocations = -1;
     static int myStartingArchonIndex = -1; // This should only be for droids
 
 //    static int encodeAllyArchonTracker(AllyArchonTracker allyArchonTracker) {
@@ -197,10 +205,10 @@ strictfp class ArchonTrackerManager {
         int encoded = encodeEnemyArchonTracker(alive, location, seen);
         RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_TRACKERS_INDEX + index, encoded);
 
-        int encoded2 = RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO);
+        int encoded2 = RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO2);
         encoded2 = (encoded2 & (~(3 << (4 + index * 2)))) | (guessLocation << (4 + index * 2));
         encoded2 = (encoded2 & (~(1 << (12 + index)))) | ((guessLocationOverridden ? 1 : 0) << (12 + index));
-        RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO, encoded2);
+        RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO2, encoded2);
     }
 
     /** Update local functions that read shared array and update local trackers */
@@ -226,7 +234,7 @@ strictfp class ArchonTrackerManager {
         MapLocation location = new MapLocation((encoded >>> 8) & 0x3F, (encoded >>> 2) & 0x3F);
         boolean seen = (encoded & 0x1) == 1;
 
-        int encoded2 = RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO);
+        int encoded2 = RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO2);
         int guessLocation = (encoded2 >>> (4 + index * 2)) & 0x3;
         boolean guessLocationOverridden = ((encoded2 >>> (12 + index)) & 0x1) == 1;
         if (firstTime) {

@@ -38,13 +38,13 @@ strictfp class CommunicationManager {
      */
     static final int ALLY_ARCHON_ADDITIONAL_INFO = 10; // 10
 
-    /** ENEMY_ARCHON_ADDITIONAL_INFO
+    /** ENEMY_ARCHON_ADDITIONAL_INFO2
      * First 4 bits store if enemy Archon 0-3 guess location is manually overridden
      * Second 8 bits store guess location index of enemy Archons 0-3
      * Last 4 bits unused
      * 3 overridden | 1 overridden | 2 overridden | 0 overridden | 3 guess location 2 | 3 guess location 1 | 2 guess location 2 | 2 guess location 1 | 1 guess location 2 | 1 guess location 1 | 0 guess location 2 | 0 guess location 1 | unused...
      */
-    static final int ENEMY_ARCHON_ADDITIONAL_INFO = 11; // 11
+    static final int ENEMY_ARCHON_ADDITIONAL_INFO2 = 11; // 11
 
     /**
      * Saved enemy combat score from a robot with enemy Archon in vision range
@@ -65,6 +65,13 @@ strictfp class CommunicationManager {
      */
     static final int ALLY_ARCHON_ENEMY_COMBAT_SCORE = 14; // 14, 15
 
+    /** ENEMY_ARCHON_ADDITIONAL_INFO
+     * First 4 bits store enemy Archon 3 guess locations that are invalid
+     * Next 4 bits store enemy Archon 2...
+     * 3 guess location 3 invalid | 3 guess location 2 invalid | ...
+     */
+    static final int ENEMY_ARCHON_ADDITIONAL_INFO = 16; // 16
+
     /** RESOURCE_LOCATIONS_INDEX
      * Index 0 to RESOURCE_LOCATIONS_NUM_ELEMENTS:
      * First 6 bits stores x location and second 6 bits stores y location
@@ -72,6 +79,6 @@ strictfp class CommunicationManager {
      * Last 3 bits stores need miners score (0 is unused, 1-7 is how much miners are needed)
      * x | x | x | x | x | x | y | y | y | y | y | y | gold or lead | score | score | score
      */
-    static final int RESOURCE_LOCATIONS_INDEX = 56;
+    static final int RESOURCE_LOCATIONS_INDEX = 56; // 56-64
     static final int RESOURCE_LOCATIONS_NUM_ELEMENTS = 8;
 }

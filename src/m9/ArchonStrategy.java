@@ -202,7 +202,7 @@ strictfp class ArchonStrategy {
 
         // First turn initializations
         if (GeneralManager.turnsAlive == 1) {
-            // Broadcast my location in shared array indices 0-3 and instantiate enemy in indices 4-7
+            // Initialize Archon tracker manager
             // Find first empty array element
             mySharedArrayIndex = 0;
             while (mySharedArrayIndex <= 3) {
@@ -241,6 +241,27 @@ strictfp class ArchonStrategy {
 
         // Turn 2 initializations
         if (GeneralManager.turnsAlive == 2) {
+            // Update invalid enemy Archon guess locations
+            int encoded = RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO);
+            if (encoded == 0) {
+                for (int i = 0; i < ArchonTrackerManager.enemyArchonTrackers.length; i++) {
+                    for (int j = 0; j < ArchonTrackerManager.enemyArchonTrackers[i].guessLocations.size(); j++) {
+                        boolean valid = true;
+                        for (int k = 0; k < ArchonTrackerManager.allyArchonTrackers.length; k++) {
+                            if (ArchonTrackerManager.allyArchonTrackers[k].location.distanceSquaredTo(ArchonTrackerManager.enemyArchonTrackers[i].guessLocations.get(j)) <= 5) {
+                                valid = false;
+                                DebugManager.log("Enemy Archon " + i + " guess location " + ArchonTrackerManager.enemyArchonTrackers[i].guessLocations.get(j) + " is invalid because it's too close to ally Archon " + k + " location " + ArchonTrackerManager.allyArchonTrackers[k].location);
+                                break;
+                            }
+                        }
+                        if (!valid) {
+                            encoded = encoded | (1 << (i * 4 + j));
+                        }
+                    }
+                }
+                RobotPlayer.rc.writeSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO, encoded);
+            }
+
             // Initialize resource manager
             ArchonResourceManager.initializeTurn2();
         }
