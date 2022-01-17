@@ -159,6 +159,10 @@ strictfp class CombatManager {
             }
         }
 
+        if(RobotPlayer.rc.getRoundNum() < 20) {
+            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
+        }
+
 
 //        else if(allyCombatScore < 30 + 10 * RobotPlayer.rc.getRoundNum() / 100 &&
 //            distToNearestAllyArchon <= 25 &&
