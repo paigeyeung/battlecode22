@@ -169,8 +169,7 @@ strictfp class ArchonResourceManager {
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
 
-            if (!anySeenEnemy && (totalMinersBuilt < 8 ||
-                    (totalMinersBuilt < 20 && totalMinersBuilt < totalDroidsBuilt * 0.7))) {
+            if (!anySeenEnemy && (totalMinersBuilt < 13 && totalMinersBuilt < totalDroidsBuilt)) {
                 chosenBuild = RobotType.MINER;
             }
             // Maintain 15% proportion of build miners
@@ -182,11 +181,11 @@ strictfp class ArchonResourceManager {
                 chosenBuild = RobotType.SOLDIER;
             }
 
-            if(turn < 100 &&
-                    allyArchonModels[findArchonWithClosestEnemy()].nearestEnemyArchonDistanceSquared < 25 &&
-                    totalMinersBuilt >= 2) {
-                chosenBuild = RobotType.SOLDIER;
-            }
+//            if(turn < 100 &&
+//                    allyArchonModels[findArchonWithClosestEnemy()].nearestEnemyArchonDistanceSquared < 25 &&
+//                    totalMinersBuilt >= 2) {
+//                chosenBuild = RobotType.SOLDIER;
+//            }
 
             if (chosenBuild == null) continue;
 
@@ -201,6 +200,8 @@ strictfp class ArchonResourceManager {
 
                 allyArchonModels[chosenArchonIndex].setActionBuildMiner();
                 lead -= 50;
+
+                DebugManager.log("Building miner at Archon " + chosenArchonIndex);
             }
             else if (chosenBuild == RobotType.SOLDIER) {
                 if (lead < 75) {
@@ -210,9 +211,9 @@ strictfp class ArchonResourceManager {
                 int chosenArchonIndex = findArchonNeedingSoldiers(true);
                         //findArchonWithFewestSoldiersBuilt(true);
 
-                if(turn < 100 &&
-                        allyArchonModels[findArchonWithClosestEnemy()].nearestEnemyArchonDistanceSquared < 25)
-                    chosenArchonIndex = findArchonWithClosestEnemy();
+//                if(turn < 100 &&
+//                        allyArchonModels[findArchonWithClosestEnemy()].nearestEnemyArchonDistanceSquared < 25)
+//                    chosenArchonIndex = findArchonWithClosestEnemy();
 
                 if (chosenArchonIndex == -1) {
                     break;
