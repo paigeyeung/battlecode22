@@ -38,7 +38,7 @@ strictfp class GeneralManager {
         RobotType.SAGE
     };
 
-    static final Random rng = new Random(4);
+    static final Random rng = new Random(1);
     static Direction getRandomDirection() {
         return DIRECTIONS[rng.nextInt(DIRECTIONS.length)];
     }
