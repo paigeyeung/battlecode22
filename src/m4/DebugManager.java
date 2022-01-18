@@ -3,7 +3,7 @@ package m4;
 strictfp class DebugManager {
     static String botName = "m4";
     static void log(String string) {
-        System.out.println(botName + " - " + RobotPlayer.rc.getRoundNum() + " - " + string);
+//        System.out.println(botName + " - " + RobotPlayer.rc.getRoundNum() + " - " + string);
         RobotPlayer.rc.setIndicatorString(string);
     }
 
