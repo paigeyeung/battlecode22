@@ -50,6 +50,8 @@ strictfp class ArchonStrategy {
     }
 
     static boolean archonTryMove() throws GameActionException {
+        if(archonDest == null) return false;
+
         if(movedToArchonsDest) {
             if(!movedOffRubble)
                 return archonTryMoveLowerRubble();
@@ -243,11 +245,6 @@ strictfp class ArchonStrategy {
 
         // Turn 2 initializations
         if (GeneralManager.turnsAlive == 2) {
-            if(ArchonResourceManager.findArchonFarthestFromEnemies(true) != -1)
-                archonDest = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
-            else
-                archonDest = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
-
             // Update invalid enemy Archon guess locations
             int encoded = RobotPlayer.rc.readSharedArray(CommunicationManager.ENEMY_ARCHON_ADDITIONAL_INFO);
             if (encoded == 0) {
@@ -271,6 +268,11 @@ strictfp class ArchonStrategy {
 
             // Initialize resource manager
             ArchonResourceManager.initializeTurn2();
+
+            if(ArchonResourceManager.findArchonFarthestFromEnemies(true) != -1)
+                archonDest = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
+            else
+                archonDest = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
         }
 
 //        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 2");
