@@ -1,7 +1,6 @@
 package m9w1;
 
 import battlecode.common.*;
-
 import java.util.Arrays;
 
 strictfp class BuilderStrategy {

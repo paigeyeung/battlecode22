@@ -146,7 +146,7 @@ strictfp class MinerStrategy {
             }
         }
 
-        if (noResources) {
+        if (noResources && RobotPlayer.rc.getRoundNum() > 50) {
             MapLocation resourceLocation = ResourceLocationsManager.minerGetWhereToGo();
             if (resourceLocation != null) {
                 return GeneralManager.getNextDir(resourceLocation);

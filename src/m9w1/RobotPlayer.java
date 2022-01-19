@@ -1,6 +1,7 @@
 package m9w1;
 
 import battlecode.common.*;
+import java.util.Arrays;
 
 public strictfp class RobotPlayer {
     static RobotController rc;
@@ -13,6 +14,8 @@ public strictfp class RobotPlayer {
         GeneralManager.startingLocation = rc.getLocation();
         GeneralManager.mapWidth = rc.getMapWidth();
         GeneralManager.mapHeight = rc.getMapHeight();
+
+        GeneralManager.iAmDroid = Arrays.asList(GeneralManager.DROIDS).contains(GeneralManager.myType);
 
         while (true) {
             // Once per turn statics
@@ -32,6 +35,7 @@ public strictfp class RobotPlayer {
                 }
                 AllUnitStrategy.runAllLate();
                 DebugManager.sanityCheck();
+                DebugManager.debugResourceLocations();
             } catch (GameActionException e) {
                 DebugManager.log(rc.getType() + " Exception");
                 e.printStackTrace();

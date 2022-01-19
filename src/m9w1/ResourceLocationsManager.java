@@ -18,6 +18,9 @@ strictfp class ResourceLocationsManager {
         int score;
 
         ResourceLocation (boolean _isUsed, MapLocation _location, boolean _isGold, int _score) {
+            if (_isUsed && _score == 0) {
+                DebugManager.log("SOMETHING WENT WRONG: Is used but score is 0!");
+            }
             isUsed = _isUsed;
             location = _location;
             isGold = _isGold;
@@ -36,97 +39,106 @@ strictfp class ResourceLocationsManager {
 
     /** Updates shared array, call whenever possible */
     static void updateResourceLocations() throws GameActionException {
-        MapLocation[] nearbyGold = RobotPlayer.rc.senseNearbyLocationsWithGold();
-        MapLocation[] nearbyLead = RobotPlayer.rc.senseNearbyLocationsWithLead(GeneralManager.myType.visionRadiusSquared, MIN_LEAD);
-        ResourceLocationsManager.ResourceLocation[] resourceLocations = readResourceLocations();
+        boolean updateGold = false;
+        if (Clock.getBytecodesLeft() > 5000 && GeneralManager.turnsAlive % 5 == 2) {
+            updateGold = true;
+        }
 
-        boolean allResourceLocationsUsed = areAllResourceLocationsUsed(resourceLocations);
+        MapLocation[] nearbyGold;
+        if (updateGold) {
+            nearbyGold = RobotPlayer.rc.senseNearbyLocationsWithGold();
+        }
+        else {
+            nearbyGold = new MapLocation[0];
+        }
+        MapLocation[] nearbyLead = RobotPlayer.rc.senseNearbyLocationsWithLead(GeneralManager.myType.visionRadiusSquared, MIN_LEAD);
+        ResourceLocation[] resourceLocations = readResourceLocations();
+
+//        boolean allResourceLocationsUsed = areAllResourceLocationsUsed(resourceLocations);
 
         // If I'm near somewhere mentioned in the shared array
         int nearestResourceLocationIndex = getNearestResourceLocationIndex(resourceLocations);
         if (nearestResourceLocationIndex != -1) {
-            ResourceLocationsManager.ResourceLocation nearestResourceLocation = resourceLocations[nearestResourceLocationIndex];
-            if (nearestResourceLocation.location.distanceSquaredTo(GeneralManager.myLocation) <= MAX_SQUARED_DISTANCE_MARK_DEPLETED) {
-                if (nearbyGold.length == 0 && nearbyLead.length == 0) {
-                    // If there aren't any resources anymore, remove it
-                    ResourceLocationsManager.ResourceLocation removeResourceLocation = new ResourceLocationsManager.ResourceLocation(false);
-                    writeResourceLocation(nearestResourceLocationIndex, removeResourceLocation);
-                    resourceLocations[nearestResourceLocationIndex] = removeResourceLocation;
-                }
-                else {
-                    // If the score changes, update it
-                    int newScore;
-                    if (nearestResourceLocation.isGold) {
-                        newScore = computeGoldResourceLocationScore(nearbyGold.length);
+            ResourceLocation nearestResourceLocation = resourceLocations[nearestResourceLocationIndex];
+            if (!nearestResourceLocation.isGold || updateGold) {
+                if (nearestResourceLocation.location.distanceSquaredTo(GeneralManager.myLocation) <= MAX_SQUARED_DISTANCE_MARK_DEPLETED) {
+                    if ((nearestResourceLocation.isGold && nearbyGold.length == 0)
+                        || (!nearestResourceLocation.isGold && nearbyLead.length == 0)) {
+                        // If there aren't any resources anymore, remove it
+//                        DebugManager.log("Removing res loc at " + nearestResourceLocation.location);
+                        ResourceLocation removeResourceLocation = new ResourceLocation(false);
+                        writeResourceLocation(nearestResourceLocationIndex, removeResourceLocation);
+                        resourceLocations[nearestResourceLocationIndex] = removeResourceLocation;
                     }
                     else {
-                        newScore = computeLeadResourceLocationScore(nearbyLead.length);
-                    }
-                    if (newScore != nearestResourceLocation.score) {
-                        nearestResourceLocation.score = newScore;
-                        writeResourceLocation(nearestResourceLocationIndex, nearestResourceLocation);
+                        // If the score changed a lot, update it
+                        int newScore;
+                        if (nearestResourceLocation.isGold) {
+                            newScore = computeGoldResourceLocationScore(nearbyGold.length);
+                        }
+                        else {
+                            newScore = computeLeadResourceLocationScore(nearbyLead.length);
+                        }
+                        if (Math.abs(nearestResourceLocation.score - newScore) >= 2) {
+//                            DebugManager.log("Updating res loc score at " + nearestResourceLocation.location + " from " + nearestResourceLocation.score + " to " + newScore);
+                            nearestResourceLocation.score = newScore;
+                            writeResourceLocation(nearestResourceLocationIndex, nearestResourceLocation);
+                        }
                     }
                 }
             }
         }
-        if (Clock.getBytecodesLeft() < 500) return;
+        if (Clock.getBytecodesLeft() < 1000) return;
 
         // If I see lots of resources and it isn't in the shared array, add it
-        for (int i = 0; i < nearbyGold.length; i++) {
-            if (!existsResourceLocationNearby(resourceLocations, nearbyGold[i], true)) {
+        if (updateGold && nearbyGold.length > 0) {
+            MapLocation nearestGold = GeneralManager.getNearestLocation(nearbyGold);
+            if (nearestGold == null) {
+                DebugManager.log("SOMETHING WENT WRONG: There is gold at " + nearbyGold + " but there is no nearest!");
+            }
+            if (!existsResourceLocationNearby(resourceLocations, nearestGold)) {
                 int newResourceLocationScore = computeGoldResourceLocationScore(nearbyGold.length);
-                int newResourceLocationIndex = getLowestScoreResourceLocationIndex(resourceLocations);
-                if (newResourceLocationIndex != -1 && (!resourceLocations[newResourceLocationIndex].isUsed || resourceLocations[newResourceLocationIndex].score < newResourceLocationScore)) {
-                    ResourceLocationsManager.ResourceLocation newResourceLocation = new ResourceLocationsManager.ResourceLocation(true, nearbyGold[i], true, newResourceLocationScore);
+                int newResourceLocationIndex = getLowestScoreResourceLocationIndex(resourceLocations, newResourceLocationScore);
+                if (newResourceLocationIndex != -1) {
+                    ResourceLocation newResourceLocation = new ResourceLocation(true, nearestGold, true, newResourceLocationScore);
+//                    DebugManager.log("New gold res loc at " + newResourceLocation.location + " score " + newResourceLocationScore);
                     writeResourceLocation(newResourceLocationIndex, newResourceLocation);
                     resourceLocations[newResourceLocationIndex] = newResourceLocation;
-                    RobotPlayer.rc.setIndicatorDot(nearbyGold[i], 0, 255, 0);
                 }
             }
+            if (Clock.getBytecodesLeft() < 1000) return;
         }
-        if (Clock.getBytecodesLeft() < 500) return;
-        for (int i = 0; i < nearbyLead.length; i++) {
-            if (!existsResourceLocationNearby(resourceLocations, nearbyLead[i], false)) {
+        if (nearbyLead.length > 0) {
+            MapLocation nearestLead = GeneralManager.getNearestLocation(nearbyLead);
+            if (nearestLead == null) {
+                DebugManager.log("SOMETHING WENT WRONG: There is lead at " + nearbyLead + " but there is no nearest!");
+            }
+            if (!existsResourceLocationNearby(resourceLocations, nearestLead)) {
                 int newResourceLocationScore = computeLeadResourceLocationScore(nearbyLead.length);
-                int newResourceLocationIndex = getLowestScoreResourceLocationIndex(resourceLocations);
-                if (newResourceLocationIndex != -1 && (!resourceLocations[newResourceLocationIndex].isUsed || resourceLocations[newResourceLocationIndex].score < newResourceLocationScore)) {
-                    ResourceLocationsManager.ResourceLocation newResourceLocation = new ResourceLocationsManager.ResourceLocation(true, nearbyLead[i], false, newResourceLocationScore);
+                int newResourceLocationIndex = getLowestScoreResourceLocationIndex(resourceLocations, newResourceLocationScore);
+                if (newResourceLocationIndex != -1) {
+                    ResourceLocation newResourceLocation = new ResourceLocation(true, nearestLead, false, newResourceLocationScore);
+//                    DebugManager.log("New lead res loc at " + newResourceLocation.location + " score " + newResourceLocationScore);
                     writeResourceLocation(newResourceLocationIndex, newResourceLocation);
                     resourceLocations[newResourceLocationIndex] = newResourceLocation;
-                    RobotPlayer.rc.setIndicatorDot(nearbyLead[i], 0, 0, 255);
-                }
-            }
-
-            // If there are unused spaces in the shared array, also add a horizontally mirrored lead location with a low score
-            if (!allResourceLocationsUsed) {
-                MapLocation mirroredLocation = GeneralManager.getOppositeLocation(nearbyLead[i], true, false);
-                if (!existsResourceLocationNearby(resourceLocations, mirroredLocation, false)) {
-                    int newResourceLocationScore = computeLeadResourceLocationScore(nearbyLead.length) / 3;
-                    int newResourceLocationIndex = getLowestScoreResourceLocationIndex(resourceLocations);
-                    if (newResourceLocationIndex != -1 && !resourceLocations[newResourceLocationIndex].isUsed) {
-                        ResourceLocationsManager.ResourceLocation newResourceLocation = new ResourceLocationsManager.ResourceLocation(true, mirroredLocation, false, newResourceLocationScore);
-                        writeResourceLocation(newResourceLocationIndex, newResourceLocation);
-                        resourceLocations[newResourceLocationIndex] = newResourceLocation;
-                        RobotPlayer.rc.setIndicatorDot(mirroredLocation, 0, 0, 255);
-                    }
                 }
             }
         }
     }
 
     /** Read functions */
-    static ResourceLocationsManager.ResourceLocation decodeResourceLocation(int encoded) {
-        boolean isUsed = (encoded & 0x1) == 1;
+    static ResourceLocation decodeResourceLocation(int encoded) {
+        int score = encoded & 0x7;
+        boolean isUsed = score != 0;
         if (!isUsed) {
-            return new ResourceLocationsManager.ResourceLocation(isUsed);
+            return new ResourceLocation(false);
         }
         MapLocation location = new MapLocation((encoded >>> 10) & 0x3F, (encoded >> 4) & 0x3F);
         boolean isGold = ((encoded >>> 3) & 0x1) == 1;
-        int score = encoded & 0x7;
-        return new ResourceLocationsManager.ResourceLocation(isUsed, location, isGold, score);
+        return new ResourceLocation(true, location, isGold, score);
     }
-    static ResourceLocationsManager.ResourceLocation[] readResourceLocations() throws GameActionException {
-        ResourceLocationsManager.ResourceLocation[] resourceLocations = new ResourceLocationsManager.ResourceLocation[CommunicationManager.RESOURCE_LOCATIONS_NUM_ELEMENTS];
+    static ResourceLocation[] readResourceLocations() throws GameActionException {
+        ResourceLocation[] resourceLocations = new ResourceLocation[CommunicationManager.RESOURCE_LOCATIONS_NUM_ELEMENTS];
         for (int i = 0; i < resourceLocations.length; i++) {
             resourceLocations[i] = decodeResourceLocation(RobotPlayer.rc.readSharedArray(CommunicationManager.RESOURCE_LOCATIONS_INDEX + i));
         }
@@ -134,11 +146,11 @@ strictfp class ResourceLocationsManager {
     }
 
     /** Write functions */
-    static int encodeResourceLocation(ResourceLocationsManager.ResourceLocation resourceLocation) {
+    static int encodeResourceLocation(ResourceLocation resourceLocation) {
         return (resourceLocation.location.x << 10) | (resourceLocation.location.y << 4) | ((resourceLocation.isGold ? 1 : 0) << 3) | resourceLocation.score;
     }
-    static void writeResourceLocation(int index, ResourceLocationsManager.ResourceLocation newResourceLocation) throws GameActionException {
-        DebugManager.log("Wrote resource location index: " + index + ", location: " + newResourceLocation.location + ", isGold: " + newResourceLocation.isGold + ", score: " + newResourceLocation.score);
+    static void writeResourceLocation(int index, ResourceLocation newResourceLocation) throws GameActionException {
+//        DebugManager.log("Wrote res loc index: " + index + ", loc: " + newResourceLocation.location + ", score: " + newResourceLocation.score);
         int encoded = encodeResourceLocation(newResourceLocation);
         RobotPlayer.rc.writeSharedArray(CommunicationManager.RESOURCE_LOCATIONS_INDEX + index, encoded);
     }
@@ -152,28 +164,28 @@ strictfp class ResourceLocationsManager {
         }
         return true;
     }
-    static int getLowestScoreResourceLocationIndex(ResourceLocation[] resourceLocations) {
+    static int getLowestScoreResourceLocationIndex(ResourceLocation[] resourceLocations, int minScore) {
         int chosenIndex = -1;
-        int chosenIndexScore = 1000;
+        int chosenIndexScore = 100;
         for (int i = 0; i < resourceLocations.length; i++) {
             if (!resourceLocations[i].isUsed) {
                 chosenIndex = i;
                 break;
             }
-            if (resourceLocations[i].score < chosenIndexScore) {
+            if (resourceLocations[i].score >= minScore
+                && resourceLocations[i].score < chosenIndexScore) {
                 chosenIndex = i;
                 chosenIndexScore = resourceLocations[i].score;
             }
         }
         return chosenIndex;
     }
-    static boolean existsResourceLocationNearby(ResourceLocation[] resourceLocations, MapLocation location, boolean isGold) {
+    static boolean existsResourceLocationNearby(ResourceLocation[] resourceLocations, MapLocation location) {
         for (int i = 0; i < resourceLocations.length; i++) {
             if (!resourceLocations[i].isUsed) {
                 continue;
             }
-            if (resourceLocations[i].location.distanceSquaredTo(location) <= MIN_SQUARED_DISTANCE_BETWEEN_LOCATIONS
-                && (!isGold || resourceLocations[i].isGold)) {
+            if (resourceLocations[i].location.distanceSquaredTo(location) <= MIN_SQUARED_DISTANCE_BETWEEN_LOCATIONS) {
                 return true;
             }
         }
@@ -205,23 +217,27 @@ strictfp class ResourceLocationsManager {
 
     /** Called by miner if no resources in sight, can return null */
     static MapLocation minerGetWhereToGo() throws GameActionException {
-        ResourceLocationsManager.ResourceLocation[] resourceLocations = readResourceLocations();
+        ResourceLocation[] resourceLocations = readResourceLocations();
         int chosenIndex = -1;
         double chosenCombinedScore = -1;
         for (int i = 0; i < resourceLocations.length; i++) {
             if (!resourceLocations[i].isUsed) {
                 continue;
             }
-            double combinedScore = 500 * resourceLocations[i].score / (GeneralManager.myLocation.distanceSquaredTo(resourceLocations[i].location) + 1);
+            double combinedScore = 100 * Math.log(resourceLocations[i].score + 1) / Math.log(GeneralManager.myLocation.distanceSquaredTo(resourceLocations[i].location) + 1);
             if (chosenIndex == -1 || combinedScore > chosenCombinedScore) {
                 chosenIndex = i;
                 chosenCombinedScore = combinedScore;
             }
         }
         // Only return the location if score is high enough
-        if (chosenCombinedScore >= 15) {
+        if (chosenCombinedScore >= 20) {
 //            DebugManager.log("Miner at " + GeneralManager.myLocation + " go to resource location " + resourceLocations[chosenIndex].location);
+            RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, resourceLocations[chosenIndex].location, 0, 255, 0);
             return resourceLocations[chosenIndex].location;
+        }
+        if (chosenIndex != -1) {
+            RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, resourceLocations[chosenIndex].location, 255, 0, 0);
         }
         return null;
     }

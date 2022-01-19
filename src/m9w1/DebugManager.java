@@ -1,6 +1,6 @@
 package m9w1;
 
-import battlecode.common.RobotType;
+import battlecode.common.*;
 
 strictfp class DebugManager {
     static String botName = "m9w1";
@@ -39,6 +39,21 @@ strictfp class DebugManager {
                         log("SOMETHING WENT WRONG: Ally Archon " + i + " ArchonTrackerManager alive: " + ArchonTrackerManager.allyArchonTrackers[i].alive + " and ArchonResourceManager alive: " + ArchonResourceManager.allyArchonModels[i].alive);
                     }
                 }
+            }
+        }
+    }
+
+    static void debugResourceLocations() throws GameActionException {
+        ResourceLocationsManager.ResourceLocation[] resourceLocations = ResourceLocationsManager.readResourceLocations();
+        for (ResourceLocationsManager.ResourceLocation resourceLocation : resourceLocations) {
+            if (!resourceLocation.isUsed) {
+                continue;
+            }
+            if (resourceLocation.isGold) {
+                RobotPlayer.rc.setIndicatorDot(resourceLocation.location, 0, 255, 0);
+            }
+            else {
+                RobotPlayer.rc.setIndicatorDot(resourceLocation.location, 0, 0, 255);
             }
         }
     }

@@ -1,7 +1,6 @@
 package m9w1;
 
 import battlecode.common.*;
-import java.util.Arrays;
 
 strictfp class AllUnitStrategy {
     static boolean updatedArchonsLastTurn = false;
@@ -59,14 +58,13 @@ strictfp class AllUnitStrategy {
         }
 
         // Update resource locations
-        if (Clock.getBytecodesLeft() > 500 && GeneralManager.turnsAlive % 2 == 0 && RobotPlayer.rc.getRoundNum() > 50
-            && Arrays.asList(GeneralManager.DROIDS).contains(GeneralManager.myType)) {
+        if (Clock.getBytecodesLeft() > 2000 && GeneralManager.turnsAlive % 2 == 0 && GeneralManager.iAmDroid) {
             ResourceLocationsManager.updateResourceLocations();
         }
 
         // If this is near the start of the game, check if this is the first time we see an enemy near this ally Archon
         // It would be nice for Archons to run this too, but may screw up ArchonResourceManager if shared array is modified in between Archon turns
-        if (Clock.getBytecodesLeft() > 1000 && GeneralManager.myType != RobotType.ARCHON) {
+        if (Clock.getBytecodesLeft() > 2000 && GeneralManager.myType != RobotType.ARCHON) {
             int encodedAllyArchonAdditionalInfo = RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO);
             int nearestAllyArchon = ArchonTrackerManager.getNearestAllyArchon(GeneralManager.myLocation);
             boolean seenEnemy = ((encodedAllyArchonAdditionalInfo >>> nearestAllyArchon) & 0x1) == 1;
@@ -84,7 +82,7 @@ strictfp class AllUnitStrategy {
         }
 
         // Check for updates to Archons from shared array
-        if (Clock.getBytecodesLeft() > 1000) {
+        if (Clock.getBytecodesLeft() > 2000) {
             for (int i = 0; i < ArchonTrackerManager.allyArchonTrackers.length; i++) {
                 boolean toggleBefore = ArchonTrackerManager.allyArchonTrackers[i].toggle;
                 ArchonTrackerManager.decodeAndUpdateLocalAllyArchonTracker(i, false);
@@ -105,7 +103,7 @@ strictfp class AllUnitStrategy {
         }
 
         // If an enemy Archon is seen or destroyed, broadcast it to shared array
-        if (Clock.getBytecodesLeft() > 1000 && updatedArchonsLastTurn) {
+        if (Clock.getBytecodesLeft() > 2000 && updatedArchonsLastTurn) {
             // Check for alive and nonmissing enemy Archons
             for (int i = 0; i < ArchonTrackerManager.enemyArchonTrackers.length; i++) {
                 if (!ArchonTrackerManager.enemyArchonTrackers[i].alive
