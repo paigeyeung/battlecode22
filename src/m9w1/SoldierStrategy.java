@@ -1,4 +1,4 @@
-package m9;
+package m9w1;
 
 import battlecode.common.*;
 
@@ -98,13 +98,8 @@ strictfp class SoldierStrategy {
 
             RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared);
             if(enemies.length > 0) {
-                storedAttackDirection = getNextSoldierDir(enemies[(int)(Math.random()*enemies.length)].location);
-                GeneralManager.tryMove(storedAttackDirection,false);
+                GeneralManager.tryMove(getNextSoldierDir(enemies[(int)(Math.random()*enemies.length)].location),false);
             }
-            else if (storedAttackDirection != null) {
-                GeneralManager.tryMove(storedAttackDirection, false);
-            }
-
             if (CombatManager.tryAttack()) {
                 // Try to attack
             }
