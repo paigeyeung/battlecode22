@@ -79,6 +79,6 @@ strictfp class CommunicationManager {
      * Last 3 bits stores need miners score (0 is unused, 1-7 is how much miners are needed)
      * x | x | x | x | x | x | y | y | y | y | y | y | gold or lead | score | score | score
      */
-    static final int RESOURCE_LOCATIONS_INDEX = 56; // 56-64
-    static final int RESOURCE_LOCATIONS_NUM_ELEMENTS = 8;
+    static final int RESOURCE_LOCATIONS_INDEX = 48; // 48-64
+    static final int RESOURCE_LOCATIONS_NUM_ELEMENTS = 16;
 }
