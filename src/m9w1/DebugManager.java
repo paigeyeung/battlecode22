@@ -53,7 +53,7 @@ strictfp class DebugManager {
                 RobotPlayer.rc.setIndicatorDot(resourceLocation.location, 0, 255, 0);
             }
             else {
-                RobotPlayer.rc.setIndicatorDot(resourceLocation.location, 0, 0, 255);
+                RobotPlayer.rc.setIndicatorDot(resourceLocation.location, 0, 255, 255);
             }
         }
     }

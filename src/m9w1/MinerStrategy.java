@@ -5,6 +5,7 @@ import battlecode.common.*;
 strictfp class MinerStrategy {
     static boolean[][] visited = null;
     static boolean depleteLead = false;
+    static int roundLastMined = 0;
 
     /** Called by RobotPlayer **/
     static void runMiner() throws GameActionException {
@@ -18,6 +19,7 @@ strictfp class MinerStrategy {
                 MapLocation mineLocation = new MapLocation(GeneralManager.myLocation.x + dx, GeneralManager.myLocation.y + dy);
                 while (RobotPlayer.rc.canMineGold(mineLocation)) {
                     RobotPlayer.rc.mineGold(mineLocation);
+                    roundLastMined = RobotPlayer.rc.getRoundNum();
                 }
             }
         }
@@ -28,6 +30,7 @@ strictfp class MinerStrategy {
                 MapLocation mineLocation = new MapLocation(GeneralManager.myLocation.x + dx, GeneralManager.myLocation.y + dy);
                 while (RobotPlayer.rc.canMineLead(mineLocation) && (depleteLead || RobotPlayer.rc.senseLead(mineLocation) > 1)) {
                     RobotPlayer.rc.mineLead(mineLocation);
+                    roundLastMined = RobotPlayer.rc.getRoundNum();
                 }
             }
         }
@@ -53,7 +56,7 @@ strictfp class MinerStrategy {
         }
 
         // Calculate depleteLead for next turn
-        if (Clock.getBytecodesLeft() > 3000) {
+        if (Clock.getBytecodesLeft() > 8000) {
             int depleteLeadScore = 0;
 
             // If nearby enemy units greater than nearby ally units
@@ -146,7 +149,7 @@ strictfp class MinerStrategy {
             }
         }
 
-        if (noResources && RobotPlayer.rc.getRoundNum() > 50) {
+        if (noResources && roundLastMined > 25) {
             MapLocation resourceLocation = ResourceLocationsManager.minerGetWhereToGo();
             if (resourceLocation != null) {
                 return GeneralManager.getNextDir(resourceLocation);

@@ -74,10 +74,10 @@ strictfp class ResourceLocationsManager {
                         // If the score changed a lot, update it
                         int newScore;
                         if (nearestResourceLocation.isGold) {
-                            newScore = computeGoldResourceLocationScore(nearbyGold.length);
+                            newScore = computeGoldResourceLocationScore(nearbyGold.length, false);
                         }
                         else {
-                            newScore = computeLeadResourceLocationScore(nearbyLead.length);
+                            newScore = computeLeadResourceLocationScore(nearbyLead.length, false);
                         }
                         if (Math.abs(nearestResourceLocation.score - newScore) >= 2) {
 //                            DebugManager.log("Updating res loc score at " + nearestResourceLocation.location + " from " + nearestResourceLocation.score + " to " + newScore);
@@ -97,7 +97,7 @@ strictfp class ResourceLocationsManager {
                 DebugManager.log("SOMETHING WENT WRONG: There is gold at " + nearbyGold + " but there is no nearest!");
             }
             if (!existsResourceLocationNearby(resourceLocations, nearestGold)) {
-                int newResourceLocationScore = computeGoldResourceLocationScore(nearbyGold.length);
+                int newResourceLocationScore = computeGoldResourceLocationScore(nearbyGold.length, true);
                 int newResourceLocationIndex = getLowestScoreResourceLocationIndex(resourceLocations, newResourceLocationScore);
                 if (newResourceLocationIndex != -1) {
                     ResourceLocation newResourceLocation = new ResourceLocation(true, nearestGold, true, newResourceLocationScore);
@@ -114,7 +114,7 @@ strictfp class ResourceLocationsManager {
                 DebugManager.log("SOMETHING WENT WRONG: There is lead at " + nearbyLead + " but there is no nearest!");
             }
             if (!existsResourceLocationNearby(resourceLocations, nearestLead)) {
-                int newResourceLocationScore = computeLeadResourceLocationScore(nearbyLead.length);
+                int newResourceLocationScore = computeLeadResourceLocationScore(nearbyLead.length, true);
                 int newResourceLocationIndex = getLowestScoreResourceLocationIndex(resourceLocations, newResourceLocationScore);
                 if (newResourceLocationIndex != -1) {
                     ResourceLocation newResourceLocation = new ResourceLocation(true, nearestLead, false, newResourceLocationScore);
@@ -208,11 +208,19 @@ strictfp class ResourceLocationsManager {
     }
 
     /** Compute score, MUST BE BETWEEN 1-7 INCLUSIVE */
-    static int computeGoldResourceLocationScore(int numNearbyGold) {
-        return 7;
+    static int computeGoldResourceLocationScore(int numNearbyGold, boolean newlySeen) {
+        int score = 7;
+        return clampResourceLocationScore(score);
     }
-    static int computeLeadResourceLocationScore(int numNearbyLead) {
-        return Math.min(numNearbyLead, 6);
+    static int computeLeadResourceLocationScore(int numNearbyLead, boolean newlySeen) {
+        int score = numNearbyLead;
+        if (newlySeen) {
+            score += 3;
+        }
+        return clampResourceLocationScore(score);
+    }
+    static int clampResourceLocationScore(int score) {
+        return Math.max(Math.min(score, 7), 1);
     }
 
     /** Called by miner if no resources in sight, can return null */
@@ -231,7 +239,7 @@ strictfp class ResourceLocationsManager {
             }
         }
         // Only return the location if score is high enough
-        if (chosenCombinedScore >= 20) {
+        if (chosenCombinedScore >= 30) {
 //            DebugManager.log("Miner at " + GeneralManager.myLocation + " go to resource location " + resourceLocations[chosenIndex].location);
             RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, resourceLocations[chosenIndex].location, 0, 255, 0);
             return resourceLocations[chosenIndex].location;
