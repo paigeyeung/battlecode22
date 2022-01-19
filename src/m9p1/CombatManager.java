@@ -1,4 +1,4 @@
-package m9;
+package m9p1;
 
 import battlecode.common.*;
 
@@ -159,10 +159,12 @@ strictfp class CombatManager {
             }
         }
 
-        if(RobotPlayer.rc.getRoundNum() < 20 && Integer.min(RobotPlayer.rc.getMapHeight(),RobotPlayer.rc.getMapWidth()) > 30) {
+        if(RobotPlayer.rc.getRoundNum() < 20) {
             chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
         }
-
+//        else if(RobotPlayer.rc.getRoundNum() < 20 && Integer.max(RobotPlayer.rc.getMapHeight(),RobotPlayer.rc.getMapWidth()) < 30) {
+//            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
+//        }
 
 //        else if(allyCombatScore < 30 + 10 * RobotPlayer.rc.getRoundNum() / 100 &&
 //            distToNearestAllyArchon <= 25 &&

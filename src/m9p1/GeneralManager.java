@@ -1,4 +1,4 @@
-package m9;
+package m9p1;
 
 import battlecode.common.*;
 
@@ -40,7 +40,7 @@ strictfp class GeneralManager {
         RobotType.SAGE
     };
 
-    static final Random rng = new Random(4);
+    static final Random rng = new Random(2);
     static Direction getRandomDirection() {
         return DIRECTIONS[rng.nextInt(DIRECTIONS.length)];
     }

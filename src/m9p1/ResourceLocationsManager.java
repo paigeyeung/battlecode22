@@ -1,4 +1,4 @@
-package m9;
+package m9p1;
 
 import battlecode.common.*;
 
@@ -119,7 +119,7 @@ strictfp class ResourceLocationsManager {
         return (resourceLocation.location.x << 10) | (resourceLocation.location.y << 4) | ((resourceLocation.isGold ? 1 : 0) << 3) | resourceLocation.score;
     }
     static void writeResourceLocation(int index, ResourceLocation newResourceLocation) throws GameActionException {
-        DebugManager.log("Wrote resource location index: " + index + ", location: " + newResourceLocation.location + ", isGold: " + newResourceLocation.isGold + ", score: " + newResourceLocation.score);
+//        DebugManager.log("Wrote resource location index: " + index + ", location: " + newResourceLocation.location + ", isGold: " + newResourceLocation.isGold + ", score: " + newResourceLocation.score);
         int encoded = encodeResourceLocation(newResourceLocation);
         RobotPlayer.rc.writeSharedArray(CommunicationManager.RESOURCE_LOCATIONS_INDEX + index, encoded);
     }

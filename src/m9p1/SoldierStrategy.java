@@ -1,8 +1,8 @@
-package m9;
+package m9p1;
 
 import battlecode.common.*;
 
-import static m9.GeneralManager.visitedTurns;
+import static m9p1.GeneralManager.visitedTurns;
 
 strictfp class SoldierStrategy {
     static boolean scouting = false;

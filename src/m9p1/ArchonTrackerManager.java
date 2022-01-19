@@ -1,4 +1,4 @@
-package m9;
+package m9p1;
 
 import battlecode.common.*;
 
@@ -315,39 +315,29 @@ strictfp class ArchonTrackerManager {
                 return;
             }
         }
-        // Check for unseen enemy Archons
+        // Check for closest enemy Archon
+        int closestIndex = -1;
+        int closestDistanceSquared = 10000;
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
             if (!enemyArchonTrackers[i].alive) {
                 continue;
             }
-            if (!enemyArchonTrackers[i].seen) {
-                DebugManager.log("Decided to find unseen enemy Archon " + i);
-                enemyArchonTrackers[i].update(true, location, true, 0, true);
-                updateGlobalEnemyArchonTracker(i);
-                return;
+            int closestGuessLocationDistanceSquared = 10000;
+            for (int j = 0; j < enemyArchonTrackers[i].guessLocations.size(); j++) {
+                int guessLocationDistanceSquared = enemyArchonTrackers[i].guessLocations.get(j).distanceSquaredTo(location);
+                if (guessLocationDistanceSquared < closestGuessLocationDistanceSquared) {
+                    closestGuessLocationDistanceSquared = guessLocationDistanceSquared;
+                }
+            }
+            if (closestIndex == -1 || closestGuessLocationDistanceSquared < closestDistanceSquared) {
+                closestIndex = i;
+                closestDistanceSquared = closestGuessLocationDistanceSquared;
             }
         }
-        // No missing or unseen enemy Archons, so some enemy Archon relocated since we've last seen it
-        // Check for enemy Archons without overridden locations
-        for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (!enemyArchonTrackers[i].alive) {
-                continue;
-            }
-            if (!enemyArchonTrackers[i].guessLocationOverridden) {
-                DebugManager.log("Decided to find un-guess-location-overridden enemy Archon " + i);
-                enemyArchonTrackers[i].update(true, location, true, 0, true);
-                updateGlobalEnemyArchonTracker(i);
-                return;
-            }
-        }
-        // Check for any enemy Archons
-        for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (!enemyArchonTrackers[i].alive) {
-                continue;
-            }
-            DebugManager.log("Decided to find normal enemy Archon " + i);
-            enemyArchonTrackers[i].update(true, location, true, 0, true);
-            updateGlobalEnemyArchonTracker(i);
+        if (closestIndex != -1) {
+            DebugManager.log("Decided to find enemy Archon " + closestIndex);
+            enemyArchonTrackers[closestIndex].update(true, location, true, 0, true);
+            updateGlobalEnemyArchonTracker(closestIndex);
             return;
         }
         DebugManager.log("SOMETHING WENT WRONG: Does this mean no enemy Archons are alive?");
