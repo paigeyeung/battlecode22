@@ -27,7 +27,7 @@ strictfp class SageStrategy {
         if (action == CombatManager.COMBAT_DROID_ACTIONS.ATTACK) {
             RobotInfo[] allies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.actionRadiusSquared, GeneralManager.myTeam);
             RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.actionRadiusSquared, GeneralManager.enemyTeam);
-            MapLocation[] leadLocations = RobotPlayer.rc.senseNearbyLocationsWithLead(GeneralManager.myType.actionRadiusSquared);
+//            MapLocation[] leadLocations = RobotPlayer.rc.senseNearbyLocationsWithLead(GeneralManager.myType.actionRadiusSquared);
 
             // Paige's version
 //            int allyArchonCount = 0, allyDroidCount = 0, enemyArchonCount = 0, enemyDroidCount = 0;
