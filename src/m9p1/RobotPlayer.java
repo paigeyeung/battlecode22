@@ -26,7 +26,7 @@ public strictfp class RobotPlayer {
                     case MINER:      MinerStrategy.runMiner(); break;
                     case BUILDER:    BuilderStrategy.runBuilder(); break;
                     case SOLDIER:    SoldierStrategy.runSoldier(); break;
-                    case SAGE:       break;
+                    case SAGE:       SageStrategy.runSage(); break;
                     case LABORATORY: break;
                     case WATCHTOWER: WatchtowerStrategy.runWatchtower(); break;
                 }

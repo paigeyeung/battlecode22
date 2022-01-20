@@ -463,6 +463,29 @@ strictfp class ArchonTrackerManager {
         return ((RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ENEMY_COMBAT_SCORE+index/2) >>> (7 * (index % 2))) & 0x7F);
     }
 
+    static int findArchonWithMaxCombatScore() throws GameActionException {
+        int max = -1, index = -1;
+        for(int i = 0; i < allyArchonTrackers.length; i++) {
+            if(!allyArchonTrackers[i].alive) continue;
+            if(getEnemyCombatScoreAtArchon(i) > max) {
+                index = i;
+                max = getEnemyCombatScoreAtArchon(i);
+            }
+        }
+        return index;
+    }
+
+    static int findMaxEnemyCombatScoreAtArchon() throws GameActionException {
+        int max = -1;
+        for(int i = 0; i < allyArchonTrackers.length; i++) {
+            if(!allyArchonTrackers[i].alive) continue;
+            if(getEnemyCombatScoreAtArchon(i) > max) {
+                max = getEnemyCombatScoreAtArchon(i);
+            }
+        }
+        return max;
+    }
+
     static boolean isMovingArchon(int index) throws GameActionException {
         int encodedAllyArchonAdditionalInfo = RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ADDITIONAL_INFO);
         if (!allyArchonTrackers[index].alive) return false;

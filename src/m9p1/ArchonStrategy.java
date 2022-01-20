@@ -327,6 +327,9 @@ strictfp class ArchonStrategy {
             else if (action == ArchonResourceManager.ARCHON_ACTIONS.BUILD_SOLDIER) {
                 archonTryBuild(RobotType.SOLDIER);
             }
+            else if (action == ArchonResourceManager.ARCHON_ACTIONS.BUILD_SAGE) {
+                archonTryBuild(RobotType.SAGE);
+            }
             else if (action == ArchonResourceManager.ARCHON_ACTIONS.MOVE) {
                 ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMove());
             }

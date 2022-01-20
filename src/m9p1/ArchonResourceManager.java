@@ -12,6 +12,7 @@ strictfp class ArchonResourceManager {
         BUILD_MINER,
         BUILD_BUILDER,
         BUILD_SOLDIER,
+        BUILD_SAGE,
         REPAIR,
         DO_NOTHING,
         MOVE
@@ -30,6 +31,7 @@ strictfp class ArchonResourceManager {
         int minersBuilt = 0;
         int buildersBuilt = 0;
         int soldiersBuilt = 0;
+        int sagesBuilt = 0;
 
         ArchonModel(int _myIndex) {
             index = _myIndex;
@@ -68,6 +70,12 @@ strictfp class ArchonResourceManager {
             archonAction = ARCHON_ACTIONS.BUILD_SOLDIER;
             onCooldown = true;
             soldiersBuilt++;
+            droidsBuilt++;
+        }
+        void setActionBuildSage() {
+            archonAction = ARCHON_ACTIONS.BUILD_SAGE;
+            onCooldown = true;
+            sagesBuilt++;
             droidsBuilt++;
         }
         void setActionMove() {
@@ -178,7 +186,11 @@ strictfp class ArchonResourceManager {
                 chosenBuild = RobotType.MINER;
             }
             // Otherwise, build soldiers
-            else {
+            else if(gold >= RobotType.SAGE.buildCostGold) {
+                chosenBuild = RobotType.SAGE;
+            }
+            else if(ArchonTrackerManager.findMaxEnemyCombatScoreAtArchon() > 40 ||
+                totalSoldiersBuilt < RobotPlayer.rc.getRoundNum()/10){
                 chosenBuild = RobotType.SOLDIER;
             }
 
@@ -188,10 +200,10 @@ strictfp class ArchonResourceManager {
 //                chosenBuild = RobotType.SOLDIER;
 //            }
 
-            if (chosenBuild == null) continue;
+            if (chosenBuild == null) break;
 
             if (chosenBuild == RobotType.MINER) {
-                if (lead < 50) {
+                if (lead < RobotType.MINER.buildCostLead) {
                     break;
                 }
                 int chosenArchonIndex = findArchonWithFewestMinersBuilt(true);
@@ -200,12 +212,12 @@ strictfp class ArchonResourceManager {
                 }
 
                 allyArchonModels[chosenArchonIndex].setActionBuildMiner();
-                lead -= 50;
+                lead -= RobotType.MINER.buildCostLead;
 
                 DebugManager.log("Building miner at Archon " + chosenArchonIndex);
             }
             else if (chosenBuild == RobotType.SOLDIER) {
-                if (lead < 75) {
+                if (lead < RobotType.SOLDIER.buildCostLead) {
                     break;
                 }
 
@@ -220,8 +232,40 @@ strictfp class ArchonResourceManager {
                     break;
                 }
 
-                allyArchonModels[chosenArchonIndex].setActionBuildSoldier();
-                lead -= 75;
+                if(ArchonTrackerManager.getEnemyCombatScoreAtArchon(chosenArchonIndex) < 43 &&
+                    totalBuildersBuilt < RobotPlayer.rc.getRoundNum()/100) {
+                    chosenBuild = RobotType.BUILDER;
+                }
+                else {
+                    allyArchonModels[chosenArchonIndex].setActionBuildSoldier();
+                    lead -= RobotType.SOLDIER.buildCostLead;
+                }
+            }
+            else if (chosenBuild == RobotType.SAGE) {
+                if (gold < RobotType.SAGE.buildCostGold) {
+                    break;
+                }
+
+                int chosenArchonIndex = findArchonWithClosestEnemy();
+                if(chosenArchonIndex == -1) chosenArchonIndex = findArchonNeedingSoldiers(true);
+
+                allyArchonModels[chosenArchonIndex].setActionBuildSage();
+                gold -= RobotType.SAGE.buildCostGold;
+            }
+
+            if (chosenBuild == RobotType.BUILDER) {
+                if (lead < RobotType.BUILDER.buildCostLead) {
+                    break;
+                }
+
+                int chosenArchonIndex = findArchonWithFewestBuildersBuilt(true);
+                if (chosenArchonIndex == -1) {
+                    break;
+                }
+
+                allyArchonModels[chosenArchonIndex].setActionBuildBuilder();
+
+                lead -= RobotType.BUILDER.buildCostLead;
             }
 
 //            }
