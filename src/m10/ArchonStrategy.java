@@ -416,5 +416,10 @@ strictfp class ArchonStrategy {
         RobotPlayer.rc.writeSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1, encodedResourceManager1);
 
 //        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 6");
+
+        // If last alive Archon, show debug info
+        if (Clock.getBytecodesLeft() > 200 && mySharedArrayIndex == ArchonTrackerManager.getLastAliveAllyArchon()) {
+            DebugManager.debugResourceLocations();
+        }
     }
 }
