@@ -2,6 +2,8 @@ package m9p1;
 
 import battlecode.common.*;
 
+import static m9p1.GeneralManager.visitedTurns;
+
 strictfp class CombatManager {
     enum COMBAT_DROID_ACTIONS {
         RETREAT,
