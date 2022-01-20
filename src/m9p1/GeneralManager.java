@@ -158,6 +158,20 @@ strictfp class GeneralManager {
         return x >= 0 && x <= RobotPlayer.rc.getMapWidth() && y >= 0 && y <= RobotPlayer.rc.getMapHeight();
     }
 
+    /**
+     * Get nearest corner to a location
+     */
+    static MapLocation getNearestCorner(MapLocation loc) {
+        int x = 0, y = 0;
+        if(Math.abs(loc.x - (RobotPlayer.rc.getMapWidth() - 1)) < loc.x) {
+            x = RobotPlayer.rc.getMapWidth() - 1;
+        }
+        if(Math.abs(loc.y - (RobotPlayer.rc.getMapHeight() - 1)) < loc.y) {
+            y = RobotPlayer.rc.getMapHeight() - 1;
+        }
+        return new MapLocation(x,y);
+    }
+
     /** Get best build direction relative to preferred direction, returns null if no direction is found */
     static Direction getBuildDirection(RobotType robotType, Direction preferredDirection) throws GameActionException {
         if (preferredDirection == null) {
