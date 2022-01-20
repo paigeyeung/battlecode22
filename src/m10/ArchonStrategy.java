@@ -56,11 +56,11 @@ strictfp class ArchonStrategy {
             return false;
         }
 
-        if (RobotPlayer.rc.getLocation().distanceSquaredTo(dest) < ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
+        if (GeneralManager.myLocation.distanceSquaredTo(dest) < ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
             if (RobotPlayer.rc.getMode().canMove && RobotPlayer.rc.canTransform()) {
                 movedToArchonsDest = true;
                 dest = null;
-                if(!movedOffRubble)
+                if (!movedOffRubble)
                     return archonTryMoveLowerRubble();
                 RobotPlayer.rc.transform();
                 return false;
@@ -70,9 +70,8 @@ strictfp class ArchonStrategy {
         }
 
         if (!RobotPlayer.rc.getMode().canMove) {
-            if (RobotPlayer.rc.canTransform() &&
-                    (dest != null &&
-                            RobotPlayer.rc.getLocation().distanceSquaredTo(dest) >= ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON)) {
+            if (RobotPlayer.rc.canTransform() && (dest != null
+                    && GeneralManager.myLocation.distanceSquaredTo(dest) >= ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON)) {
                 RobotPlayer.rc.transform();
                 return true;
             }
@@ -91,31 +90,29 @@ strictfp class ArchonStrategy {
     }
 
     static boolean archonTryMoveLowerRubble() throws GameActionException {
-        if(movedOffRubble) return false;
+        if (movedOffRubble) return false;
 
-        MapLocation myLocation = RobotPlayer.rc.getLocation();
         MapLocation lowRubbleDest = null;
 
-        if(dest == null || (!myLocation.equals(dest) &&
+        if(dest == null || (!GeneralManager.myLocation.equals(dest) &&
                 RobotPlayer.rc.canSenseLocation(dest) && RobotPlayer.rc.canSenseRobotAtLocation(dest))) {
-            int rubble = RobotPlayer.rc.senseRubble(myLocation), minRubble = RobotPlayer.rc.senseRubble(myLocation);
-            for (MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(myLocation,
+            int rubble = RobotPlayer.rc.senseRubble(GeneralManager.myLocation), minRubble = RobotPlayer.rc.senseRubble(GeneralManager.myLocation);
+            for (MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(GeneralManager.myLocation,
                     GeneralManager.myType.visionRadiusSquared)) {
                 if (RobotPlayer.rc.senseRubble(adj) <= minRubble) {
-                    if (RobotPlayer.rc.senseRubble(adj) < minRubble ||
-                            (lowRubbleDest != null &&
-                                    (myLocation.distanceSquaredTo(adj) < myLocation.distanceSquaredTo(lowRubbleDest)))) {
+                    if (RobotPlayer.rc.senseRubble(adj) < minRubble || (lowRubbleDest != null
+                            && (GeneralManager.myLocation.distanceSquaredTo(adj) < GeneralManager.myLocation.distanceSquaredTo(lowRubbleDest)))) {
                         minRubble = RobotPlayer.rc.senseRubble(adj);
                         lowRubbleDest = adj;
                     }
                 }
             }
-            if (lowRubbleDest != null && minRubble < rubble - lowRubbleDest.distanceSquaredTo(myLocation)) {
+            if (lowRubbleDest != null && minRubble < rubble - lowRubbleDest.distanceSquaredTo(GeneralManager.myLocation)) {
                 dest = lowRubbleDest;
             }
         }
 
-        if(dest == null || myLocation.equals(dest)) {
+        if(dest == null || GeneralManager.myLocation.equals(dest)) {
             if(RobotPlayer.rc.getMode().canMove && RobotPlayer.rc.canTransform()) {
                 dest = null;
                 movedOffRubble = true;
@@ -149,9 +146,7 @@ strictfp class ArchonStrategy {
     }
 
     static Direction getNextArchonDir(MapLocation dest) throws GameActionException {
-        MapLocation myLoc = RobotPlayer.rc.getLocation();
-
-        if(myLoc.equals(dest) || dest == null) return null;
+        if (GeneralManager.myLocation.equals(dest) || dest == null) return null;
 
         Direction movementDir = null;
 //        int minDist = myLoc.distanceSquaredTo(dest);

@@ -40,9 +40,9 @@ strictfp class MinerStrategy {
             Direction dir = null;
             if (RobotPlayer.rc.getHealth() <
                 CombatManager.HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING * GeneralManager.myType.getMaxHealth(RobotPlayer.rc.getLevel())) {
-                MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
-                if((RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLoc) <= 9 && RobotPlayer.rc.senseLead(RobotPlayer.rc.getLocation()) == 0)
-                    || RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLoc) <= 1)
+                MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
+                if((GeneralManager.myLocation.distanceSquaredTo(nearestAllyArchonLoc) <= 9 && RobotPlayer.rc.senseLead(GeneralManager.myLocation) == 0)
+                    || GeneralManager.myLocation.distanceSquaredTo(nearestAllyArchonLoc) <= 1)
                     RobotPlayer.rc.disintegrate();
                 else
                     dir = GeneralManager.getNextDir(nearestAllyArchonLoc);

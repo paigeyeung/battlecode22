@@ -150,7 +150,17 @@ strictfp class SageStrategy {
                 RobotPlayer.rc.envision(AnomalyType.FURY);
             }
             else {
-                action = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
+                MapLocation targetEnemyArchonGuessLocation = null;
+                int centralEnemyArchon = ArchonTrackerManager.getCentralEnemyArchon();
+                if (centralEnemyArchon != -1) {
+                    targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[centralEnemyArchon].getGuessLocation();
+                }
+                if (targetEnemyArchonGuessLocation != null) {
+                    GeneralManager.tryMove(getSageDirToEncircle(targetEnemyArchonGuessLocation, 4), false);
+                }
+                else {
+                    GeneralManager.tryMove(GeneralManager.getRandomDirection(), true);
+                }
             }
         }
         else if (action == CombatManager.COMBAT_DROID_ACTIONS.RETREAT) {
@@ -177,7 +187,7 @@ strictfp class SageStrategy {
     }
 
     static Direction getNextSageDir(MapLocation dest) throws GameActionException {
-        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
+        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
 
         if (GeneralManager.myLocation.equals(dest)) return null;
         if (GeneralManager.myLocation.distanceSquaredTo(dest) <= GeneralManager.myLocation.distanceSquaredTo(nearestAllyArchonLocation))

@@ -118,7 +118,7 @@ strictfp class CombatManager {
         int savedEnemyCombatScore = RobotPlayer.rc.readSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE);
         double allyCombatScore = evaluateLocalCombatScore(GeneralManager.myTeam, false);
         double enemyCombatScore = evaluateLocalCombatScore(GeneralManager.enemyTeam, true);
-        int distToNearestAllyArchon = RobotPlayer.rc.getLocation().distanceSquaredTo(ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation()));
+        int distToNearestAllyArchon = GeneralManager.myLocation.distanceSquaredTo(ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation));
 
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;
 

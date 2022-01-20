@@ -133,36 +133,35 @@ strictfp class SoldierStrategy {
     }
 
     static Direction getNextSoldierDir(MapLocation dest) throws GameActionException {
-        MapLocation myLoc = RobotPlayer.rc.getLocation();
-        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
+        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
 
-        if(myLoc.equals(dest)) return null;
-        if(myLoc.distanceSquaredTo(dest) <= myLoc.distanceSquaredTo(nearestAllyArchonLocation))
+        if (GeneralManager.myLocation.equals(dest)) return null;
+        if (GeneralManager.myLocation.distanceSquaredTo(dest) <= GeneralManager.myLocation.distanceSquaredTo(nearestAllyArchonLocation))
             return GeneralManager.getDirToEncircle(dest,GeneralManager.myType.actionRadiusSquared);
 
         Direction movementDir = null;
 
         int f = Integer.MAX_VALUE;
 
-        for(Direction dir : GeneralManager.DIRECTIONS) {
-            if(RobotPlayer.rc.canMove(dir)) {
+        for (Direction dir : GeneralManager.DIRECTIONS) {
+            if (RobotPlayer.rc.canMove(dir)) {
                 MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
                 int newDist = adj.distanceSquaredTo(dest);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
-                int newF = (int)Math.sqrt(newDist) * 4 + newRubble + 20*GeneralManager.visitedTurns[adj.x][adj.y];
+                int newF = (int)Math.sqrt(newDist) * 4 + newRubble + 20 * GeneralManager.visitedTurns[adj.x][adj.y];
 
                 MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj,2);
 
-                for(MapLocation adj2 : adjToAdj) {
-                    newF += 2*GeneralManager.visitedTurns[adj2.x][adj2.y];
+                for (MapLocation adj2 : adjToAdj) {
+                    newF += 2 * GeneralManager.visitedTurns[adj2.x][adj2.y];
                 }
 
-                if(newF < f) {
+                if (newF < f) {
                     f = newF;
                     movementDir = dir;
                 }
-                else if(newF == f){
-                    if(((int)Math.random()*2)==0) {
+                else if (newF == f){
+                    if (((int)Math.random() * 2) == 0) {
                         f = newF;
                         movementDir = dir;
                     }

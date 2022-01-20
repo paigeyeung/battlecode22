@@ -115,8 +115,10 @@ strictfp class BuilderStrategy {
 
             if (actionableAllies.length == 0 || actionableAllies.length > 5) {
                 MapLocation targetEnemyArchonGuessLocation = null;
-                if (ArchonTrackerManager.getCentralEnemyArchon() != -1)
-                    targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[ArchonTrackerManager.getCentralEnemyArchon()].getGuessLocation();
+                int centralEnemyArchon = ArchonTrackerManager.getCentralEnemyArchon();
+                if (centralEnemyArchon != -1) {
+                    targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[centralEnemyArchon].getGuessLocation();
+                }
                 //change from getNearestEnemyArchonGuessLocation(GeneralManager.myLocation);
                 if (targetEnemyArchonGuessLocation != null) {
                     // If no enemies are visible, move towards nearest enemy Archon
@@ -127,11 +129,10 @@ strictfp class BuilderStrategy {
     }
 
     static Direction getNextBuilderDir(MapLocation dest) throws GameActionException {
-        MapLocation myLoc = RobotPlayer.rc.getLocation();
-        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
+        MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
 
-        if(myLoc.equals(dest)) return null;
-        if(myLoc.distanceSquaredTo(dest) <= myLoc.distanceSquaredTo(nearestAllyArchonLocation))
+        if (GeneralManager.myLocation.equals(dest)) return null;
+        if (GeneralManager.myLocation.distanceSquaredTo(dest) <= GeneralManager.myLocation.distanceSquaredTo(nearestAllyArchonLocation))
             return GeneralManager.getDirToEncircle(dest,GeneralManager.myType.actionRadiusSquared);
 
         Direction movementDir = null;
@@ -143,12 +144,12 @@ strictfp class BuilderStrategy {
                 MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
                 int newDist = adj.distanceSquaredTo(dest);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
-                int newF = (int)Math.sqrt(newDist) * 4 + newRubble + 20*GeneralManager.visitedTurns[adj.x][adj.y];
+                int newF = (int)Math.sqrt(newDist) * 4 + newRubble + 20 * GeneralManager.visitedTurns[adj.x][adj.y];
 
                 MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj,2);
 
                 for(MapLocation adj2 : adjToAdj) {
-                    newF += 2*GeneralManager.visitedTurns[adj2.x][adj2.y];
+                    newF += 2 * GeneralManager.visitedTurns[adj2.x][adj2.y];
                 }
 
                 if(newF < f) {
@@ -156,7 +157,7 @@ strictfp class BuilderStrategy {
                     movementDir = dir;
                 }
                 else if(newF == f){
-                    if(((int)Math.random()*2)==0) {
+                    if(((int)Math.random() * 2) == 0) {
                         f = newF;
                         movementDir = dir;
                     }

@@ -101,12 +101,10 @@ strictfp class GeneralManager {
      * Get direction to get to destination with less rubble
      */
     static Direction getNextDir(MapLocation dest) throws GameActionException {
-        MapLocation myLoc = RobotPlayer.rc.getLocation();
-
-        if(myLoc.equals(dest) || dest == null) return null;
+        if(GeneralManager.myLocation.equals(dest) || dest == null) return null;
 
         Direction movementDir = null;
-        int minDist = getSqDistance(myLoc, dest);
+        int minDist = getSqDistance(GeneralManager.myLocation, dest);
         int f = Integer.MAX_VALUE;
 
         for(Direction dir : DIRECTIONS) {
