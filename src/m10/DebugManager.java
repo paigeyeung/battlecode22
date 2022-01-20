@@ -11,6 +11,19 @@ strictfp class DebugManager {
 
     static int archonMismatchTurns = 0;
 
+    /** Color code
+     * Miner
+     * - Light blue dot is lead resource location
+     * - Green dot is gold resource location
+     * - Green line is successful get miner where to go
+     * - Red line is unsuccessful get miner where to go because insufficient score
+     * Soldier
+     * - Red line is chase visible enemy
+     * - Orange line is move towards target enemy Archon
+     * - Medium blue line is scout direction
+     * - Light blue line is storedAttackDirection
+     * - Green line is encircle nearest ally Archon
+     */
     static boolean drawMinerLines = true;
     static boolean drawSoldierLines = true;
 
