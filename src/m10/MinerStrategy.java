@@ -61,7 +61,7 @@ strictfp class MinerStrategy {
 
             // If nearby enemy units greater than nearby ally units
             RobotInfo[] nearbyAllies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.myTeam);
-            RobotInfo[] nearbyEnemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.opponentTeam);
+            RobotInfo[] nearbyEnemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.enemyTeam);
             depleteLeadScore += nearbyEnemies.length - nearbyAllies.length;
 
             // If nearest enemy Archon closer to nearest ally Archon
@@ -90,7 +90,7 @@ strictfp class MinerStrategy {
         }
 
         // See if any enemy attack bots
-        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.opponentTeam);
+        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.enemyTeam);
 
 //        boolean hostileEnemiesNearby = false;
 //        for (RobotInfo enemy : enemies) {

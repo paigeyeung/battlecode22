@@ -48,7 +48,7 @@ strictfp class GeneralManager {
 
     /** Statics that are set once at start of game */
     static RobotType myType;
-    static Team myTeam, opponentTeam;
+    static Team myTeam, enemyTeam;
     static MapLocation startingLocation;
     static int mapWidth, mapHeight;
 

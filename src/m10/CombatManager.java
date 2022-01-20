@@ -17,7 +17,7 @@ strictfp class CombatManager {
 
     /** Select an enemy to attack, returns null if no enemy is found */
     static MapLocation getAttackTarget(int radius) {
-        RobotInfo[] actionableEnemies = RobotPlayer.rc.senseNearbyRobots(radius, GeneralManager.opponentTeam);
+        RobotInfo[] actionableEnemies = RobotPlayer.rc.senseNearbyRobots(radius, GeneralManager.enemyTeam);
         RobotInfo targetEnemy = null;
         double targetEnemyScore = -1;
         boolean targetIsOneShotKill = false;
@@ -117,7 +117,7 @@ strictfp class CombatManager {
     static COMBAT_DROID_ACTIONS getCombatDroidAction() throws GameActionException {
         int savedEnemyCombatScore = RobotPlayer.rc.readSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE);
         double allyCombatScore = evaluateLocalCombatScore(GeneralManager.myTeam, false);
-        double enemyCombatScore = evaluateLocalCombatScore(GeneralManager.opponentTeam, true);
+        double enemyCombatScore = evaluateLocalCombatScore(GeneralManager.enemyTeam, true);
         int distToNearestAllyArchon = RobotPlayer.rc.getLocation().distanceSquaredTo(ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation()));
 
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;

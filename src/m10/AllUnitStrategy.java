@@ -70,7 +70,7 @@ strictfp class AllUnitStrategy {
             boolean seenEnemy = ((encodedAllyArchonAdditionalInfo >>> nearestAllyArchon) & 0x1) == 1;
             if (!seenEnemy) {
                 // There is an enemy
-                if (RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.opponentTeam).length > 0) {
+                if (RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.enemyTeam).length > 0) {
                     // It is close enough to ally Archon
                     if (ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation).distanceSquaredTo(GeneralManager.myLocation) <= 150) {
                         encodedAllyArchonAdditionalInfo = encodedAllyArchonAdditionalInfo | (1 << nearestAllyArchon);
@@ -158,7 +158,7 @@ strictfp class AllUnitStrategy {
 //            }
 
             // Check for alive and unseen enemy Archons
-            RobotInfo[] robotInfos = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.opponentTeam);
+            RobotInfo[] robotInfos = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.enemyTeam);
             for (RobotInfo robotInfo : robotInfos) {
                 if (robotInfo.getType() == RobotType.ARCHON) {
                     if (!ArchonTrackerManager.existsEnemyArchonAtLocation(robotInfo.location)) {

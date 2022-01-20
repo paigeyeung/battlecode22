@@ -13,7 +13,7 @@ public strictfp class RobotPlayer {
         // Once per game statics
         GeneralManager.myType = rc.getType();
         GeneralManager.myTeam = rc.getTeam();
-        GeneralManager.opponentTeam = GeneralManager.myTeam.opponent();
+        GeneralManager.enemyTeam = GeneralManager.myTeam.opponent();
         GeneralManager.startingLocation = rc.getLocation();
         GeneralManager.mapWidth = rc.getMapWidth();
         GeneralManager.mapHeight = rc.getMapHeight();

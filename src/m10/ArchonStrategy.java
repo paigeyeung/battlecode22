@@ -374,7 +374,7 @@ strictfp class ArchonStrategy {
         int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
         int encodedResourceManager1 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
 
-        double score = CombatManager.evaluateLocalCombatScore(GeneralManager.opponentTeam, true)
+        double score = CombatManager.evaluateLocalCombatScore(GeneralManager.enemyTeam, true)
                 - CombatManager.evaluateLocalCombatScore(GeneralManager.myTeam, false) + 500;
 
         if(score > 1270) score = 1270;

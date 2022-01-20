@@ -4,8 +4,6 @@ import battlecode.common.*;
 
 import java.util.Arrays;
 
-import static m10.GeneralManager.visitedTurns;
-
 strictfp class BuilderStrategy {
     static int totalBuildingsBuilt = 0;
     static int watchtowersBuilt = 0;
@@ -32,11 +30,11 @@ strictfp class BuilderStrategy {
 
     /** Called by RobotPlayer */
     static void runBuilder() throws GameActionException {
-        if (visitedTurns == null) {
-            visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
-            for(int i = 0; i < visitedTurns.length; i++) {
-                for(int j = 0; j < visitedTurns[i].length; j++) {
-                    visitedTurns[i][j] = 0;
+        if (GeneralManager.visitedTurns == null) {
+            GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
+            for (int i = 0; i < GeneralManager.visitedTurns.length; i++) {
+                for (int j = 0; j < GeneralManager.visitedTurns[i].length; j++) {
+                    GeneralManager.visitedTurns[i][j] = 0;
                 }
             }
         }
@@ -87,7 +85,7 @@ strictfp class BuilderStrategy {
             else {
                 if(getNextBuilderDir(corner) != null) {
                     MapLocation loc = RobotPlayer.rc.adjacentLocation(getNextBuilderDir(corner));
-                    if (visitedTurns[loc.x][loc.y] < 4)
+                    if (GeneralManager.visitedTurns[loc.x][loc.y] < 4)
                         GeneralManager.tryMove(getNextBuilderDir(corner), false);
                     else {
                         Direction minRubbleBuildDir = null;
@@ -145,12 +143,12 @@ strictfp class BuilderStrategy {
                 MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
                 int newDist = adj.distanceSquaredTo(dest);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
-                int newF = (int)Math.sqrt(newDist) * 4 + newRubble + 20*visitedTurns[adj.x][adj.y];
+                int newF = (int)Math.sqrt(newDist) * 4 + newRubble + 20*GeneralManager.visitedTurns[adj.x][adj.y];
 
                 MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj,2);
 
                 for(MapLocation adj2 : adjToAdj) {
-                    newF += 2*visitedTurns[adj2.x][adj2.y];
+                    newF += 2*GeneralManager.visitedTurns[adj2.x][adj2.y];
                 }
 
                 if(newF < f) {
@@ -167,7 +165,7 @@ strictfp class BuilderStrategy {
         }
         if (movementDir != null) {
             MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
-            visitedTurns[adj.x][adj.y]++;
+            GeneralManager.visitedTurns[adj.x][adj.y]++;
         }
         return movementDir;
     }

@@ -2,19 +2,17 @@ package m10;
 
 import battlecode.common.*;
 
-import static m10.GeneralManager.visitedTurns;
-
 strictfp class SoldierStrategy {
     static boolean scouting = false;
     static Direction storedAttackDirection = null;
 
     /** Called by RobotPlayer */
     static void runSoldier() throws GameActionException {
-        if (visitedTurns == null) {
-            visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
-            for(int i = 0; i < visitedTurns.length; i++) {
-                for(int j = 0; j < visitedTurns[i].length; j++) {
-                    visitedTurns[i][j] = 0;
+        if (GeneralManager.visitedTurns == null) {
+            GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
+            for (int i = 0; i < GeneralManager.visitedTurns.length; i++) {
+                for (int j = 0; j < GeneralManager.visitedTurns[i].length; j++) {
+                    GeneralManager.visitedTurns[i][j] = 0;
                 }
             }
         }
@@ -151,12 +149,12 @@ strictfp class SoldierStrategy {
                 MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
                 int newDist = adj.distanceSquaredTo(dest);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
-                int newF = (int)Math.sqrt(newDist) * 4 + newRubble + 20*visitedTurns[adj.x][adj.y];
+                int newF = (int)Math.sqrt(newDist) * 4 + newRubble + 20*GeneralManager.visitedTurns[adj.x][adj.y];
 
                 MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj,2);
 
                 for(MapLocation adj2 : adjToAdj) {
-                    newF += 2*visitedTurns[adj2.x][adj2.y];
+                    newF += 2*GeneralManager.visitedTurns[adj2.x][adj2.y];
                 }
 
                 if(newF < f) {
@@ -173,7 +171,7 @@ strictfp class SoldierStrategy {
         }
         if (movementDir != null) {
             MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
-            visitedTurns[adj.x][adj.y]++;
+            GeneralManager.visitedTurns[adj.x][adj.y]++;
         }
         return movementDir;
     }
@@ -187,13 +185,13 @@ strictfp class SoldierStrategy {
             if (RobotPlayer.rc.canMove(dir)) {
                 MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
-                int newF = (int) (newRubble * 0.5) + 20*visitedTurns[adj.x][adj.y];
+                int newF = (int) (newRubble * 0.5) + 20*GeneralManager.visitedTurns[adj.x][adj.y];
 
                 MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj, 2);
 
                 // Higher cost to move to visited locations
                 for (MapLocation adj2 : adjToAdj) {
-                    newF += (int) (newRubble * 0.5) + 4*visitedTurns[adj.x][adj.y];
+                    newF += (int) (newRubble * 0.5) + 4*GeneralManager.visitedTurns[adj.x][adj.y];
                 }
 
                 int e = 0;
@@ -213,7 +211,7 @@ strictfp class SoldierStrategy {
 
         if (movementDir != null) {
             MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
-            visitedTurns[adj.x][adj.y]++;
+            GeneralManager.visitedTurns[adj.x][adj.y]++;
         }
         return movementDir;
     }
