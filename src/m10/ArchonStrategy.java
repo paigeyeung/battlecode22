@@ -85,7 +85,7 @@ strictfp class ArchonStrategy {
             ArchonTrackerManager.setAllyArchonLocation(mySharedArrayIndex, RobotPlayer.rc.getLocation());
         }
 
-        DebugManager.log(mySharedArrayIndex + " moved? " + moved);
+//        DebugManager.log(mySharedArrayIndex + " moved? " + moved);
 
         return RobotPlayer.rc.getMode().canMove;
     }
@@ -143,7 +143,7 @@ strictfp class ArchonStrategy {
             ArchonTrackerManager.setAllyArchonLocation(mySharedArrayIndex, RobotPlayer.rc.getLocation());
         }
 
-        DebugManager.log(mySharedArrayIndex + "moved? " + moved);
+//        DebugManager.log(mySharedArrayIndex + "moved? " + moved);
 
         return RobotPlayer.rc.getMode().canMove;
     }
@@ -314,7 +314,7 @@ strictfp class ArchonStrategy {
 
         if (RobotPlayer.rc.getMode() == RobotMode.PORTABLE) {
             // If we're portable, don't try to do anything else
-            DebugManager.log(mySharedArrayIndex + " archon moving");
+//            DebugManager.log(mySharedArrayIndex + " archon moving");
             ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMove());
         }
         else {
@@ -342,7 +342,7 @@ strictfp class ArchonStrategy {
         }
 
         if(RobotPlayer.rc.getRoundNum() > 2) {
-            DebugManager.log(ArchonTrackerManager.numArchonsMoving() + " archons are moving");
+//            DebugManager.log(ArchonTrackerManager.numArchonsMoving() + " archons are moving");
             if (!movedToArchonsDest && ArchonTrackerManager.numArchonsMoving() < RobotPlayer.rc.getArchonCount() - 1) {
                 ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMove());
 //                DebugManager.log(mySharedArrayIndex + " archon moving");
@@ -419,7 +419,7 @@ strictfp class ArchonStrategy {
 
         // If last alive Archon, show debug info
         if (Clock.getBytecodesLeft() > 200 && mySharedArrayIndex == ArchonTrackerManager.getLastAliveAllyArchon()) {
-            DebugManager.debugResourceLocations();
+            DebugManager.drawResourceLocations();
         }
     }
 }

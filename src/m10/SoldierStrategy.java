@@ -32,22 +32,26 @@ strictfp class SoldierStrategy {
                 MapLocation visibleAttackTarget = CombatManager.getAttackTarget(GeneralManager.myType.visionRadiusSquared);
                 if (visibleAttackTarget != null) {
                     // Move towards nearest visible enemy
+                    if (DebugManager.drawSoldierLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, visibleAttackTarget, 255, 0, 0);
                     storedAttackDirection = getNextSoldierDir(visibleAttackTarget);
                     GeneralManager.tryMove(storedAttackDirection, false);
                 }
                 else {
                     MapLocation targetEnemyArchonGuessLocation = null;
-                    if (ArchonTrackerManager.getCentralEnemyArchon() != -1)
-                        targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[ArchonTrackerManager.getCentralEnemyArchon()].getGuessLocation();
+                    int centralEnemyArchon = ArchonTrackerManager.getCentralEnemyArchon();
+                    if (centralEnemyArchon != -1) {
+                        targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[centralEnemyArchon].getGuessLocation();
+                    }
                     //change from getNearestEnemyArchonGuessLocation(GeneralManager.myLocation);
                     if (targetEnemyArchonGuessLocation != null) {
-                        if(scouting) {
+                        if (scouting) {
                             scouting = false;
                             int scoutCount = RobotPlayer.rc.readSharedArray(CommunicationManager.SCOUT_COUNT);
                             RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, scoutCount - 1);
                         }
 
                         // If no enemies are visible, move towards nearest enemy Archon
+                        if (DebugManager.drawSoldierLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, targetEnemyArchonGuessLocation, 255, 175, 0);
                         GeneralManager.tryMove(getNextSoldierDir(targetEnemyArchonGuessLocation), false);
                     }
                     else {
@@ -55,18 +59,22 @@ strictfp class SoldierStrategy {
                         // Then scout / retreat
                         int scoutCount = RobotPlayer.rc.readSharedArray(CommunicationManager.SCOUT_COUNT);
 
-                        if(!scouting && scoutCount < RobotPlayer.rc.readSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE)/20) {
+                        if (!scouting && scoutCount < RobotPlayer.rc.readSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE)/20) {
                             scouting = true;
                             if (scoutCount <= 0) RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, 1);
                             else RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, scoutCount + 1);
                         }
-                        if(scouting) GeneralManager.tryMove(getSoldierDirToScout(), false);
+                        if (scouting) {
+                            if (DebugManager.drawSoldierLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, GeneralManager.myLocation.add(getSoldierDirToScout()), 0, 100, 100);
+                            GeneralManager.tryMove(getSoldierDirToScout(), false);
+                        }
                         else if (storedAttackDirection != null) {
+                            if (DebugManager.drawSoldierLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, GeneralManager.myLocation.add(storedAttackDirection), 0, 255, 255);
                             GeneralManager.tryMove(storedAttackDirection, false);
                         }
-                        else
-                        {
+                        else {
                             MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
+                            if (DebugManager.drawSoldierLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, nearestAllyArchonLocation, 0, 255, 0);
                             GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation, 9), false);
                         }
                     }

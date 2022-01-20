@@ -9,7 +9,10 @@ strictfp class DebugManager {
         RobotPlayer.rc.setIndicatorString(string);
     }
 
-    static byte archonMismatchTurns = 0;
+    static int archonMismatchTurns = 0;
+
+    static boolean drawMinerLines = true;
+    static boolean drawSoldierLines = true;
 
     static void sanityCheck() {
         if (ArchonTrackerManager.receivedArchonTrackers) {
@@ -43,7 +46,7 @@ strictfp class DebugManager {
         }
     }
 
-    static void debugResourceLocations() throws GameActionException {
+    static void drawResourceLocations() throws GameActionException {
         ResourceLocationsManager.ResourceLocation[] resourceLocations = ResourceLocationsManager.readResourceLocations();
         for (ResourceLocationsManager.ResourceLocation resourceLocation : resourceLocations) {
             if (!resourceLocation.isUsed) {

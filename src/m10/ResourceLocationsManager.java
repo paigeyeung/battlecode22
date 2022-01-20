@@ -241,7 +241,7 @@ strictfp class ResourceLocationsManager {
         // Only return the location if score is high enough
         if (chosenCombinedScore >= 30) {
 //            DebugManager.log("Miner at " + GeneralManager.myLocation + " go to resource location " + resourceLocations[chosenIndex].location);
-            RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, resourceLocations[chosenIndex].location, 0, 255, 0);
+            if (DebugManager.drawMinerLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, resourceLocations[chosenIndex].location, 0, 255, 0);
             return resourceLocations[chosenIndex].location;
         }
         if (chosenIndex != -1) {

@@ -384,14 +384,16 @@ strictfp class ArchonTrackerManager {
     static int getCentralEnemyArchon() {
 //        int xSum = 0, ySum = 0, numArchons = 0;
         int index = -1;
-
         int minDist = Integer.MAX_VALUE;
         MapLocation centerLoc = GeneralManager.getMapCenter();
                 //new MapLocation(xSum/numArchons,ySum/numArchons);
         for (int i = 0; i < enemyArchonTrackers.length; i++) {
-            if (enemyArchonTrackers[i].alive && enemyArchonTrackers[i].getGuessLocation() != null) {
+            if (!enemyArchonTrackers[i].alive) {
+                continue;
+            }
+            if (!enemyArchonTrackers[i].missing && enemyArchonTrackers[i].getGuessLocation() != null) {
                 int dist = enemyArchonTrackers[i].getGuessLocation().distanceSquaredTo(centerLoc);
-                if(dist < minDist) {
+                if (dist < minDist) {
                     minDist = dist;
                     index = i;
                 }
