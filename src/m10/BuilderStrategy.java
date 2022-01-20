@@ -42,7 +42,7 @@ strictfp class BuilderStrategy {
         }
 
         // Try to repair prototype building
-        RobotInfo[] actionableAllies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.actionRadiusSquared, RobotPlayer.rc.getTeam());
+        RobotInfo[] actionableAllies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.actionRadiusSquared, GeneralManager.myTeam);
 
         for (int i = 0; i < actionableAllies.length; i++) {
             RobotInfo allyRobot = actionableAllies[i];

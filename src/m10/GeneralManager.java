@@ -2,7 +2,6 @@ package m10;
 
 import battlecode.common.*;
 
-import java.util.Arrays;
 import java.util.Random;
 
 strictfp class GeneralManager {
@@ -49,6 +48,7 @@ strictfp class GeneralManager {
 
     /** Statics that are set once at start of game */
     static RobotType myType;
+    static Team myTeam, opponentTeam;
     static MapLocation startingLocation;
     static int mapWidth, mapHeight;
 

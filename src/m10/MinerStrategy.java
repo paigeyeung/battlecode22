@@ -39,7 +39,7 @@ strictfp class MinerStrategy {
         if (RobotPlayer.rc.getMovementCooldownTurns() < 10) {
             Direction dir = null;
             if (RobotPlayer.rc.getHealth() <
-                CombatManager.HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING * RobotPlayer.rc.getType().getMaxHealth(RobotPlayer.rc.getLevel())) {
+                CombatManager.HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING * GeneralManager.myType.getMaxHealth(RobotPlayer.rc.getLevel())) {
                 MapLocation nearestAllyArchonLoc = ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation());
                 if((RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLoc) <= 9 && RobotPlayer.rc.senseLead(RobotPlayer.rc.getLocation()) == 0)
                     || RobotPlayer.rc.getLocation().distanceSquaredTo(nearestAllyArchonLoc) <= 1)
@@ -60,8 +60,8 @@ strictfp class MinerStrategy {
             int depleteLeadScore = 0;
 
             // If nearby enemy units greater than nearby ally units
-            RobotInfo[] nearbyAllies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, RobotPlayer.rc.getTeam());
-            RobotInfo[] nearbyEnemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, RobotPlayer.rc.getTeam().opponent());
+            RobotInfo[] nearbyAllies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.myTeam);
+            RobotInfo[] nearbyEnemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.opponentTeam);
             depleteLeadScore += nearbyEnemies.length - nearbyAllies.length;
 
             // If nearest enemy Archon closer to nearest ally Archon
@@ -90,8 +90,7 @@ strictfp class MinerStrategy {
         }
 
         // See if any enemy attack bots
-        Team opponent = RobotPlayer.rc.getTeam().opponent();
-        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, opponent);
+        RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.visionRadiusSquared, GeneralManager.opponentTeam);
 
 //        boolean hostileEnemiesNearby = false;
 //        for (RobotInfo enemy : enemies) {

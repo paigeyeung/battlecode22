@@ -24,9 +24,9 @@ strictfp class SageStrategy {
 
         CombatManager.COMBAT_DROID_ACTIONS action = CombatManager.getCombatDroidAction();
         if (action == CombatManager.COMBAT_DROID_ACTIONS.ATTACK) {
-            RobotInfo[] allies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().actionRadiusSquared, RobotPlayer.rc.getTeam());
-            RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(RobotPlayer.rc.getType().actionRadiusSquared, RobotPlayer.rc.getTeam().opponent());
-            MapLocation[] leadLocations = RobotPlayer.rc.senseNearbyLocationsWithLead(RobotPlayer.rc.getType().actionRadiusSquared);
+            RobotInfo[] allies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.actionRadiusSquared, GeneralManager.myTeam);
+            RobotInfo[] enemies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.actionRadiusSquared, GeneralManager.opponentTeam);
+            MapLocation[] leadLocations = RobotPlayer.rc.senseNearbyLocationsWithLead(GeneralManager.myType.actionRadiusSquared);
 
             int allyArchonCount = 0, allyDroidCount = 0, enemyArchonCount = 0, enemyDroidCount = 0;
 
@@ -44,8 +44,8 @@ strictfp class SageStrategy {
                     RobotPlayer.rc.canEnvision(AnomalyType.FURY)) {
                 RobotPlayer.rc.envision(AnomalyType.FURY);
             }
-            else if((CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false) <
-                    CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true) ||
+            else if((CombatManager.evaluateLocalCombatScore(GeneralManager.myTeam, false) <
+                    CombatManager.evaluateLocalCombatScore(GeneralManager.opponentTeam, true) ||
                     enemyDroidCount > 6 || (enemyDroidCount > 1 && RobotPlayer.rc.getHealth() <= 30)) &&
                     RobotPlayer.rc.canEnvision(AnomalyType.CHARGE)) {
                 RobotPlayer.rc.envision(AnomalyType.CHARGE);

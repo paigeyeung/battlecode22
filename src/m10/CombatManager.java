@@ -17,7 +17,7 @@ strictfp class CombatManager {
 
     /** Select an enemy to attack, returns null if no enemy is found */
     static MapLocation getAttackTarget(int radius) {
-        RobotInfo[] actionableEnemies = RobotPlayer.rc.senseNearbyRobots(radius, RobotPlayer.rc.getTeam().opponent());
+        RobotInfo[] actionableEnemies = RobotPlayer.rc.senseNearbyRobots(radius, GeneralManager.opponentTeam);
         RobotInfo targetEnemy = null;
         double targetEnemyScore = -1;
         boolean targetIsOneShotKill = false;
@@ -107,8 +107,8 @@ strictfp class CombatManager {
             combatScore += calculateRobotCombatScore(visibleRobots[i], defensive);
         }
         // Include self in calculation if on same team
-        if (team == RobotPlayer.rc.getTeam()) {
-            combatScore += calculateRobotCombatScore(new RobotInfo(RobotPlayer.rc.getID(), RobotPlayer.rc.getTeam(), GeneralManager.myType, RobotPlayer.rc.getMode(), RobotPlayer.rc.getLevel(), RobotPlayer.rc.getHealth(), RobotPlayer.rc.getLocation()), defensive);
+        if (team == GeneralManager.myTeam) {
+            combatScore += calculateRobotCombatScore(new RobotInfo(RobotPlayer.rc.getID(), GeneralManager.myTeam, GeneralManager.myType, RobotPlayer.rc.getMode(), RobotPlayer.rc.getLevel(), RobotPlayer.rc.getHealth(), RobotPlayer.rc.getLocation()), defensive);
         }
         return combatScore;
     }
@@ -116,8 +116,8 @@ strictfp class CombatManager {
     /** Decides what a combat droid should do */
     static COMBAT_DROID_ACTIONS getCombatDroidAction() throws GameActionException {
         int savedEnemyCombatScore = RobotPlayer.rc.readSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE);
-        double allyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false);
-        double enemyCombatScore = evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true);
+        double allyCombatScore = evaluateLocalCombatScore(GeneralManager.myTeam, false);
+        double enemyCombatScore = evaluateLocalCombatScore(GeneralManager.opponentTeam, true);
         int distToNearestAllyArchon = RobotPlayer.rc.getLocation().distanceSquaredTo(ArchonTrackerManager.getNearestAllyArchonLocation(RobotPlayer.rc.getLocation()));
 
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;

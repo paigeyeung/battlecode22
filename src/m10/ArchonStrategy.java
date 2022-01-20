@@ -182,7 +182,7 @@ strictfp class ArchonStrategy {
     }
 
     static boolean archonTryRepair() throws GameActionException {
-        RobotInfo[] actionableAllies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.actionRadiusSquared, RobotPlayer.rc.getTeam());
+        RobotInfo[] actionableAllies = RobotPlayer.rc.senseNearbyRobots(GeneralManager.myType.actionRadiusSquared, GeneralManager.myTeam);
         for (int i = 0; i < actionableAllies.length; i++) {
             RobotInfo allyRobot = actionableAllies[i];
             if (allyRobot.getHealth() < allyRobot.getType().getMaxHealth(allyRobot.getLevel()) &&
@@ -291,14 +291,14 @@ strictfp class ArchonStrategy {
         if (mySharedArrayIndex == ArchonTrackerManager.getFirstAliveAllyArchon()) {
             int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
             encodedResourceManager0 = encodedResourceManager0 & 0xF;
-            int lead = RobotPlayer.rc.getTeamLeadAmount(RobotPlayer.rc.getTeam());
+            int lead = RobotPlayer.rc.getTeamLeadAmount(GeneralManager.myTeam);
             if (lead > 0xFFF) {
                 lead = 0xFFF;
             }
             encodedResourceManager0 = encodedResourceManager0 | lead << 4;
 
             int encodedResourceManager1 = 0;
-            int gold = RobotPlayer.rc.getTeamGoldAmount(RobotPlayer.rc.getTeam());
+            int gold = RobotPlayer.rc.getTeamGoldAmount(GeneralManager.myTeam);
             if (gold > 0xFFF) {
                 gold = 0xFFF;
             }
@@ -374,8 +374,8 @@ strictfp class ArchonStrategy {
         int encodedResourceManager0 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX);
         int encodedResourceManager1 = RobotPlayer.rc.readSharedArray(CommunicationManager.ARCHON_RESOURCE_MANAGER_INDEX + 1);
 
-        double score = CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true)
-                - CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false) + 500;
+        double score = CombatManager.evaluateLocalCombatScore(GeneralManager.opponentTeam, true)
+                - CombatManager.evaluateLocalCombatScore(GeneralManager.myTeam, false) + 500;
 
         if(score > 1270) score = 1270;
         if(score < 0) score = 0;
