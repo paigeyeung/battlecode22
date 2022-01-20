@@ -6,7 +6,7 @@ strictfp class ArchonStrategy {
     static int mySharedArrayIndex = -1;
     static boolean mySharedArrayToggle = true;
     static boolean[][] visited = null;
-    static MapLocation archonDest = null;
+//    static MapLocation archonDest = null;
 
     static int droidsBuilt = 0;
     static int minersBuilt = 0;
@@ -50,24 +50,19 @@ strictfp class ArchonStrategy {
     }
 
     static boolean archonTryMove() throws GameActionException {
-        if(archonDest == null) return false;
-
         if(movedToArchonsDest) {
             if(!movedOffRubble)
                 return archonTryMoveLowerRubble();
             return false;
         }
 
-//        MapLocation locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
-
-//        if(ArchonResourceManager.findArchonFarthestFromEnemies(true) != -1)
-//            locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
-//        else locFarthestFromEnemies = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
-
-        if (RobotPlayer.rc.getLocation().distanceSquaredTo(archonDest) < ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
+        if (RobotPlayer.rc.getLocation().distanceSquaredTo(dest) < ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON) {
             if (RobotPlayer.rc.getMode().canMove && RobotPlayer.rc.canTransform()) {
-                RobotPlayer.rc.transform();
                 movedToArchonsDest = true;
+                dest = null;
+                if(!movedOffRubble)
+                    return archonTryMoveLowerRubble();
+                RobotPlayer.rc.transform();
                 return false;
             }
             if(!RobotPlayer.rc.getMode().canMove)
@@ -76,21 +71,23 @@ strictfp class ArchonStrategy {
 
         if (!RobotPlayer.rc.getMode().canMove) {
             if (RobotPlayer.rc.canTransform() &&
-                    (archonDest != null &&
-                            RobotPlayer.rc.getLocation().distanceSquaredTo(archonDest) >= ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON)) {
+                    (dest != null &&
+                            RobotPlayer.rc.getLocation().distanceSquaredTo(dest) >= ArchonResourceManager.MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON)) {
                 RobotPlayer.rc.transform();
                 return true;
             }
             return false;
         }
 
-        boolean moved = GeneralManager.tryMove(getNextArchonDir(archonDest), false);
+        boolean moved = GeneralManager.tryMove(getNextArchonDir(dest), false);
 
         if (moved) {
             ArchonTrackerManager.setAllyArchonLocation(mySharedArrayIndex, RobotPlayer.rc.getLocation());
         }
 
-        return moved;
+        DebugManager.log(mySharedArrayIndex + " moved? " + moved);
+
+        return RobotPlayer.rc.getMode().canMove;
     }
 
     static boolean archonTryMoveLowerRubble() throws GameActionException {
@@ -102,7 +99,8 @@ strictfp class ArchonStrategy {
         if(dest == null || (!myLocation.equals(dest) &&
                 RobotPlayer.rc.canSenseLocation(dest) && RobotPlayer.rc.canSenseRobotAtLocation(dest))) {
             int rubble = RobotPlayer.rc.senseRubble(myLocation), minRubble = RobotPlayer.rc.senseRubble(myLocation);
-            for (MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(myLocation, 4)) {
+            for (MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(myLocation,
+                    GeneralManager.myType.visionRadiusSquared)) {
                 if (RobotPlayer.rc.senseRubble(adj) <= minRubble) {
                     if (RobotPlayer.rc.senseRubble(adj) < minRubble ||
                             (lowRubbleDest != null &&
@@ -122,17 +120,19 @@ strictfp class ArchonStrategy {
                 dest = null;
                 movedOffRubble = true;
                 RobotPlayer.rc.transform();
-                return false;
+//                return false;
             }
-            return true;
+//            if(!RobotPlayer.rc.getMode().canMove)
+//                return false;
+//            return true;
         }
 
         if (!RobotPlayer.rc.getMode().canMove) {
             if (RobotPlayer.rc.canTransform()) {
                 RobotPlayer.rc.transform();
-                return true;
+//                return true;
             }
-            return false;
+//            return false;
         }
 
         boolean moved = GeneralManager.tryMove(getNextArchonDir(dest), false);
@@ -143,7 +143,9 @@ strictfp class ArchonStrategy {
             ArchonTrackerManager.setAllyArchonLocation(mySharedArrayIndex, RobotPlayer.rc.getLocation());
         }
 
-        return moved;
+        DebugManager.log(mySharedArrayIndex + "moved? " + moved);
+
+        return RobotPlayer.rc.getMode().canMove;
     }
 
     static Direction getNextArchonDir(MapLocation dest) throws GameActionException {
@@ -224,7 +226,7 @@ strictfp class ArchonStrategy {
             }
 
             dest = null;
-            archonDest = null;
+//            archonDest = null;
             movedOffRubble = false;
 
             // Initialize resource manager
@@ -270,9 +272,9 @@ strictfp class ArchonStrategy {
             ArchonResourceManager.initializeTurn2();
 
             if(ArchonResourceManager.findArchonFarthestFromEnemies(true) != -1)
-                archonDest = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
+                dest = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
             else
-                archonDest = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
+                dest = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
         }
 
 //        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 2");
@@ -312,7 +314,8 @@ strictfp class ArchonStrategy {
 
         if (RobotPlayer.rc.getMode() == RobotMode.PORTABLE) {
             // If we're portable, don't try to do anything else
-            archonTryMove();
+            DebugManager.log(mySharedArrayIndex + " archon moving");
+            ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMove());
         }
         else {
             // Get and perform action from ArchonResourceManager
@@ -339,10 +342,14 @@ strictfp class ArchonStrategy {
         }
 
         if(RobotPlayer.rc.getRoundNum() > 2) {
-            if (!movedToArchonsDest && ArchonTrackerManager.numArchonsMoving() < RobotPlayer.rc.getArchonCount() - 1)
+            DebugManager.log(ArchonTrackerManager.numArchonsMoving() + " archons are moving");
+            if (!movedToArchonsDest && ArchonTrackerManager.numArchonsMoving() < RobotPlayer.rc.getArchonCount() - 1) {
                 ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMove());
+//                DebugManager.log(mySharedArrayIndex + " archon moving");
+            }
             else if (!movedOffRubble && ArchonTrackerManager.numArchonsMoving() < RobotPlayer.rc.getArchonCount() - 1) {
                 ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMoveLowerRubble());
+//                DebugManager.log("moving archon " + mySharedArrayIndex+ "to lower rubble");
             }
         }
 

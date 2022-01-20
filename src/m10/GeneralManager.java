@@ -2,45 +2,47 @@ package m10;
 
 import battlecode.common.*;
 
+import java.util.Arrays;
 import java.util.Random;
 
 strictfp class GeneralManager {
     static int[][] visitedTurns;
 
     static final Direction[] DIRECTIONS = {
-        Direction.NORTH,
-        Direction.NORTHEAST,
-        Direction.EAST,
-        Direction.SOUTHEAST,
-        Direction.SOUTH,
-        Direction.SOUTHWEST,
-        Direction.WEST,
-        Direction.NORTHWEST,
+            Direction.NORTH,
+            Direction.NORTHEAST,
+            Direction.EAST,
+            Direction.SOUTHEAST,
+            Direction.SOUTH,
+            Direction.SOUTHWEST,
+            Direction.WEST,
+            Direction.NORTHWEST,
     };
     static final RobotType[] BUILDINGS = {
-        RobotType.ARCHON,
-        RobotType.LABORATORY,
-        RobotType.WATCHTOWER
+            RobotType.ARCHON,
+            RobotType.LABORATORY,
+            RobotType.WATCHTOWER
     };
     static final RobotType[] DROIDS = {
-        RobotType.MINER,
-        RobotType.BUILDER,
-        RobotType.SOLDIER,
-        RobotType.SAGE
+            RobotType.MINER,
+            RobotType.BUILDER,
+            RobotType.SOLDIER,
+            RobotType.SAGE
     };
+    static boolean iAmDroid = false;
     static final RobotType[] NONCOMBAT = {
-        RobotType.ARCHON,
-        RobotType.LABORATORY,
-        RobotType.MINER,
-        RobotType.BUILDER
+            RobotType.ARCHON,
+            RobotType.LABORATORY,
+            RobotType.MINER,
+            RobotType.BUILDER
     };
     static final RobotType[] COMBAT = {
-        RobotType.WATCHTOWER,
-        RobotType.SOLDIER,
-        RobotType.SAGE
+            RobotType.WATCHTOWER,
+            RobotType.SOLDIER,
+            RobotType.SAGE
     };
 
-    static final Random rng = new Random(2);
+    static final Random rng = new Random();
     static Direction getRandomDirection() {
         return DIRECTIONS[rng.nextInt(DIRECTIONS.length)];
     }
@@ -74,7 +76,6 @@ strictfp class GeneralManager {
     /**
      * Get midpoint between two map locations
      */
-
     static MapLocation getMidpoint(MapLocation loc1, MapLocation loc2) {
         return new MapLocation((int)((loc1.x+loc2.x)/2),(loc1.y+loc2.y)/2);
     }
@@ -99,7 +100,6 @@ strictfp class GeneralManager {
     /**
      * Get direction to get to destination with less rubble
      */
-
     static Direction getNextDir(MapLocation dest) throws GameActionException {
         MapLocation myLoc = RobotPlayer.rc.getLocation();
 
@@ -153,7 +153,6 @@ strictfp class GeneralManager {
     static boolean onMap(MapLocation loc) {
         return loc.x >= 0 && loc.x <= RobotPlayer.rc.getMapWidth() && loc.y >= 0 && loc.y <= RobotPlayer.rc.getMapHeight();
     }
-
     static boolean onMap(int x, int y) {
         return x >= 0 && x <= RobotPlayer.rc.getMapWidth() && y >= 0 && y <= RobotPlayer.rc.getMapHeight();
     }
@@ -235,7 +234,18 @@ strictfp class GeneralManager {
         MapLocation nearestLocation = null;
         for (int i = 0; i < locations.length; i++) {
             if ((nearestLocation == null || myLocation.distanceSquaredTo(locations[i]) < myLocation.distanceSquaredTo(nearestLocation))
-                && !myLocation.equals(locations[i])) {
+                    && !myLocation.equals(locations[i])) {
+                nearestLocation = locations[i];
+            }
+        }
+        return nearestLocation;
+    }
+
+    /** Get nearest location from array of MapLocations **/
+    static MapLocation getNearestLocation(MapLocation[] locations) {
+        MapLocation nearestLocation = null;
+        for (int i = 0; i < locations.length; i++) {
+            if (nearestLocation == null || myLocation.distanceSquaredTo(locations[i]) < myLocation.distanceSquaredTo(nearestLocation)) {
                 nearestLocation = locations[i];
             }
         }

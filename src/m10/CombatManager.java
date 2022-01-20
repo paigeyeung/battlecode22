@@ -159,8 +159,8 @@ strictfp class CombatManager {
             }
         }
 
-        if(RobotPlayer.rc.getRoundNum() < 20) {
-            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
+        if(RobotPlayer.rc.getRoundNum() > 20 && RobotPlayer.rc.getRoundNum() < 100) {
+            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.ATTACK;
         }
 //        else if(RobotPlayer.rc.getRoundNum() < 20 && Integer.max(RobotPlayer.rc.getMapHeight(),RobotPlayer.rc.getMapWidth()) < 30) {
 //            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;

@@ -2,6 +2,7 @@ package m10;
 
 import battlecode.common.*;
 
+import static m10.GeneralManager.DIRECTIONS;
 import static m10.GeneralManager.visitedTurns;
 
 strictfp class SageStrategy {
@@ -43,19 +44,30 @@ strictfp class SageStrategy {
                     RobotPlayer.rc.canEnvision(AnomalyType.FURY)) {
                 RobotPlayer.rc.envision(AnomalyType.FURY);
             }
-            else if(CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false) <
-                    CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true) &&
+            else if((CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam(), false) <
+                    CombatManager.evaluateLocalCombatScore(RobotPlayer.rc.getTeam().opponent(), true) ||
+                    enemyDroidCount > 6 || (enemyDroidCount > 1 && RobotPlayer.rc.getHealth() <= 30)) &&
                     RobotPlayer.rc.canEnvision(AnomalyType.CHARGE)) {
                 RobotPlayer.rc.envision(AnomalyType.CHARGE);
             }
             else if(enemyArchonCount >= 1 && allyArchonCount == 0 &&
-                    RobotPlayer.rc.canEnvision(AnomalyType.ABYSS)) {
-                RobotPlayer.rc.envision(AnomalyType.ABYSS);
+                    RobotPlayer.rc.canEnvision(AnomalyType.FURY)) {
+                RobotPlayer.rc.envision(AnomalyType.FURY);
             }
             else {
                 if(ArchonTrackerManager.getCentralEnemyArchon() != -1)
                     GeneralManager.tryMove(getSageDirToEncircle(ArchonTrackerManager.enemyArchonTrackers[ArchonTrackerManager.getCentralEnemyArchon()].getGuessLocation(),
                         4), false);
+                else
+                    GeneralManager.tryMove(DIRECTIONS[GeneralManager.rng.nextInt(DIRECTIONS.length)], true);
+
+                if(ArchonTrackerManager.getNearestEnemyArchonGuessLocation(GeneralManager.myLocation) != null &&
+                        GeneralManager.myLocation.distanceSquaredTo(ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation))
+                    > GeneralManager.myLocation.distanceSquaredTo(ArchonTrackerManager.getNearestEnemyArchonGuessLocation(GeneralManager.myLocation))) {
+                    if(leadLocations.length > 2 && RobotPlayer.rc.canEnvision(AnomalyType.ABYSS)) {
+                        RobotPlayer.rc.envision(AnomalyType.ABYSS);
+                    }
+                }
             }
         }
         else if (action == CombatManager.COMBAT_DROID_ACTIONS.RETREAT) {

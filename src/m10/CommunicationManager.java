@@ -72,6 +72,12 @@ strictfp class CommunicationManager {
      */
     static final int ENEMY_ARCHON_ADDITIONAL_INFO = 16; // 16
 
+    /** BUILDING_INFO
+     * Info for buildings other than archons
+     * unused | 0/1 builder building lab | 0/1 is there a lab? | Last 2 bits round number where lab last acted mod 4
+     */
+    static final int BUILDING_INFO = 17;
+
     /** RESOURCE_LOCATIONS_INDEX
      * Index 0 to RESOURCE_LOCATIONS_NUM_ELEMENTS:
      * First 6 bits stores x location and second 6 bits stores y location
@@ -79,6 +85,6 @@ strictfp class CommunicationManager {
      * Last 3 bits stores need miners score (0 is unused, 1-7 is how much miners are needed)
      * x | x | x | x | x | x | y | y | y | y | y | y | gold or lead | score | score | score
      */
-    static final int RESOURCE_LOCATIONS_INDEX = 56; // 56-64
+    static final int RESOURCE_LOCATIONS_INDEX = 56; // 56-63
     static final int RESOURCE_LOCATIONS_NUM_ELEMENTS = 8;
 }

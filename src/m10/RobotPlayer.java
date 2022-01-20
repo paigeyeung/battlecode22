@@ -2,6 +2,8 @@ package m10;
 
 import battlecode.common.*;
 
+import java.util.Arrays;
+
 public strictfp class RobotPlayer {
     static RobotController rc;
 
@@ -13,6 +15,8 @@ public strictfp class RobotPlayer {
         GeneralManager.startingLocation = rc.getLocation();
         GeneralManager.mapWidth = rc.getMapWidth();
         GeneralManager.mapHeight = rc.getMapHeight();
+
+        GeneralManager.iAmDroid = Arrays.asList(GeneralManager.DROIDS).contains(GeneralManager.myType);
 
         while (true) {
             // Once per turn statics
@@ -27,7 +31,7 @@ public strictfp class RobotPlayer {
                     case BUILDER:    BuilderStrategy.runBuilder(); break;
                     case SOLDIER:    SoldierStrategy.runSoldier(); break;
                     case SAGE:       SageStrategy.runSage(); break;
-                    case LABORATORY: break;
+                    case LABORATORY: LabStrategy.runLab(); break;
                     case WATCHTOWER: WatchtowerStrategy.runWatchtower(); break;
                 }
                 AllUnitStrategy.runAllLate();

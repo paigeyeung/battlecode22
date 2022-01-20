@@ -157,10 +157,10 @@ strictfp class ArchonResourceManager {
 
         // Compute move Archon actions
 
-        for (int i = 0; i < allyArchonModels.length; i++) {
-            if (!allyArchonModels[i].alive || allyArchonModels[i].onCooldown) {
-                continue;
-            }
+//        for (int i = 0; i < allyArchonModels.length; i++) {
+//            if (!allyArchonModels[i].alive || allyArchonModels[i].onCooldown) {
+//                continue;
+//            }
 //            MapLocation farthestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[farthestArchonIndex].location;
 
 //            MapLocation closestAllyArchonLoc = ArchonTrackerManager.allyArchonTrackers[findArchonClosestToEnemies()].location;
@@ -170,27 +170,28 @@ strictfp class ArchonResourceManager {
 //                allyArchonModels[i].setActionMove();
 //                DebugManager.log("I'm Archon " + ArchonStrategy.mySharedArrayIndex + " and I want ally Archon " + i + " at " + ArchonTrackerManager.allyArchonTrackers[i].location + " to move");
 //            }
-        }
+//        }
 
         while (true) {
             RobotType chosenBuild = null;
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
 
-            if (!anySeenEnemy && (totalMinersBuilt < 13 && totalMinersBuilt < totalDroidsBuilt)) {
+            if (!anySeenEnemy && (totalMinersBuilt < 13 && totalMinersBuilt < totalDroidsBuilt * 0.5)) {
                 chosenBuild = RobotType.MINER;
             }
             // Maintain 15% proportion of build miners
             else if (totalMinersBuilt < totalDroidsBuilt * MINER_BUILD_PROPORTION ||
-                    (totalMinersBuilt < 8 && totalMinersBuilt < totalDroidsBuilt)) {
+                    (totalMinersBuilt < 4 && totalMinersBuilt < totalDroidsBuilt * 0.5)) {
                 chosenBuild = RobotType.MINER;
             }
-            // Otherwise, build soldiers
+            // Otherwise, build sages or soldiers
             else if(gold >= RobotType.SAGE.buildCostGold) {
                 chosenBuild = RobotType.SAGE;
             }
-            else if(ArchonTrackerManager.findMaxEnemyCombatScoreAtArchon() > 40 ||
-                totalSoldiersBuilt < RobotPlayer.rc.getRoundNum()/10){
+            else if(ArchonTrackerManager.findMaxEnemyCombatScoreAtArchon() > 42 ||
+                totalSoldiersBuilt < RobotPlayer.rc.getRoundNum()/15)
+            {
                 chosenBuild = RobotType.SOLDIER;
             }
 
@@ -232,8 +233,8 @@ strictfp class ArchonResourceManager {
                     break;
                 }
 
-                if(ArchonTrackerManager.getEnemyCombatScoreAtArchon(chosenArchonIndex) < 43 &&
-                    totalBuildersBuilt < RobotPlayer.rc.getRoundNum()/100) {
+                if(ArchonTrackerManager.getEnemyCombatScoreAtArchon(chosenArchonIndex) < 45 &&
+                    totalBuildersBuilt < RobotPlayer.rc.getRoundNum()/250) {
                     chosenBuild = RobotType.BUILDER;
                 }
                 else {
@@ -246,8 +247,9 @@ strictfp class ArchonResourceManager {
                     break;
                 }
 
-                int chosenArchonIndex = findArchonWithClosestEnemy();
-                if(chosenArchonIndex == -1) chosenArchonIndex = findArchonNeedingSoldiers(true);
+//                int chosenArchonIndex = findArchonWithClosestEnemy();
+//                if(chosenArchonIndex == -1)
+                int chosenArchonIndex = findArchonNeedingSoldiers(true);
 
                 allyArchonModels[chosenArchonIndex].setActionBuildSage();
                 gold -= RobotType.SAGE.buildCostGold;

@@ -9,6 +9,7 @@ import static m10.GeneralManager.visitedTurns;
 strictfp class BuilderStrategy {
     static int totalBuildingsBuilt = 0;
     static int watchtowersBuilt = 0;
+    static boolean buildingLab = false;
 
     /** Build a building */
     static void builderBuild(RobotType robotType, Direction buildDirection) throws GameActionException {
@@ -69,19 +70,60 @@ strictfp class BuilderStrategy {
             }
         }
 
-        // Try to build watchtower
-        if (GeneralManager.turnsAlive > (watchtowersBuilt + 1) * 200) {
-            builderTryBuild(RobotType.WATCHTOWER, null);
-        }
+        if((!LabStrategy.isLab() && !LabStrategy.isBuilderBuildingLab())
+                || buildingLab) {
+            MapLocation corner = GeneralManager.getNearestCorner(
+                    ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation)
+            );
 
-        if (actionableAllies.length == 0 || actionableAllies.length > 5) {
-            MapLocation targetEnemyArchonGuessLocation = null;
-            if (ArchonTrackerManager.getCentralEnemyArchon() != -1)
-                targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[ArchonTrackerManager.getCentralEnemyArchon()].getGuessLocation();
-            //change from getNearestEnemyArchonGuessLocation(GeneralManager.myLocation);
-            if (targetEnemyArchonGuessLocation != null) {
-                // If no enemies are visible, move towards nearest enemy Archon
-                GeneralManager.tryMove(getNextBuilderDir(targetEnemyArchonGuessLocation), false);
+            buildingLab = true;
+            if(GeneralManager.myLocation.distanceSquaredTo(corner) <= 2) {
+                if (RobotPlayer.rc.canBuildRobot(RobotType.LABORATORY, GeneralManager.myLocation.directionTo(corner))) {
+                    RobotPlayer.rc.buildRobot(RobotType.LABORATORY, GeneralManager.myLocation.directionTo(corner));
+                    LabStrategy.setLabAlive();
+                    buildingLab = false;
+                }
+            }
+            else {
+                if(getNextBuilderDir(corner) != null) {
+                    MapLocation loc = RobotPlayer.rc.adjacentLocation(getNextBuilderDir(corner));
+                    if (visitedTurns[loc.x][loc.y] < 4)
+                        GeneralManager.tryMove(getNextBuilderDir(corner), false);
+                    else {
+                        Direction minRubbleBuildDir = null;
+                        int minRubble = Integer.MAX_VALUE;
+
+                        for (MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(GeneralManager.myLocation,
+                                2)) {
+                            if (!adj.equals(GeneralManager.myLocation) && RobotPlayer.rc.senseRubble(adj) < minRubble) {
+                                minRubbleBuildDir = GeneralManager.myLocation.directionTo(adj);
+                            }
+                        }
+                        if (RobotPlayer.rc.canBuildRobot(RobotType.LABORATORY, minRubbleBuildDir)) {
+                            RobotPlayer.rc.buildRobot(RobotType.LABORATORY, minRubbleBuildDir);
+                            LabStrategy.setLabAlive();
+                            buildingLab = false;
+                        }
+                    }
+                }
+            }
+            LabStrategy.setBuilderBuildingLab(buildingLab);
+        }
+        else {
+            // Try to build watchtower
+            if (GeneralManager.turnsAlive > (watchtowersBuilt + 1) * 200) {
+                builderTryBuild(RobotType.WATCHTOWER, null);
+            }
+
+            if (actionableAllies.length == 0 || actionableAllies.length > 5) {
+                MapLocation targetEnemyArchonGuessLocation = null;
+                if (ArchonTrackerManager.getCentralEnemyArchon() != -1)
+                    targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[ArchonTrackerManager.getCentralEnemyArchon()].getGuessLocation();
+                //change from getNearestEnemyArchonGuessLocation(GeneralManager.myLocation);
+                if (targetEnemyArchonGuessLocation != null) {
+                    // If no enemies are visible, move towards nearest enemy Archon
+                    GeneralManager.tryMove(getNextBuilderDir(targetEnemyArchonGuessLocation), false);
+                }
             }
         }
     }
