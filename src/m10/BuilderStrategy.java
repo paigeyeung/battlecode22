@@ -83,7 +83,7 @@ strictfp class BuilderStrategy {
                 }
             }
             else {
-                if(getNextBuilderDir(corner) != null) {
+                if(getNextBuilderDir(corner) != null && RobotPlayer.rc.canMove(getNextBuilderDir(corner))) {
                     MapLocation loc = RobotPlayer.rc.adjacentLocation(getNextBuilderDir(corner));
                     if (GeneralManager.visitedTurns[loc.x][loc.y] < 4)
                         GeneralManager.tryMove(getNextBuilderDir(corner), false);
