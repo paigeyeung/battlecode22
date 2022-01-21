@@ -36,9 +36,9 @@ strictfp class SoldierStrategy {
                 }
                 else {
                     MapLocation targetEnemyArchonGuessLocation = null;
-                    int centralEnemyArchon = ArchonTrackerManager.getCentralEnemyArchon();
-                    if (centralEnemyArchon != -1) {
-                        targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[centralEnemyArchon].getGuessLocation();
+                    int targetArchon = ArchonTrackerManager.getCentralEnemyArchon();
+                    if (targetArchon != -1) {
+                        targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[targetArchon].getGuessLocation();
                     }
                     //change from getNearestEnemyArchonGuessLocation(GeneralManager.myLocation);
                     if (targetEnemyArchonGuessLocation != null) {
@@ -80,24 +80,23 @@ strictfp class SoldierStrategy {
             }
         }
         else if (action == CombatManager.COMBAT_DROID_ACTIONS.RETREAT) {
-
             if(scouting) {
                 scouting = false;
                 int scoutCount = RobotPlayer.rc.readSharedArray(CommunicationManager.SCOUT_COUNT);
                 RobotPlayer.rc.writeSharedArray(CommunicationManager.SCOUT_COUNT, scoutCount - 1);
             }
 
-            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
+//            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
+            MapLocation archonNeedingSoldiers = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonNeedingSoldiers(false)].location;
 
 //            MapLocation retreatArchonLocation = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonNeedingSoldiers(false)].location;
 
-            GeneralManager.tryMove(getSoldierDirToEncircle(nearestAllyArchonLocation,4), false);
+            GeneralManager.tryMove(getSoldierDirToEncircle(archonNeedingSoldiers,4), false);
             if (CombatManager.tryAttack()) {
                 // Try to attack
             }
         }
         if (action == CombatManager.COMBAT_DROID_ACTIONS.HOLD) {
-
             if(scouting) {
                 scouting = false;
                 int scoutCount = RobotPlayer.rc.readSharedArray(CommunicationManager.SCOUT_COUNT);
@@ -111,6 +110,9 @@ strictfp class SoldierStrategy {
             }
             else if (storedAttackDirection != null) {
                 GeneralManager.tryMove(storedAttackDirection, false);
+            }
+            else {
+                GeneralManager.tryMove(getSoldierDirToEncircle(GeneralManager.getMapCenter(), 10), false);
             }
 
             if (CombatManager.tryAttack()) {
