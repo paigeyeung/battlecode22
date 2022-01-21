@@ -95,6 +95,11 @@ strictfp class CombatManager {
         score *= robot.getHealth() / robot.getType().getMaxHealth(robot.level);
         // Decrease score based on rubble
         score *= 1 / (1 + RobotPlayer.rc.senseRubble(robot.getLocation()) / 10);
+
+        if(!robot.getMode().canAct) {
+            score *= 0.1;
+        }
+
         return score;
     }
 
@@ -132,7 +137,7 @@ strictfp class CombatManager {
         if ((enemyCombatScore > allyCombatScore * 0.9 || savedEnemyCombatScore > allyCombatScore * 0.9) &&
                 !retreating) {
             chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
-            if (enemyCombatScore < allyCombatScore || distToNearestAllyArchon <= 16) {
+            if (enemyCombatScore < allyCombatScore || distToNearestAllyArchon > 16) {
                 chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
             }
             else {
@@ -159,9 +164,10 @@ strictfp class CombatManager {
             }
         }
 
-        if(RobotPlayer.rc.getRoundNum() > 20 && RobotPlayer.rc.getRoundNum() < 100) {
-            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.ATTACK;
-        }
+//        if(RobotPlayer.rc.getRoundNum() > 10 && RobotPlayer.rc.getRoundNum() < 70) {
+//            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
+//        }
+
 //        else if(RobotPlayer.rc.getRoundNum() < 20 && Integer.max(RobotPlayer.rc.getMapHeight(),RobotPlayer.rc.getMapWidth()) < 30) {
 //            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
 //        }
