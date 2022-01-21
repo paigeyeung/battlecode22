@@ -3,7 +3,7 @@ package m10;
 import battlecode.common.*;
 
 strictfp class ArchonResourceManager {
-    static final int MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON = 25;
+    static final int MAX_DISTANCE_TO_NEARBY_ALLY_ARCHON = 80;
     static final double MINER_BUILD_PROPORTION = 0.2;
     static int farthestArchonIndex;
     static AnomalyScheduleEntry[] anomalyScheduleEntries;
@@ -177,7 +177,7 @@ strictfp class ArchonResourceManager {
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
 
-            if (!anySeenEnemy && (totalMinersBuilt < 13 && totalMinersBuilt < totalDroidsBuilt * 0.5)) {
+            if (!anySeenEnemy && (totalMinersBuilt < 13 && totalMinersBuilt < totalDroidsBuilt * 0.9)) {
                 chosenBuild = RobotType.MINER;
             }
             // Maintain 15% proportion of build miners
@@ -234,7 +234,7 @@ strictfp class ArchonResourceManager {
                 }
 
                 if(ArchonTrackerManager.getEnemyCombatScoreAtArchon(chosenArchonIndex) < 45 &&
-                    totalBuildersBuilt < RobotPlayer.rc.getRoundNum()/250) {
+                    totalBuildersBuilt < RobotPlayer.rc.getRoundNum()/300) {
                     chosenBuild = RobotType.BUILDER;
                 }
                 else {
