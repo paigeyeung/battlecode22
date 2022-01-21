@@ -150,16 +150,21 @@ strictfp class SageStrategy {
                 RobotPlayer.rc.envision(AnomalyType.FURY);
             }
             else {
-                MapLocation targetEnemyArchonGuessLocation = null;
-                int centralEnemyArchon = ArchonTrackerManager.getCentralEnemyArchon();
-                if (centralEnemyArchon != -1) {
-                    targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[centralEnemyArchon].getGuessLocation();
-                }
-                if (targetEnemyArchonGuessLocation != null) {
-                    GeneralManager.tryMove(getSageDirToEncircle(targetEnemyArchonGuessLocation, 4), false);
+                MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
+                if(RobotPlayer.rc.getActionCooldownTurns() > 10) {
+                    GeneralManager.tryMove(getSageDirToEncircle(nearestAllyArchonLocation,4), false);
                 }
                 else {
-                    GeneralManager.tryMove(GeneralManager.getRandomDirection(), true);
+                    MapLocation targetEnemyArchonGuessLocation = null;
+                    int centralEnemyArchon = ArchonTrackerManager.getCentralEnemyArchon();
+                    if (centralEnemyArchon != -1) {
+                        targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[centralEnemyArchon].getGuessLocation();
+                    }
+                    if (targetEnemyArchonGuessLocation != null) {
+                        GeneralManager.tryMove(getSageDirToEncircle(targetEnemyArchonGuessLocation, 4), false);
+                    } else {
+                        GeneralManager.tryMove(GeneralManager.getRandomDirection(), true);
+                    }
                 }
             }
         }
