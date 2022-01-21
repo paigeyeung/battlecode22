@@ -158,21 +158,30 @@ strictfp class ArchonStrategy {
                 int newDist = adj.distanceSquaredTo(dest);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
                 int newF = newDist + newRubble;
-                if (visited[adj.x][adj.y]) newF += 100;
+                newF += 50 * GeneralManager.visitedTurns[adj.x][adj.y];
 
                 if (newF < f) {
                     f = newF;
                     movementDir = dir;
-                    visited[adj.x][adj.y] = true;
                 } else if (newF == f) {
                     if ((int) (Math.random() * 2) == 0) {
                         f = newF;
                         movementDir = dir;
-                        visited[adj.x][adj.y] = true;
                     }
                 }
             }
         }
+
+        if(movementDir != null) {
+            MapLocation adj = RobotPlayer.rc.adjacentLocation(movementDir);
+            GeneralManager.visitedTurns[adj.x][adj.y]++;
+            if(GeneralManager.visitedTurns[adj.x][adj.y] > 4 && !movedToArchonsDest) {
+                ArchonStrategy.dest = null;
+                movedToArchonsDest = true;
+                return null;
+            }
+        }
+
         return movementDir;
     }
 
@@ -197,7 +206,16 @@ strictfp class ArchonStrategy {
 //        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 1");
 
         if (visited == null) {
-            visited = new boolean[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
+            visited = new boolean[GeneralManager.mapWidth][GeneralManager.mapHeight];
+        }
+
+        if (GeneralManager.visitedTurns == null) {
+            GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
+            for (int i = 0; i < GeneralManager.visitedTurns.length; i++) {
+                for (int j = 0; j < GeneralManager.visitedTurns[i].length; j++) {
+                    GeneralManager.visitedTurns[i][j] = 0;
+                }
+            }
         }
 
         // First turn initializations
@@ -266,10 +284,14 @@ strictfp class ArchonStrategy {
             // Initialize resource manager
             ArchonResourceManager.initializeTurn2();
 
-            if(ArchonResourceManager.findArchonFarthestFromEnemies(true) != -1)
+            if(ArchonResourceManager.findArchonFarthestFromEnemies(true) != -1) {
                 dest = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonFarthestFromEnemies(true)].location;
-            else
+            }
+            else {
                 dest = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.farthestArchonIndex].location;
+            }
+            dest = GeneralManager.getNearestCorner(dest);
+//            dest = GeneralManager.getNearestCorner(GeneralManager.myLocation);
         }
 
 //        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 2");
@@ -377,9 +399,9 @@ strictfp class ArchonStrategy {
 
         int encoded = RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ENEMY_COMBAT_SCORE + (int)(mySharedArrayIndex / 2));
 
-        if((encoded >>> (7 * (1-mySharedArrayIndex % 2)) & 0x7F) != Math.round(score/10)) {
+        if(((encoded >>> (7 * (1-mySharedArrayIndex % 2))) & 0x7F) != Math.round(score/10)) {
             int newEncodedScore;
-            if (mySharedArrayIndex % 2 == 0) newEncodedScore = (int)Math.round(score/10) << 7 | (encoded & 0x7F);
+            if (mySharedArrayIndex % 2 == 0) newEncodedScore = ((int)Math.round(score/10) << 7) | (encoded & 0x7F);
             else newEncodedScore = ((encoded >>> 7) & 0x7F) | ((int)Math.round(score/10) & 0x7F);
 
             RobotPlayer.rc.writeSharedArray(CommunicationManager.ALLY_ARCHON_ENEMY_COMBAT_SCORE + (int)(mySharedArrayIndex / 2),
