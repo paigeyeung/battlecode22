@@ -291,6 +291,9 @@ strictfp class ArchonStrategy {
         // Turn INIT_VISITED_TURNS_START_TURN to INIT_VISITED_TURNS_START_TURN + INIT_VISITED_TURNS_TURNS initializations
         int initVisitedTurnsTurn = GeneralManager.turnsAlive - INIT_VISITED_TURNS_START_TURN;
         if (initVisitedTurnsTurn >= 0 && initVisitedTurnsTurn < INIT_VISITED_TURNS_TURNS) {
+            if (initVisitedTurnsTurn == 0) {
+                GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
+            }
             // Partial initialization of visitedTurns
             int numI = GeneralManager.visitedTurns.length / INIT_VISITED_TURNS_TURNS;
             for (int i = initVisitedTurnsTurn * numI; i < (initVisitedTurnsTurn + 1) * numI; i++) {
