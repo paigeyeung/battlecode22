@@ -3,6 +3,9 @@ package m10;
 import battlecode.common.*;
 
 strictfp class ArchonStrategy {
+    static final int INIT_VISITED_TURNS_START_TURN = 3;
+    static final int INIT_VISITED_TURNS_TURNS = 5;
+
     static int mySharedArrayIndex = -1;
     static boolean mySharedArrayToggle = true;
 //    static boolean[][] visited = null;
@@ -211,14 +214,6 @@ strictfp class ArchonStrategy {
 
         // Turn 1 initializations
         if (GeneralManager.turnsAlive == 1) {
-            // Part 1 initialization of visitedTurns
-            GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
-            for (int i = 0; i < GeneralManager.visitedTurns.length / 2; i++) {
-                for (int j = 0; j < GeneralManager.visitedTurns[i].length; j++) {
-                    GeneralManager.visitedTurns[i][j] = 0;
-                }
-            }
-
             // Initialize Archon tracker manager
             // Find first empty array element
             mySharedArrayIndex = 0;
@@ -293,10 +288,12 @@ strictfp class ArchonStrategy {
 //            dest = GeneralManager.getNearestCorner(GeneralManager.myLocation);
         }
 
-        // Turn 3 initializations
-        if (GeneralManager.turnsAlive == 3) {
-            // Part 2 initialization of visitedTurns
-            for (int i = GeneralManager.visitedTurns.length / 2; i < GeneralManager.visitedTurns.length; i++) {
+        // Turn INIT_VISITED_TURNS_START_TURN to INIT_VISITED_TURNS_START_TURN + INIT_VISITED_TURNS_TURNS initializations
+        int initVisitedTurnsTurn = GeneralManager.turnsAlive - INIT_VISITED_TURNS_START_TURN;
+        if (initVisitedTurnsTurn >= 0 && initVisitedTurnsTurn < INIT_VISITED_TURNS_TURNS) {
+            // Partial initialization of visitedTurns
+            int numI = GeneralManager.visitedTurns.length / INIT_VISITED_TURNS_TURNS;
+            for (int i = initVisitedTurnsTurn * numI; i < (initVisitedTurnsTurn + 1) * numI; i++) {
                 for (int j = 0; j < GeneralManager.visitedTurns[i].length; j++) {
                     GeneralManager.visitedTurns[i][j] = 0;
                 }
