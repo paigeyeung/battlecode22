@@ -97,14 +97,15 @@ strictfp class ArchonStrategy {
 
         MapLocation lowRubbleDest = null;
 
-        if(dest == null || (!GeneralManager.myLocation.equals(dest) &&
+        if(dest == null || (!GeneralManager.myLocation.equals(dest) && GeneralManager.myLocation.isAdjacentTo(dest) &&
                 RobotPlayer.rc.canSenseLocation(dest) && RobotPlayer.rc.canSenseRobotAtLocation(dest))) {
             int rubble = RobotPlayer.rc.senseRubble(GeneralManager.myLocation), minRubble = RobotPlayer.rc.senseRubble(GeneralManager.myLocation);
             for (MapLocation adj : RobotPlayer.rc.getAllLocationsWithinRadiusSquared(GeneralManager.myLocation,
                     GeneralManager.myType.visionRadiusSquared)) {
                 if (RobotPlayer.rc.senseRubble(adj) <= minRubble) {
                     if (RobotPlayer.rc.senseRubble(adj) < minRubble || (lowRubbleDest != null
-                            && (GeneralManager.myLocation.distanceSquaredTo(adj) < GeneralManager.myLocation.distanceSquaredTo(lowRubbleDest)))) {
+                            && (RobotPlayer.rc.senseRubble(adj) < minRubble + 30 &&
+                                    GeneralManager.myLocation.distanceSquaredTo(adj) < GeneralManager.myLocation.distanceSquaredTo(lowRubbleDest)))) {
                         minRubble = RobotPlayer.rc.senseRubble(adj);
                         lowRubbleDest = adj;
                     }
@@ -120,19 +121,19 @@ strictfp class ArchonStrategy {
                 dest = null;
                 movedOffRubble = true;
                 RobotPlayer.rc.transform();
-//                return false;
+                return false;
             }
-//            if(!RobotPlayer.rc.getMode().canMove)
-//                return false;
-//            return true;
+            if(!RobotPlayer.rc.getMode().canMove)
+                return false;
+            return true;
         }
 
         if (!RobotPlayer.rc.getMode().canMove) {
             if (RobotPlayer.rc.canTransform()) {
                 RobotPlayer.rc.transform();
-//                return true;
+                return true;
             }
-//            return false;
+            return false;
         }
 
         boolean moved = GeneralManager.tryMove(getNextArchonDir(dest), false);
