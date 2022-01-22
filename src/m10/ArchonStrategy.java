@@ -211,6 +211,14 @@ strictfp class ArchonStrategy {
 
         // Turn 1 initializations
         if (GeneralManager.turnsAlive == 1) {
+            // Part 1 initialization of visitedTurns
+            GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
+            for (int i = 0; i < GeneralManager.visitedTurns.length / 2; i++) {
+                for (int j = 0; j < GeneralManager.visitedTurns[i].length; j++) {
+                    GeneralManager.visitedTurns[i][j] = 0;
+                }
+            }
+
             // Initialize Archon tracker manager
             // Find first empty array element
             mySharedArrayIndex = 0;
@@ -287,12 +295,11 @@ strictfp class ArchonStrategy {
 
         // Turn 3 initializations
         if (GeneralManager.turnsAlive == 3) {
-            if (GeneralManager.visitedTurns == null) {
-                GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
-                for (int i = 0; i < GeneralManager.visitedTurns.length; i++) {
-                    for (int j = 0; j < GeneralManager.visitedTurns[i].length; j++) {
-                        GeneralManager.visitedTurns[i][j] = 0;
-                    }
+            // Part 2 initialization of visitedTurns
+            GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
+            for (int i = GeneralManager.visitedTurns.length / 2; i < GeneralManager.visitedTurns.length; i++) {
+                for (int j = 0; j < GeneralManager.visitedTurns[i].length; j++) {
+                    GeneralManager.visitedTurns[i][j] = 0;
                 }
             }
         }
