@@ -5,7 +5,7 @@ import battlecode.common.*;
 strictfp class ArchonStrategy {
     static int mySharedArrayIndex = -1;
     static boolean mySharedArrayToggle = true;
-    static boolean[][] visited = null;
+//    static boolean[][] visited = null;
 //    static MapLocation archonDest = null;
 
     static int droidsBuilt = 0;
@@ -205,9 +205,9 @@ strictfp class ArchonStrategy {
     static void runArchon() throws GameActionException {
 //        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 1");
 
-        if (visited == null) {
-            visited = new boolean[GeneralManager.mapWidth][GeneralManager.mapHeight];
-        }
+//        if (visited == null) {
+//            visited = new boolean[GeneralManager.mapWidth][GeneralManager.mapHeight];
+//        }
 
         if (GeneralManager.visitedTurns == null) {
             GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
@@ -358,7 +358,7 @@ strictfp class ArchonStrategy {
             }
         }
 
-        if(RobotPlayer.rc.getRoundNum() > 2) {
+        if(RobotPlayer.rc.getRoundNum() > 4) {
 //            DebugManager.log(ArchonTrackerManager.numArchonsMoving() + " archons are moving");
             if (!movedToArchonsDest && ArchonTrackerManager.numArchonsMoving() < RobotPlayer.rc.getArchonCount() - 1) {
                 ArchonTrackerManager.setMoving(mySharedArrayIndex, archonTryMove());
@@ -411,7 +411,7 @@ strictfp class ArchonStrategy {
         for(AnomalyScheduleEntry e : ArchonResourceManager.anomalyScheduleEntries) {
             if(e.anomalyType.equals(AnomalyType.VORTEX) && e.roundNumber == RobotPlayer.rc.getRoundNum()) {
                 movedOffRubble = false;
-                visited = new boolean[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
+//                visited = new boolean[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
                 break;
             }
         }
