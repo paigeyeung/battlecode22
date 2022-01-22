@@ -234,7 +234,7 @@ strictfp class ArchonResourceManager {
                 }
 
                 if(ArchonTrackerManager.getEnemyCombatScoreAtArchon(chosenArchonIndex) < 45 &&
-                    totalBuildersBuilt < RobotPlayer.rc.getRoundNum()/300) {
+                    totalBuildersBuilt < RobotPlayer.rc.getRoundNum()/400) {
                     chosenBuild = RobotType.BUILDER;
                 }
                 else {
