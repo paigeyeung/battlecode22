@@ -137,7 +137,7 @@ strictfp class CombatManager {
         if ((enemyCombatScore > allyCombatScore * 0.9 || savedEnemyCombatScore > allyCombatScore * 0.9) &&
                 !retreating) {
             chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
-            if (enemyCombatScore < allyCombatScore || distToNearestAllyArchon > 16) {
+            if (enemyCombatScore < allyCombatScore || distToNearestAllyArchon <= 16) {
                 if(RobotPlayer.rc.getRoundNum() < 200)
                     chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
             }
