@@ -218,6 +218,8 @@ strictfp class ArchonStrategy {
             }
         }
 
+        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 1.1");
+
         // First turn initializations
         if (GeneralManager.turnsAlive == 1) {
             // Initialize Archon tracker manager
@@ -230,6 +232,7 @@ strictfp class ArchonStrategy {
                 }
                 mySharedArrayIndex++;
             }
+            DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 1.2");
             if (mySharedArrayIndex == 4) {
                 DebugManager.log("SOMETHING WENT WRONG: Archon did not find empty array element");
             }
@@ -237,22 +240,25 @@ strictfp class ArchonStrategy {
                 ArchonTrackerManager.updateGlobalAllyArchonTrackerFirstTime(mySharedArrayIndex, true, GeneralManager.myLocation, mySharedArrayToggle);
                 ArchonTrackerManager.updateGlobalEnemyArchonTrackerFirstTime(mySharedArrayIndex, true, GeneralManager.myLocation, false, 0, false);
             }
-
+            DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 1.3");
             dest = null;
 //            archonDest = null;
             movedOffRubble = false;
 
             // Initialize resource manager
             ArchonResourceManager.initializeTurn1();
+            DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 1.4");
 
             // Get nearest lead location
             nearestLeadLocation = GeneralManager.getNearestLeadLocation();
 //            if (nearestLeadLocation == null) {
 //                DebugManager.log("SOMETHING WENT WRONG: Nearest lead not found!");
 //            }
+            DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 1.5");
 
             // Build a miner
             archonTryBuild(RobotType.MINER);
+            DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 1.6");
 
             // Finish turn
             return;
