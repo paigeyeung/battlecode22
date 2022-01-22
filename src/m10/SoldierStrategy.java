@@ -112,8 +112,8 @@ strictfp class SoldierStrategy {
                 GeneralManager.tryMove(storedAttackDirection, false);
             }
             else {
-//                GeneralManager.tryMove(getSoldierDirToEncircle(ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation), 10), false);
-                GeneralManager.tryMove(getSoldierDirToEncircle(GeneralManager.getMapCenter(), 10), false);
+                GeneralManager.tryMove(getSoldierDirToEncircle(ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation), 10), false);
+//                GeneralManager.tryMove(getSoldierDirToEncircle(GeneralManager.getMapCenter(), 10), false);
             }
 
             if (CombatManager.tryAttack()) {
