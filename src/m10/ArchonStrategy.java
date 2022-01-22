@@ -209,16 +209,7 @@ strictfp class ArchonStrategy {
 //            visited = new boolean[GeneralManager.mapWidth][GeneralManager.mapHeight];
 //        }
 
-        if (GeneralManager.visitedTurns == null) {
-            GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
-            for (int i = 0; i < GeneralManager.visitedTurns.length; i++) {
-                for (int j = 0; j < GeneralManager.visitedTurns[i].length; j++) {
-                    GeneralManager.visitedTurns[i][j] = 0;
-                }
-            }
-        }
-
-        // First turn initializations
+        // Turn 1 initializations
         if (GeneralManager.turnsAlive == 1) {
             // Initialize Archon tracker manager
             // Find first empty array element
@@ -292,6 +283,18 @@ strictfp class ArchonStrategy {
             }
             dest = GeneralManager.getNearestCorner(dest);
 //            dest = GeneralManager.getNearestCorner(GeneralManager.myLocation);
+        }
+
+        // Turn 3 initializations
+        if (GeneralManager.turnsAlive == 3) {
+            if (GeneralManager.visitedTurns == null) {
+                GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
+                for (int i = 0; i < GeneralManager.visitedTurns.length; i++) {
+                    for (int j = 0; j < GeneralManager.visitedTurns[i].length; j++) {
+                        GeneralManager.visitedTurns[i][j] = 0;
+                    }
+                }
+            }
         }
 
 //        DebugManager.log("BYTECODE: " + Clock.getBytecodeNum() + " at runArchon point 2");
