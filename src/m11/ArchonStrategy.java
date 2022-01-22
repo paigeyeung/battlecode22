@@ -1,4 +1,4 @@
-package m10;
+package m11;
 
 import battlecode.common.*;
 
@@ -121,19 +121,19 @@ strictfp class ArchonStrategy {
                 dest = null;
                 movedOffRubble = true;
                 RobotPlayer.rc.transform();
-//                return false;
+                return false;
             }
-//            if(!RobotPlayer.rc.getMode().canMove)
-//                return false;
-//            return true;
+            if(!RobotPlayer.rc.getMode().canMove)
+                return false;
+            return true;
         }
 
         if (!RobotPlayer.rc.getMode().canMove) {
             if (RobotPlayer.rc.canTransform()) {
                 RobotPlayer.rc.transform();
-//                return true;
+                return true;
             }
-//            return false;
+            return false;
         }
 
         boolean moved = GeneralManager.tryMove(getNextArchonDir(dest), false);
