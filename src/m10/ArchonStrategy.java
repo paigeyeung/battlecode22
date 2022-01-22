@@ -247,9 +247,9 @@ strictfp class ArchonStrategy {
 
             // Get nearest lead location
             nearestLeadLocation = GeneralManager.getNearestLeadLocation();
-            if (nearestLeadLocation == null) {
-                DebugManager.log("SOMETHING WENT WRONG: Nearest lead not found!");
-            }
+//            if (nearestLeadLocation == null) {
+//                DebugManager.log("SOMETHING WENT WRONG: Nearest lead not found!");
+//            }
 
             // Build a miner
             archonTryBuild(RobotType.MINER);
