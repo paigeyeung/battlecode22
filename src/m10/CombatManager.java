@@ -138,7 +138,8 @@ strictfp class CombatManager {
                 !retreating) {
             chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
             if (enemyCombatScore < allyCombatScore || distToNearestAllyArchon > 16) {
-                chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
+                if(RobotPlayer.rc.getRoundNum() < 200)
+                    chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
             }
             else {
                 retreating = true;
@@ -164,7 +165,7 @@ strictfp class CombatManager {
             }
         }
 
-//        if(RobotPlayer.rc.getRoundNum() > 10 && RobotPlayer.rc.getRoundNum() < 70) {
+//        if(RobotPlayer.rc.getRoundNum() > 10 && RobotPlayer.rc.getRoundNum() < 100) {
 //            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
 //        }
 
