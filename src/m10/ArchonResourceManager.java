@@ -362,6 +362,24 @@ strictfp class ArchonResourceManager {
         return findArchonWithFewestSoldiersBuilt(ableToBuild);
     }
 
+    static int findArchonNeedingSoldiers() throws GameActionException {
+        int maxScore = 0;
+        int index = -1;
+        for(int i = 0; i <= 1; i++) {
+            for(int j = 0; j <= 1; j++) {
+                //for index i * 2 + (1 - j)
+                int score = ((RobotPlayer.rc.readSharedArray(CommunicationManager.ALLY_ARCHON_ENEMY_COMBAT_SCORE+i) >>> (7*j)) & 0x7F);
+                if(score > maxScore && ArchonTrackerManager.allyArchonTrackers[i*2+(1-j)].alive) {
+                    maxScore = score;
+                    index = i * 2 + (1 - j);
+                    // 00 1 | 01 0 | 10 3 | 11 2
+                }
+            }
+        }
+        if(index != -1) return index;
+        return findArchonWithFewestSoldiersBuilt(false);
+    }
+
     static int findArchonWithClosestEnemy() {
         int archonIndex = -1;
         int minDist = Integer.MAX_VALUE;

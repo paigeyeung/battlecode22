@@ -87,7 +87,7 @@ strictfp class SoldierStrategy {
             }
 
 //            MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
-            MapLocation archonNeedingSoldiers = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonNeedingSoldiers(false)].location;
+            MapLocation archonNeedingSoldiers = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonNeedingSoldiers()].location;
 
 //            MapLocation retreatArchonLocation = ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonNeedingSoldiers(false)].location;
 
