@@ -296,7 +296,6 @@ strictfp class ArchonStrategy {
         // Turn 3 initializations
         if (GeneralManager.turnsAlive == 3) {
             // Part 2 initialization of visitedTurns
-            GeneralManager.visitedTurns = new int[GeneralManager.mapWidth + 1][GeneralManager.mapHeight + 1];
             for (int i = GeneralManager.visitedTurns.length / 2; i < GeneralManager.visitedTurns.length; i++) {
                 for (int j = 0; j < GeneralManager.visitedTurns[i].length; j++) {
                     GeneralManager.visitedTurns[i][j] = 0;
