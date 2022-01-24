@@ -171,6 +171,14 @@ strictfp class GeneralManager {
         return new MapLocation(x,y);
     }
 
+    static MapLocation getFarthestLocationInDirection(Direction dir) throws GameActionException {
+        MapLocation loc = GeneralManager.myLocation;
+        while(RobotPlayer.rc.onTheMap(loc.add(dir))) {
+            loc = loc.add(dir);
+        }
+        return loc;
+    }
+
     /** Get best build direction relative to preferred direction, returns null if no direction is found */
     static Direction getBuildDirection(RobotType robotType, Direction preferredDirection) throws GameActionException {
         if (preferredDirection == null) {

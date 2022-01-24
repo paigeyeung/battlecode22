@@ -146,13 +146,14 @@ strictfp class SageStrategy {
 //            }
 
             // William's version 2
-            if (RobotPlayer.rc.getActionCooldownTurns() > 100) {
+            if (RobotPlayer.rc.getActionCooldownTurns() > 100 || RobotPlayer.rc.getHealth() <
+            RobotPlayer.rc.getType().getMaxHealth(RobotPlayer.rc.getLevel()) * 0.4) {
                 // Move toward ally Archon
                 MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
                 if (DebugManager.drawSageLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, nearestAllyArchonLocation, 0, 255, 0);
                 GeneralManager.tryMove(getSageDirToEncircle(nearestAllyArchonLocation,4), false);
             }
-            else if (RobotPlayer.rc.getActionCooldownTurns() > 20) {
+            else if (RobotPlayer.rc.getActionCooldownTurns() < 20) {
                 // Move toward enemy Archon
                 MapLocation targetEnemyArchonGuessLocation = null;
                 int centralEnemyArchon = ArchonTrackerManager.getCentralEnemyArchon();

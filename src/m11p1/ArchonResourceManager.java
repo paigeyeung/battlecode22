@@ -177,7 +177,7 @@ strictfp class ArchonResourceManager {
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
 
-            if (!anySeenEnemy && (totalMinersBuilt < 9 && totalMinersBuilt < totalDroidsBuilt * 0.7)) {
+            if (!anySeenEnemy && (totalMinersBuilt < 9 && totalMinersBuilt < totalDroidsBuilt * 0.9)) {
                 chosenBuild = RobotType.MINER;
             }
             // Maintain proportion of build miners
@@ -192,7 +192,7 @@ strictfp class ArchonResourceManager {
             else if(ArchonTrackerManager.findMaxEnemyCombatScoreAtArchon() > 47 ||
                     (ArchonTrackerManager.findMaxEnemyCombatScoreAtArchon() > 49 &&
                             (RobotPlayer.rc.getRoundNum() < 300 || !LabStrategy.isLab())) ||
-                    totalSoldiersBuilt < RobotPlayer.rc.getRoundNum()/20 ||
+                    totalSoldiersBuilt < RobotPlayer.rc.getRoundNum()/30 + 2 ||
                     lead > 500)
             {
                 chosenBuild = RobotType.SOLDIER;

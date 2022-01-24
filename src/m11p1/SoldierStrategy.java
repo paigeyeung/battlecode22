@@ -4,6 +4,7 @@ import battlecode.common.*;
 
 strictfp class SoldierStrategy {
     static boolean scouting = false;
+    static MapLocation dest = null;
     static Direction storedAttackDirection = null;
 
     /** Called by RobotPlayer */
@@ -107,6 +108,10 @@ strictfp class SoldierStrategy {
             if(enemies.length > 0) {
                 storedAttackDirection = getNextSoldierDir(enemies[(int)(Math.random()*enemies.length)].location);
                 GeneralManager.tryMove(storedAttackDirection,false);
+
+//                if(ArchonTrackerManager.getCentralEnemyArchon() == -1) {
+//                    dest = GeneralManager.getFarthestLocationInDirection(storedAttackDirection);
+//                }
             }
             else if (storedAttackDirection != null) {
                 GeneralManager.tryMove(storedAttackDirection, false);
