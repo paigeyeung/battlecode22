@@ -24,8 +24,8 @@ strictfp class DebugManager {
      * - Light blue line is storedAttackDirection
      * - Green line is encircle nearest ally Archon
      */
-    static boolean drawMinerLines = true;
-    static boolean drawSoldierLines = true;
+    static boolean drawMinerLines = false;
+    static boolean drawSoldierLines = false;
 
     static void sanityCheck() {
         if (ArchonTrackerManager.receivedArchonTrackers) {
@@ -60,6 +60,7 @@ strictfp class DebugManager {
     }
 
     static void drawResourceLocations() throws GameActionException {
+        if (!drawMinerLines) return;
         ResourceLocationsManager.ResourceLocation[] resourceLocations = ResourceLocationsManager.readResourceLocations();
         for (ResourceLocationsManager.ResourceLocation resourceLocation : resourceLocations) {
             if (!resourceLocation.isUsed) {

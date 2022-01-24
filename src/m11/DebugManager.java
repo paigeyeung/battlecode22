@@ -23,9 +23,15 @@ strictfp class DebugManager {
      * - Medium blue line is scout direction
      * - Light blue line is storedAttackDirection
      * - Green line is encircle nearest ally Archon
+     * Sage
+     * - Green line is encircle nearest ally Archon
+     * - Orange line is move towards target enemy Archon
+     * - Medium blue line is move for charge
+     * - Light blue line is move for fury
      */
-    static boolean drawMinerLines = true;
-    static boolean drawSoldierLines = true;
+    static final boolean drawMinerLines = true;
+    static final boolean drawSoldierLines = false;
+    static final boolean drawSageLines = true;
 
     static void sanityCheck() {
         if (ArchonTrackerManager.receivedArchonTrackers) {
@@ -60,6 +66,7 @@ strictfp class DebugManager {
     }
 
     static void drawResourceLocations() throws GameActionException {
+        if (!drawMinerLines) return;
         ResourceLocationsManager.ResourceLocation[] resourceLocations = ResourceLocationsManager.readResourceLocations();
         for (ResourceLocationsManager.ResourceLocation resourceLocation : resourceLocations) {
             if (!resourceLocation.isUsed) {
