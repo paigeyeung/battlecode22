@@ -149,6 +149,7 @@ strictfp class SageStrategy {
             if (RobotPlayer.rc.getActionCooldownTurns() > 100) {
                 // Move toward ally Archon
                 MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
+                if (DebugManager.drawSageLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, nearestAllyArchonLocation, 0, 255, 0);
                 GeneralManager.tryMove(getSageDirToEncircle(nearestAllyArchonLocation,4), false);
             }
             else if (RobotPlayer.rc.getActionCooldownTurns() > 20) {
@@ -159,6 +160,7 @@ strictfp class SageStrategy {
                     targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[centralEnemyArchon].getGuessLocation();
                 }
                 if (targetEnemyArchonGuessLocation != null) {
+                    if (DebugManager.drawSageLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, targetEnemyArchonGuessLocation, 255, 175, 0);
                     GeneralManager.tryMove(getSageDirToEncircle(targetEnemyArchonGuessLocation, 4), false);
                 } else {
                     GeneralManager.tryMove(GeneralManager.getRandomDirection(), true);
@@ -201,6 +203,7 @@ strictfp class SageStrategy {
 
                 if (useChargeScore > useFuryScore && useChargeScore > 150) {
                     if (moveForCharge) {
+                        if (DebugManager.drawSageLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, GeneralManager.myLocation.add(maxChargeScoreDirection), 0, 100, 100);
                         GeneralManager.tryMove(maxChargeScoreDirection, false);
                     }
                     if (RobotPlayer.rc.canEnvision(AnomalyType.CHARGE)) {
@@ -209,6 +212,7 @@ strictfp class SageStrategy {
                 }
                 else if (useFuryScore > useChargeScore && useFuryScore > 150) {
                     if (moveForFury) {
+                        if (DebugManager.drawSageLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, GeneralManager.myLocation.add(maxFuryScoreDirection), 0, 255, 255);
                         GeneralManager.tryMove(maxFuryScoreDirection, false);
                     }
                     if (RobotPlayer.rc.canEnvision(AnomalyType.FURY)) {
@@ -216,10 +220,12 @@ strictfp class SageStrategy {
                     }
                 }
                 else {
-                    if (increaseInChargeScore >= increaseInFuryScore && maxChargeScoreDirection != null) {
+                    if (increaseInChargeScore >= increaseInFuryScore && maxChargeScore > 50 && maxChargeScoreDirection != null) {
+                        if (DebugManager.drawSageLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, GeneralManager.myLocation.add(maxChargeScoreDirection), 0, 100, 100);
                         GeneralManager.tryMove(maxChargeScoreDirection, false);
                     }
-                    else if (maxFuryScoreDirection != null) {
+                    else if (maxFuryScore > 50 && maxFuryScoreDirection != null) {
+                        if (DebugManager.drawSageLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, GeneralManager.myLocation.add(maxFuryScoreDirection), 0, 255, 255);
                         GeneralManager.tryMove(maxFuryScoreDirection, false);
                     }
                     else {
@@ -230,6 +236,7 @@ strictfp class SageStrategy {
                             targetEnemyArchonGuessLocation = ArchonTrackerManager.enemyArchonTrackers[centralEnemyArchon].getGuessLocation();
                         }
                         if (targetEnemyArchonGuessLocation != null) {
+                            if (DebugManager.drawSageLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, targetEnemyArchonGuessLocation, 255, 175, 0);
                             GeneralManager.tryMove(getSageDirToEncircle(targetEnemyArchonGuessLocation, 4), false);
                         } else {
                             GeneralManager.tryMove(GeneralManager.getRandomDirection(), true);
