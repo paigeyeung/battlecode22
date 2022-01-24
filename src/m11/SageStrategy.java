@@ -146,7 +146,7 @@ strictfp class SageStrategy {
 //            }
 
             // William's version 2
-            if (RobotPlayer.rc.getActionCooldownTurns() > 100) {
+            if (RobotPlayer.rc.getActionCooldownTurns() > 120) {
                 // Move toward ally Archon
                 MapLocation nearestAllyArchonLocation = ArchonTrackerManager.getNearestAllyArchonLocation(GeneralManager.myLocation);
                 if (DebugManager.drawSageLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, nearestAllyArchonLocation, 0, 255, 0);
@@ -201,7 +201,7 @@ strictfp class SageStrategy {
                 boolean moveForFury = increaseInFuryScore > 25;
                 int useFuryScore = moveForFury ? maxFuryScore : currentFuryScore;
 
-                if (useChargeScore > useFuryScore && useChargeScore > 150) {
+                if (useChargeScore > useFuryScore && useChargeScore > 100) {
                     if (moveForCharge) {
                         if (DebugManager.drawSageLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, GeneralManager.myLocation.add(maxChargeScoreDirection), 0, 100, 100);
                         GeneralManager.tryMove(maxChargeScoreDirection, false);
@@ -210,7 +210,7 @@ strictfp class SageStrategy {
                         RobotPlayer.rc.envision(AnomalyType.CHARGE);
                     }
                 }
-                else if (useFuryScore > useChargeScore && useFuryScore > 150) {
+                else if (useFuryScore > useChargeScore && useFuryScore > 100) {
                     if (moveForFury) {
                         if (DebugManager.drawSageLines) RobotPlayer.rc.setIndicatorLine(GeneralManager.myLocation, GeneralManager.myLocation.add(maxFuryScoreDirection), 0, 255, 255);
                         GeneralManager.tryMove(maxFuryScoreDirection, false);
