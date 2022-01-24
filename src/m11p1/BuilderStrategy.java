@@ -1,4 +1,4 @@
-package m11;
+package m11p1;
 
 import battlecode.common.*;
 
@@ -53,6 +53,21 @@ strictfp class BuilderStrategy {
             }
         }
 
+        // Try to repair damaged building
+        for (int i = 0; i < actionableAllies.length; i++) {
+            RobotInfo allyRobot = actionableAllies[i];
+            if (Arrays.asList(GeneralManager.BUILDINGS).contains(allyRobot.getType())) {
+                if (allyRobot.getHealth() < allyRobot.getType().getMaxHealth(allyRobot.getLevel())) {
+                    if (RobotPlayer.rc.canRepair(allyRobot.location)) {
+                        RobotPlayer.rc.repair(allyRobot.location);
+                    }
+                }
+                else if(RobotPlayer.rc.canMutate(allyRobot.location) && !LabStrategy.isLab()) {
+                    RobotPlayer.rc.mutate(allyRobot.location);
+                }
+            }
+        }
+
         if((!LabStrategy.isLab() && !LabStrategy.isBuilderBuildingLab())
                 || buildingLab) {
             MapLocation corner = GeneralManager.getNearestCorner(
@@ -68,12 +83,13 @@ strictfp class BuilderStrategy {
                 }
             }
             else {
-                Direction nextBuildingDir = getNextBuilderDir(corner);
-                if(nextBuildingDir != null && RobotPlayer.rc.canMove(nextBuildingDir)) {
-                    DebugManager.log(nextBuildingDir + "");
-                    MapLocation loc = RobotPlayer.rc.adjacentLocation(nextBuildingDir);
-                    if (GeneralManager.visitedTurns[loc.x][loc.y] < 4)
-                        GeneralManager.tryMove(nextBuildingDir, false);
+                Direction dir = getNextBuilderDir(corner);
+
+                if(dir != null && RobotPlayer.rc.canMove(dir)) {
+                    MapLocation loc = RobotPlayer.rc.adjacentLocation(dir);
+                    if (GeneralManager.visitedTurns[loc.x][loc.y] < 4 &&
+                        GeneralManager.myLocation.distanceSquaredTo(corner) > 4)
+                        GeneralManager.tryMove(dir, false);
                     else {
                         Direction minRubbleBuildDir = null;
                         int minRubble = Integer.MAX_VALUE;
@@ -84,8 +100,8 @@ strictfp class BuilderStrategy {
                                 minRubbleBuildDir = GeneralManager.myLocation.directionTo(adj);
                             }
                         }
-                        if (minRubbleBuildDir != null && RobotPlayer.rc.canBuildRobot(RobotType.LABORATORY, minRubbleBuildDir)) {
-                            RobotPlayer.rc.buildRobot(RobotType.LABORATORY, minRubbleBuildDir);
+
+                        if (builderTryBuild(RobotType.LABORATORY, minRubbleBuildDir)) {
                             LabStrategy.setLabAlive();
                             buildingLab = false;
                         }
@@ -113,21 +129,6 @@ strictfp class BuilderStrategy {
                 }
             }
         }
-
-        // Try to repair damaged building
-        for (int i = 0; i < actionableAllies.length; i++) {
-            RobotInfo allyRobot = actionableAllies[i];
-            if (Arrays.asList(GeneralManager.BUILDINGS).contains(allyRobot.getType())) {
-                if (allyRobot.getHealth() < allyRobot.getType().getMaxHealth(allyRobot.getLevel())) {
-                    if (RobotPlayer.rc.canRepair(allyRobot.location)) {
-                        RobotPlayer.rc.repair(allyRobot.location);
-                    }
-                }
-                else if(RobotPlayer.rc.canMutate(allyRobot.location) && RobotPlayer.rc.getTeamLeadAmount(GeneralManager.myTeam) > 600) {
-                    RobotPlayer.rc.mutate(allyRobot.location);
-                }
-            }
-        }
     }
 
     static Direction getNextBuilderDir(MapLocation dest) throws GameActionException {
@@ -146,7 +147,7 @@ strictfp class BuilderStrategy {
                 MapLocation adj = RobotPlayer.rc.adjacentLocation(dir);
                 int newDist = adj.distanceSquaredTo(dest);
                 int newRubble = RobotPlayer.rc.senseRubble(adj);
-                int newF = (int)Math.sqrt(newDist) * 50 + newRubble + 20 * GeneralManager.visitedTurns[adj.x][adj.y];
+                int newF = (int)Math.sqrt(newDist) * 4 + newRubble + 20 * GeneralManager.visitedTurns[adj.x][adj.y];
 
                 MapLocation[] adjToAdj = RobotPlayer.rc.getAllLocationsWithinRadiusSquared(adj,2);
 

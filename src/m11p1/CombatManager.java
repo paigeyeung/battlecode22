@@ -1,4 +1,4 @@
-package m11;
+package m11p1;
 
 import battlecode.common.*;
 
@@ -127,34 +127,34 @@ strictfp class CombatManager {
 
         COMBAT_DROID_ACTIONS chosenAction = COMBAT_DROID_ACTIONS.ATTACK;
 
-        if(savedEnemyCombatScore <= allyCombatScore * (0.7 + 1 / (RobotPlayer.rc.getRoundNum() / 10 + 2))) {
+        if(savedEnemyCombatScore <= allyCombatScore * (0.6 + 1 / (RobotPlayer.rc.getRoundNum() / 10 + 2))) {
             RobotPlayer.rc.writeSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE, 0);
             retreating = false;
             chosenAction = CombatManager.COMBAT_DROID_ACTIONS.ATTACK;
         }
 
 //        DebugManager.log(allyCombatScore + "       " + (allyCombatScore < 10 + 10 * RobotPlayer.rc.getRoundNum() / 200));
-        if ((enemyCombatScore > allyCombatScore * 0.9 || savedEnemyCombatScore > allyCombatScore * 0.9) &&
+        if ((enemyCombatScore > allyCombatScore * 0.9 || savedEnemyCombatScore > allyCombatScore * 0.8) &&
                 !retreating) {
             chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
-            if (enemyCombatScore < allyCombatScore || distToNearestAllyArchon <= 16) {
-                if(RobotPlayer.rc.getRoundNum() < 200)
-                    chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
-            }
-            else {
+//            if (enemyCombatScore < allyCombatScore || distToNearestAllyArchon <= 16) {
+//                if(RobotPlayer.rc.getRoundNum() < 100)
+//                    chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
+//            }
+//            else {
                 retreating = true;
                 if(enemyCombatScore > savedEnemyCombatScore)
                     RobotPlayer.rc.writeSharedArray(CommunicationManager.SAVED_ENEMY_COMBAT_SCORE, (int)enemyCombatScore);
-            }
+//            }
         }
 
         if(retreating) {
-            if (distToNearestAllyArchon > 16)
+            if (distToNearestAllyArchon > 25)
                 chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
             else {
                 if(RobotPlayer.rc.getHealth() < HEALTH_PERCENTAGE_THRESHOLD_FOR_DISINTEGRATING
                     * GeneralManager.myType.getMaxHealth(RobotPlayer.rc.getLevel()) &&
-                    RobotPlayer.rc.getType().equals(RobotType.SOLDIER)) {
+                    enemyCombatScore == 0) {
                     if(distToNearestAllyArchon <= 4) {
                         DebugManager.log("I'm disintegrating");
                         RobotPlayer.rc.disintegrate();
@@ -169,18 +169,6 @@ strictfp class CombatManager {
         if(RobotPlayer.rc.getRoundNum() > 20 && RobotPlayer.rc.getRoundNum() < 150) {
             chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
         }
-
-//        if(ArchonTrackerManager.findMaxEnemyCombatScoreAtArchon() > 50 &&
-//            GeneralManager.myLocation.distanceSquaredTo(
-//                    ArchonTrackerManager.allyArchonTrackers[ArchonResourceManager.findArchonNeedingSoldiers()].location)
-//                    < 150) {
-//            retreating = true;
-//            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.RETREAT;
-//        }
-
-//        if(RobotPlayer.rc.getRoundNum() > 10 && RobotPlayer.rc.getRoundNum() < 100) {
-//            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;
-//        }
 
 //        else if(RobotPlayer.rc.getRoundNum() < 20 && Integer.max(RobotPlayer.rc.getMapHeight(),RobotPlayer.rc.getMapWidth()) < 30) {
 //            chosenAction = CombatManager.COMBAT_DROID_ACTIONS.HOLD;

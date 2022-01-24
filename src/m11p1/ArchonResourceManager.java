@@ -1,4 +1,4 @@
-package m11;
+package m11p1;
 
 import battlecode.common.*;
 
@@ -177,12 +177,12 @@ strictfp class ArchonResourceManager {
             // If an enemy has not been seen at any ally Archon, build only Miners
             // Unless too many miners already
 
-            if (!anySeenEnemy && (totalMinersBuilt < 12 && totalMinersBuilt < totalDroidsBuilt * 0.7)) {
+            if (!anySeenEnemy && (totalMinersBuilt < 9 && totalMinersBuilt < totalDroidsBuilt * 0.7)) {
                 chosenBuild = RobotType.MINER;
             }
-            // Maintain 15% proportion of build miners
-            else if (totalMinersBuilt < totalDroidsBuilt * MINER_BUILD_PROPORTION ||
-                    (totalMinersBuilt < 4 && totalMinersBuilt < totalDroidsBuilt * 0.5)) {
+            // Maintain proportion of build miners
+            else if (((totalMinersBuilt < totalDroidsBuilt * (MINER_BUILD_PROPORTION + (double)RobotPlayer.rc.getRoundNum()/10000))||
+                    (totalMinersBuilt < 4 && totalMinersBuilt < totalDroidsBuilt * 0.5))) {
                 chosenBuild = RobotType.MINER;
             }
             // Otherwise, build sages or soldiers
@@ -190,13 +190,14 @@ strictfp class ArchonResourceManager {
                 chosenBuild = RobotType.SAGE;
             }
             else if(ArchonTrackerManager.findMaxEnemyCombatScoreAtArchon() > 47 ||
-                    (ArchonTrackerManager.findMaxEnemyCombatScoreAtArchon() > 49 && RobotPlayer.rc.getRoundNum() < 200) ||
+                    (ArchonTrackerManager.findMaxEnemyCombatScoreAtArchon() > 49 &&
+                            (RobotPlayer.rc.getRoundNum() < 300 || !LabStrategy.isLab())) ||
                     totalSoldiersBuilt < RobotPlayer.rc.getRoundNum()/20 ||
                     lead > 500)
             {
                 chosenBuild = RobotType.SOLDIER;
             }
-            else if(totalBuildersBuilt < RobotPlayer.rc.getRoundNum()/400 + 1) {
+            else if(totalBuildersBuilt < RobotPlayer.rc.getRoundNum()/400 + 2) {
                 chosenBuild = RobotType.BUILDER;
             }
 
@@ -238,7 +239,7 @@ strictfp class ArchonResourceManager {
                     break;
                 }
 
-                if(ArchonTrackerManager.getEnemyCombatScoreAtArchon(chosenArchonIndex) < 46 &&
+                if(ArchonTrackerManager.getEnemyCombatScoreAtArchon(chosenArchonIndex) < 48 &&
                     totalBuildersBuilt < RobotPlayer.rc.getRoundNum()/400 + 2) {
                     chosenBuild = RobotType.BUILDER;
                 }
