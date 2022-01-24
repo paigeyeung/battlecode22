@@ -23,9 +23,15 @@ strictfp class DebugManager {
      * - Medium blue line is scout direction
      * - Light blue line is storedAttackDirection
      * - Green line is encircle nearest ally Archon
+     * Sage
+     * - Green line is encircle nearest ally Archon
+     * - Orange line is move towards target enemy Archon
+     * - Medium blue line is move for charge
+     * - Light blue line is move for fury
      */
-    static boolean drawMinerLines = false;
-    static boolean drawSoldierLines = false;
+    static final boolean drawMinerLines = true;
+    static final boolean drawSoldierLines = false;
+    static final boolean drawSageLines = true;
 
     static void sanityCheck() {
         if (ArchonTrackerManager.receivedArchonTrackers) {
