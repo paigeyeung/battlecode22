@@ -97,7 +97,7 @@ strictfp class BuilderStrategy {
                                 minRubbleBuildDir = GeneralManager.myLocation.directionTo(adj);
                             }
                         }
-                        if (RobotPlayer.rc.canBuildRobot(RobotType.LABORATORY, minRubbleBuildDir)) {
+                        if (minRubbleBuildDir != null && RobotPlayer.rc.canBuildRobot(RobotType.LABORATORY, minRubbleBuildDir)) {
                             RobotPlayer.rc.buildRobot(RobotType.LABORATORY, minRubbleBuildDir);
                             LabStrategy.setLabAlive();
                             buildingLab = false;
