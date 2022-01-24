@@ -83,10 +83,11 @@ strictfp class BuilderStrategy {
                 }
             }
             else {
-                if(getNextBuilderDir(corner) != null && RobotPlayer.rc.canMove(getNextBuilderDir(corner))) {
-                    MapLocation loc = RobotPlayer.rc.adjacentLocation(getNextBuilderDir(corner));
+                Direction nextBuildingDir = getNextBuilderDir(corner);
+                if(nextBuildingDir != null && RobotPlayer.rc.canMove(nextBuildingDir)) {
+                    MapLocation loc = RobotPlayer.rc.adjacentLocation(nextBuildingDir);
                     if (GeneralManager.visitedTurns[loc.x][loc.y] < 4)
-                        GeneralManager.tryMove(getNextBuilderDir(corner), false);
+                        GeneralManager.tryMove(nextBuildingDir, false);
                     else {
                         Direction minRubbleBuildDir = null;
                         int minRubble = Integer.MAX_VALUE;
